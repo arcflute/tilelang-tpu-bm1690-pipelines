@@ -1311,6 +1311,24 @@ void CodeGenTileLangTPU::VisitStmt_(const LetStmtNode *op) {
 }
 
 void CodeGenTileLangTPU::VisitStmt_(const AttrStmtNode *op) {
+  if (op->attr_key == "tilelang.tpu.pipeline_parallel") {
+    const auto *value = op->value.as<IntImmNode>();
+    ICHECK(target_chip_ == "bm1690" &&
+           target_programming_model_ == "tpukernel" && value && value->value == 1)
+        << "TPU pipeline parallel scope requires BM1690 TPU-Kernel and value 1";
+    // CModel checks the scheduled buffer/dataflow program serially. Keep the
+    // hardware source intact and make that distinction explicit in the build.
+    stream << "#ifndef USING_CMODEL\n";
+    PrintIndent();
+    stream << "tpu_parallel_start();\n";
+    stream << "#endif\n";
+    PrintStmt(op->body);
+    stream << "#ifndef USING_CMODEL\n";
+    PrintIndent();
+    stream << "tpu_parallel_end();\n";
+    stream << "#endif\n";
+    return;
+  }
   LOG(FATAL) << "Residual AttrStmt " << op->attr_key
              << " reached TPU source codegen; target passes must consume "
                 "attributes instead of silently discarding their semantics";

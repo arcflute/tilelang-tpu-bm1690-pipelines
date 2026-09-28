@@ -8,7 +8,71 @@ import os
 
 
 def pipeline_cases():
-    return []
+    return ["elementwise-add"]
+
+
+def run_pipeline_case(case, seed, size, stages=2):
+    """Compare identical arithmetic/tiling, using independent reference math."""
+    from pathlib import Path
+    import hashlib
+    import torch
+    import tilelang
+    from tpu_demo.common import comparison, configure_runtime, tolerance
+    from tpu_demo.pipeline.kernels import build_elementwise_tiled
+
+    configure_runtime("cmodel", False, None, chip="bm1690")
+    generator = torch.Generator().manual_seed(seed)
+    rows, width = (8, 128) if size == "smoke" else (1024, 1024)
+    if case != "elementwise-add":
+        raise ValueError(f"unknown pipeline case {case}")
+    lhs = torch.randn((rows, width), generator=generator).half()
+    rhs = torch.randn((rows, width), generator=generator).half()
+    expected = (lhs.float() + rhs.float()).half()
+    inputs = [lhs, rhs]
+    originals = [tensor.clone() for tensor in inputs]
+    variants = {}
+    outputs = []
+    for name, depth in (("serial", 0), ("pipeline", stages)):
+        function = build_elementwise_tiled(rows=rows, width=width, num_stages=depth)
+        artifact = tilelang.lower(function, target="tpu -mcpu=bm1690 -tpu-programming-model=tpukernel",
+                                  runtime_mode="cmodel")
+        Path(name + ".c").write_text(artifact.kernel_source)
+        Path(name + ".tir").write_text(artifact.host_mod.script() + "\n" + artifact.device_mod.script())
+        reports = []
+        addresses = {}
+        for module in (artifact.host_mod, artifact.device_mod):
+            for lowered in module.functions.values():
+                if lowered.attrs:
+                    report = lowered.attrs.get("tilelang.tpu.pipeline_report")
+                    if report is not None:
+                        reports.extend(json.loads(str(report)))
+                    addresses.update({str(key): int(value) for key, value in lowered.attrs.items()
+                                      if str(key).startswith("tilelang.tpu.lmem.address.")})
+        if depth and (not reports or "tpu_parallel_start();" not in artifact.kernel_source):
+            raise AssertionError("pipeline annotation did not produce a schedule and parallel scope")
+        kernel = tilelang.compile(function, out_idx=-1,
+                                  target="tpu -mcpu=bm1690 -tpu-programming-model=tpukernel",
+                                  runtime_mode="cmodel")
+        output = torch.full_like(expected, float("nan"))
+        kernel(*inputs, output)
+        for original, actual in zip(originals, inputs):
+            if not torch.equal(original, actual):
+                raise AssertionError("kernel modified a read-only input")
+        atol, rtol = tolerance("float16", "elementwise")
+        variants[name] = {
+            "reference": comparison(output, expected, atol=atol, rtol=rtol),
+            "source_sha256": hashlib.sha256(artifact.kernel_source.encode()).hexdigest(),
+            "schedules": reports, "local_addresses": addresses,
+            "output_sha256": hashlib.sha256(output.numpy().tobytes()).hexdigest(),
+        }
+        outputs.append(output)
+    equal = torch.equal(*outputs)
+    if not equal:
+        raise AssertionError("pipeline changed same-tile serial results")
+    return {"status": "passed", "case": case, "shape": [rows, width], "dtype": "float16",
+            "seed": seed, "num_stages": stages, "serial_pipeline_bitwise_equal": equal,
+            "variants": variants, "cmodel_parallel_execution": False,
+            "hardware_overlap_verified": False, "device_performance_measured": False}
 
 
 def main():
@@ -31,7 +95,7 @@ def main():
         result = run_case(args.case, chip="bm1690", programming_model="tpukernel",
                           runtime_mode="cmodel", seed=args.seed)
     else:
-        raise ValueError("pipeline cases are registered as their implementations are validated")
+        result = run_pipeline_case(args.case, args.seed, args.size)
     print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
 
 

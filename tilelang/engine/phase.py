@@ -82,6 +82,8 @@ def _finalize_scheduled_ir(
 
 def _optimize_tpu(mod: IRModule) -> IRModule:
     """Apply only transformations with a validated conservative TPU meaning."""
+    from tilelang.engine.tpu_pipeline import lower_tpu_pipelines
+    mod = lower_tpu_pipelines(mod)
     mod = tilelang.transform.IfStmtBinding()(mod)
     mod = tir.transform.PlanAndUpdateBufferAllocationLocation()(mod)
     mod = tilelang.transform.MergeIfStmt()(mod)
@@ -89,8 +91,9 @@ def _optimize_tpu(mod: IRModule) -> IRModule:
     # structured DeclBuffer/Allocate pairs consumed by TPU codegen. BM1690 and
     # SG2260E share this LMEM geometry; their programming models diverge later
     # during target-selected code generation, not in these semantic passes.
-    # Software-pipeline planning/injection remains disabled until TPU DMA and
-    # compute operations have an explicit dependency/token model.  Likewise,
+    # The generic pipeline passes remain disabled. The TPU-specific pass above
+    # accepts only independently versioned loads with an ordered compute chain
+    # and explicit parallel boundaries. Likewise,
     # vectorization must not run before TPU code generation supports residual
     # vector IR.  Both optimizations have previously produced source that was
     # syntactically plausible but did not preserve the serial program.

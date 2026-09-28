@@ -447,6 +447,9 @@ private:
       }
     }
     auto &range = it->second;
+    for (auto &scope : parallel_scopes_) {
+      scope.external_buffers_used.insert(buffer);
+    }
     if (!seen_buffers_.count(buffer)) {
       range.start = current_loc_;
       range.end = current_loc_ + 1;
@@ -642,10 +645,30 @@ private:
     FinishLoop();
   }
 
+  void VisitStmt_(const AttrStmtNode *op) final {
+    if (op->attr_key != "tilelang.tpu.pipeline_parallel") {
+      StmtExprVisitor::VisitStmt_(op);
+      return;
+    }
+    parallel_scopes_.push_back({NextLoc(), {}});
+    VisitStmt(op->body);
+    const uint32_t end = NextLoc();
+    // Logical disjointness is not enough: asynchronous DMA destinations must
+    // not reuse physical storage belonging to any concurrent compute operand.
+    // Include allocations inside the scope, not just loop-external buffers.
+    for (const BufferNode *buffer : parallel_scopes_.back().external_buffers_used) {
+      auto &range = live_ranges_->at(buffer);
+      range.start = std::min(range.start, parallel_scopes_.back().start);
+      range.end = std::max(range.end, end);
+    }
+    parallel_scopes_.pop_back();
+  }
+
   struct LoopLiveScope {
     uint32_t start;
     std::unordered_set<const BufferNode *> external_buffers_used;
   };
+  std::vector<LoopLiveScope> parallel_scopes_;
 
   std::unordered_map<const VarNode *, const BufferNode *> buffer_var_to_buffer_;
   std::unordered_map<const BufferNode *, size_t> allocation_loop_depth_;

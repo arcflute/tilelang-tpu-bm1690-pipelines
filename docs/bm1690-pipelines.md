@@ -57,3 +57,23 @@ Initial target workloads use FP16 and 1024x1024 2-D tensors, Matmul M=N=K=1024,
 and proposed attention B=1,S=1024,H=1,D=64 (1024x1024 attention scores).
 Small functional cases precede target sizes. Existing dtype, rounding, layout,
 epsilon and exact-tiling contracts remain authoritative.
+
+## TPU pipeline contract
+
+`tilelang/engine/tpu_pipeline.py` is a target-specific scheduling/injection path,
+called before allocation placement. The old generic injector is still disabled:
+its descriptor Let aliases are incompatible with this branch's typed ABI.
+The new path models `tl.tpu.*` effects, accepts independent full-tile global
+loads and an ordered local compute chain with trailing stores, and rejects
+unknown effects, escaping prefetched values, global recurrences and mutable
+prefetch destinations. Two/three stages use separate Allocate-owned buffers.
+Explicit schedules must match the lowered-body fingerprint and pass conservative
+RAW/WAR/WAW checks; arbitrary stage assignments are intentionally unsupported.
+
+The steady loop prefetches a later iteration into a distinct version and computes
+the current iteration in a parallel scope. Output stores remain outside that
+scope. AddressAssign extends the live intervals of all concurrent buffers, and
+the final IR verifier independently rejects overlapping producer/consumer data.
+Generated C retains `tpu_parallel_start/end` under `#ifndef USING_CMODEL`.
+The existing CModel build defines `USING_CMODEL`: numerical validation therefore
+does not validate physical overlap or the board's synchronization implementation.

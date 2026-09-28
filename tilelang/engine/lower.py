@@ -504,6 +504,13 @@ def _validate_tpu_residual_ir(mod: tvm.IRModule, target: Target, tpu_config) -> 
                     "only serial and unrolled loops may reach source codegen")
 
             if isinstance(node, tir.AttrStmt):
+                if (node.attr_key == "tilelang.tpu.pipeline_parallel" and
+                        tpu_config.chip == "bm1690" and tpu_config.programming_model == "tpukernel" and
+                        function.attrs and "tilelang.tpu.pipeline_report" in function.attrs and
+                        isinstance(node.value, tir.IntImm) and int(node.value) == 1):
+                    from tilelang.engine.tpu_pipeline import validate_parallel_scope
+                    validate_parallel_scope(node)
+                    return
                 raise _tpu_contract_error(
                     target, function_name, "AttrStmt",
                     f"attribute {node.attr_key!r} has no residual TPU meaning; "

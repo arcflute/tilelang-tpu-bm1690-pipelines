@@ -1,0 +1,677 @@
+{
+  "chip": "bm1690",
+  "complete": true,
+  "device_performance_measured": false,
+  "evidence_note": "CModel numerical validation; generated parallel scopes are serial in CModel. No board/overlap/performance claim.",
+  "finished_at": "2026-09-28T14:43:28.278023+00:00",
+  "hardware_overlap_verified": false,
+  "identity": {
+    "branch": "feature/bm1690-pipelines",
+    "commit": "2aef9acc27b921bdc6c9a56e3503258768df26f3",
+    "dirty": true,
+    "native_libraries": {
+      "build-tpu/libtilelang_module.so": "77b03d1513a55f15100b98bcbd8c6d2e552c8c884a925279587d18fbcb6f4747",
+      "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+    },
+    "ppl_root": "/home/admin3/toolchains/ppl_v1.7.122-g05ebfb36-20260528",
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "source_sha256": "61ddf57622416d9cf0fa4cf8f8ba04971b84ec33e5463893921647f105608939",
+    "tvm_gitlink": "160000 commit a8a54d2b1f43c23a47f2fc08779654918eae6464\t3rdparty/tvm"
+  },
+  "launch_cores": 1,
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_rss_mib": 4096,
+    "threads": 1,
+    "timeout_s": 120
+  },
+  "passed": 15,
+  "programming_model": "tpukernel",
+  "requested_cases": [
+    "elementwise-add.float16",
+    "elementwise-sub.float16",
+    "elementwise-mul.float16",
+    "elementwise-div.float16",
+    "matmul.float16",
+    "rmsnorm.float16",
+    "rmsnorm-splitk.float16",
+    "rope.float16",
+    "swiglu.float16",
+    "flashattn.float16.balanced",
+    "flashattn.float16.descending-max",
+    "flashattn.float16.weighted-keys",
+    "flashattn.float16.balanced.causal",
+    "flashattn.float16.descending-max.causal",
+    "flashattn.float16.weighted-keys.causal"
+  ],
+  "results": [
+    {
+      "case": "elementwise-add.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.005,
+          "element_count": 128,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "operation": "elementwise-add",
+        "parameters": {
+          "kernel_variant": "elementwise_add",
+          "seed": 0,
+          "shape": [
+            4,
+            32
+          ]
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.5988649569999325,
+          "launch_seconds": 0.06257821200051694
+        }
+      },
+      "peak_group_rss_bytes": 768815104,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.091368749999674
+    },
+    {
+      "case": "elementwise-sub.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.005,
+          "element_count": 128,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "operation": "elementwise-sub",
+        "parameters": {
+          "kernel_variant": "elementwise_sub",
+          "seed": 0,
+          "shape": [
+            4,
+            32
+          ]
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.5839772929994069,
+          "launch_seconds": 0.21168116300032125
+        }
+      },
+      "peak_group_rss_bytes": 769175552,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 1.89716873999987
+    },
+    {
+      "case": "elementwise-mul.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.005,
+          "element_count": 128,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "operation": "elementwise-mul",
+        "parameters": {
+          "kernel_variant": "elementwise_mul",
+          "seed": 0,
+          "shape": [
+            4,
+            32
+          ]
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.5847343909999836,
+          "launch_seconds": 0.08491884300019592
+        }
+      },
+      "peak_group_rss_bytes": 768884736,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 1.7919358830004057
+    },
+    {
+      "case": "elementwise-div.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.01,
+          "element_count": 128,
+          "finite": true,
+          "max_abs_error": 0.0029296875,
+          "mean_abs_error": 0.00040626898407936096,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "operation": "elementwise-div",
+        "parameters": {
+          "kernel_variant": "elementwise_div",
+          "seed": 0,
+          "shape": [
+            4,
+            32
+          ]
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.5790575510000053,
+          "launch_seconds": 0.10680667599990556
+        }
+      },
+      "peak_group_rss_bytes": 769216512,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.00223643299978
+    },
+    {
+      "case": "matmul.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.01,
+          "element_count": 1024,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mean_abs_error": 1.2014061212539673e-07,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "operation": "matmul",
+        "parameters": {
+          "block": 16,
+          "fp32_compute_dtype": null,
+          "k": 32,
+          "kernel_variant": "matmul_low_precision",
+          "m": 32,
+          "n": 32,
+          "seed": 0
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.5998565569998391,
+          "launch_seconds": 0.04986482700041961
+        }
+      },
+      "peak_group_rss_bytes": 841953280,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.2129632209998817
+    },
+    {
+      "case": "rmsnorm.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.01,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "operation": "rmsnorm",
+        "parameters": {
+          "block_k": null,
+          "block_rows": 4,
+          "epsilon": 1e-12,
+          "kernel_variant": "rmsnorm_low_precision",
+          "rows": 8,
+          "seed": 0,
+          "width": 64
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6157573489999777,
+          "launch_seconds": 0.09154269600003317
+        }
+      },
+      "peak_group_rss_bytes": 839630848,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.106441451000137
+    },
+    {
+      "case": "rmsnorm-splitk.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.01,
+          "element_count": 1024,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "operation": "rmsnorm-splitk",
+        "parameters": {
+          "block_k": 32,
+          "block_rows": 4,
+          "epsilon": 1e-12,
+          "kernel_variant": "rmsnorm_splitk_low_precision",
+          "rows": 8,
+          "seed": 0,
+          "width": 128
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6087160769993716,
+          "launch_seconds": 0.11421060900011071
+        }
+      },
+      "peak_group_rss_bytes": 838201344,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.2173042029999124
+    },
+    {
+      "case": "rope.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.005,
+          "element_count": 256,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "operation": "rope",
+        "parameters": {
+          "block_rows": 4,
+          "block_width": 32,
+          "kernel_variant": "rope",
+          "rows": 8,
+          "seed": 0,
+          "width": 32
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6184777050002594,
+          "launch_seconds": 0.09339537399955589
+        }
+      },
+      "peak_group_rss_bytes": 845365248,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.2088503069999206
+    },
+    {
+      "case": "swiglu.float16",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.01,
+          "element_count": 256,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "operation": "swiglu",
+        "parameters": {
+          "accumulation_dtype": "float32",
+          "block_rows": 4,
+          "block_width": 32,
+          "kernel_variant": "swiglu_low_precision",
+          "seed": 0,
+          "shape": [
+            8,
+            32
+          ]
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6045975959996213,
+          "launch_seconds": 0.10128488700047455
+        }
+      },
+      "peak_group_rss_bytes": 836681728,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.2253035570001884
+    },
+    {
+      "case": "flashattn.float16.balanced",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.000244140625,
+          "mean_abs_error": 7.62939453125e-06,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": false,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "balanced"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6675991820002309,
+          "launch_seconds": 0.059725019999859796
+        }
+      },
+      "peak_group_rss_bytes": 839032832,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.3299914059998628
+    },
+    {
+      "case": "flashattn.float16.descending-max",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": false,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "descending-max"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6606340899998031,
+          "launch_seconds": 0.07819938200009346
+        }
+      },
+      "peak_group_rss_bytes": 839233536,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.332332392000353
+    },
+    {
+      "case": "flashattn.float16.weighted-keys",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.000244140625,
+          "mean_abs_error": 9.94652509689331e-06,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": false,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "weighted-keys"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6659236460000102,
+          "launch_seconds": 0.08065956799964624
+        }
+      },
+      "peak_group_rss_bytes": 838520832,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.3173558020007476
+    },
+    {
+      "case": "flashattn.float16.balanced.causal",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.000244140625,
+          "mean_abs_error": 1.52587890625e-05,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": true,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "balanced"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6545021000001725,
+          "launch_seconds": 0.07017129999985627
+        }
+      },
+      "peak_group_rss_bytes": 838807552,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.009402697999576
+    },
+    {
+      "case": "flashattn.float16.descending-max.causal",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.00048828125,
+          "mean_abs_error": 3.4570693969726562e-06,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": true,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "descending-max"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6597054740004751,
+          "launch_seconds": 0.10772617799921136
+        }
+      },
+      "peak_group_rss_bytes": 838979584,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.220425923000221
+    },
+    {
+      "case": "flashattn.float16.weighted-keys.causal",
+      "cleanup_complete": true,
+      "numeric": {
+        "chip": "bm1690",
+        "dtype": "float16",
+        "metrics": {
+          "atol": 0.02,
+          "element_count": 512,
+          "finite": true,
+          "max_abs_error": 0.00048828125,
+          "mean_abs_error": 1.4900811947882175e-05,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.02
+        },
+        "operation": "flashattn",
+        "parameters": {
+          "batch": 1,
+          "block_m": 16,
+          "block_n": 16,
+          "fp32_compute_dtype": null,
+          "head_dim": 16,
+          "heads": 1,
+          "is_causal": true,
+          "kernel_variant": "flashattn_low_precision",
+          "seed": 0,
+          "sequence": 32,
+          "variant": "weighted-keys"
+        },
+        "programming_model": "tpukernel",
+        "runtime_mode": "cmodel",
+        "status": "passed",
+        "timing": {
+          "compile_seconds": 0.6552034349997484,
+          "launch_seconds": 0.08260641400011082
+        }
+      },
+      "peak_group_rss_bytes": 838393856,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 2.3244515750002392
+    }
+  ],
+  "runtime_mode": "cmodel",
+  "schema_version": 1,
+  "started_at": "2026-09-28T14:42:55.875104+00:00",
+  "suite": "baseline"
+}
