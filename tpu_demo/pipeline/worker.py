@@ -15,7 +15,7 @@ def pipeline_cases():
                 for variant in ("balanced","descending-max","weighted-keys","multihead")]
 
 
-def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers=False):
+def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers=False, cores=1):
     """Compare identical arithmetic/tiling, using independent reference math."""
     from pathlib import Path
     import hashlib
@@ -26,7 +26,8 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     generator = torch.Generator().manual_seed(seed)
-    rows, width = (8, 128) if size == "smoke" else (1024, 1024)
+    # Multicore smoke tiles must retain a steady state on every workitem.
+    rows, width = (max(8,4*cores), 128) if size == "smoke" else (1024, 1024)
     if case.startswith("elementwise-"):
         operation = case.split("-")[1]
         lhs = torch.randn((rows, width), generator=generator).half()
@@ -75,7 +76,7 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
             return pipeline_kernel_tiles(build_swiglu(**parameters),depth)
     elif case in ("rmsnorm", "rmsnorm-splitk"):
         from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm, build_rmsnorm_splitk
-        rows = 16 if size == "smoke" else 1024
+        rows = max(16,4*cores*stages) if size == "smoke" else 1024
         source = torch.randn((rows,width),generator=generator).half()
         # Exercise the epsilon path, small magnitudes, and nonuniform weights.
         source[0] = 0
@@ -131,6 +132,8 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
     variants = {}
     outputs = []
     candidates = [("serial", 0), ("pipeline", stages)]
+    if cores > 1:
+        candidates += [("multicore_serial",0),("multicore_pipeline",stages)]
     if reuse_buffers:
         if case != "swiglu":
             raise ValueError("buffer reuse is currently specific to SwiGLU")
@@ -140,6 +143,11 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
         if name.startswith("reuse_"):
             from tpu_demo.pipeline.kernels import reuse_swiglu_buffers
             function = reuse_swiglu_buffers(function)
+        launch_cores = cores if name.startswith("multicore_") else 1
+        if launch_cores > 1:
+            from tpu_demo.pipeline.workitems import map_workitems
+            loop = "tile" if case.startswith("elementwise-") else "output_tile" if case in ("rope","swiglu","rmsnorm") else None
+            function = map_workitems(function,launch_cores,tile_loop=loop)
         if depth and schedule != "auto":
             from tilelang.engine.tpu_pipeline import bind_explicit_schedule
             function = bind_explicit_schedule(
@@ -151,6 +159,8 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
         Path(name + ".tir").write_text(artifact.host_mod.script() + "\n" + artifact.device_mod.script())
         reports = []
         addresses = {}
+        local_bytes = {}
+        high_water = 0
         for module in (artifact.host_mod, artifact.device_mod):
             for lowered in module.functions.values():
                 if lowered.attrs:
@@ -159,6 +169,9 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
                         reports.extend(json.loads(str(report)))
                     addresses.update({str(key): int(value) for key, value in lowered.attrs.items()
                                       if str(key).startswith("tilelang.tpu.lmem.address.")})
+                    local_bytes.update({str(key): int(value) for key,value in lowered.attrs.items()
+                                        if str(key).startswith("tilelang.tpu.lmem.bytes.")})
+                    high_water = max(high_water,int(lowered.attrs.get("tilelang.tpu.lmem.high_water_bytes",0)))
         if depth and (not reports or "tpu_parallel_start();" not in artifact.kernel_source):
             raise AssertionError("pipeline annotation did not produce a schedule and parallel scope")
         kernel = tilelang.compile(function, out_idx=-1,
@@ -174,6 +187,8 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
             "reference": comparison(output, expected, atol=atol, rtol=rtol),
             "source_sha256": hashlib.sha256(artifact.kernel_source.encode()).hexdigest(),
             "schedules": reports, "local_addresses": addresses,
+            "local_bytes_per_lane": local_bytes, "lmem_high_water_bytes_per_lane": high_water,
+            "launch_cores":launch_cores,
             "output_sha256": hashlib.sha256(output.numpy().tobytes()).hexdigest(),
         }
         outputs.append(output)
@@ -183,19 +198,46 @@ def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers
     return {"status": "passed", "case": case, "parameters": parameters, "dtype": "float16",
             "seed": seed, "num_stages": stages, "schedule": schedule, "serial_pipeline_bitwise_equal": equal,
             "reuse_swiglu_buffers": reuse_buffers,
+            "launch_cores":cores,
             "variants": variants, "cmodel_parallel_execution": False,
             "hardware_overlap_verified": False, "device_performance_measured": False}
 
 
+def run_workitem_probe(cores):
+    from pathlib import Path
+    import torch
+    import tilelang
+    from tpu_demo.common import configure_runtime
+    from tpu_demo.pipeline.workitems import build_workitem_probe
+    configure_runtime("cmodel",False,None,chip="bm1690")
+    tasks = 11
+    source = (torch.arange(tasks*32).reshape(tasks,32)%17+1).half()
+    output = torch.full((cores,tasks,32),float("nan"),dtype=torch.float16)
+    expected = torch.zeros_like(output)
+    for task in range(tasks):
+        expected[task%cores,task] = source[task]
+    function = build_workitem_probe(cores,tasks)
+    target = "tpu -mcpu=bm1690 -tpu-programming-model=tpukernel"
+    artifact = tilelang.lower(function,target=target,runtime_mode="cmodel")
+    Path("workitems.c").write_text(artifact.kernel_source)
+    kernel = tilelang.compile(function,out_idx=-1,target=target,runtime_mode="cmodel")
+    kernel(source,output)
+    if not torch.equal(output,expected):
+        raise AssertionError("workitem ABI/coverage probe failed")
+    return {"status":"passed","launch_cores":cores,"tasks":tasks,"exact_ownership":True,
+            "device_performance_measured":False,"hardware_overlap_verified":False}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", required=True, choices=("baseline", "pipeline"))
+    parser.add_argument("--suite", required=True, choices=("baseline", "pipeline", "workitems"))
     parser.add_argument("--case", required=True)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--size", choices=("smoke", "target"), default="smoke")
     parser.add_argument("--stages", type=int, choices=(2, 3), default=2)
     parser.add_argument("--schedule", choices=("auto", "explicit", "reverse-loads"), default="auto")
     parser.add_argument("--reuse-swiglu-buffers", action="store_true")
+    parser.add_argument("--cores",type=int,choices=(1,2,4,8),default=1)
     args = parser.parse_args()
     cpus = os.environ.get("BM1690_PIPELINE_CPUS")
     if not cpus:
@@ -209,9 +251,11 @@ def main():
         from tpu_demo.run import run_case
         result = run_case(args.case, chip="bm1690", programming_model="tpukernel",
                           runtime_mode="cmodel", seed=args.seed)
+    elif args.suite == "workitems":
+        result = run_workitem_probe(args.cores)
     else:
         result = run_pipeline_case(args.case, args.seed, args.size, args.stages, args.schedule,
-                                   args.reuse_swiglu_buffers)
+                                   args.reuse_swiglu_buffers,args.cores)
     print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
 
 

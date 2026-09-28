@@ -1,0 +1,27 @@
+test_memory_guard_is_a_failure (test_bm1690_pipeline_runner_unittest.RunnerTests) ... ok
+test_result_requires_numeric_payload_and_successful_exit (test_bm1690_pipeline_runner_unittest.RunnerTests) ... ok
+test_timeout_stops_descendants (test_bm1690_pipeline_runner_unittest.RunnerTests) ... ok
+test_worker_environment_pins_limits_and_removes_board_flags (test_bm1690_pipeline_runner_unittest.RunnerTests) ... ok
+test_attention_only_versions_k_v_mask (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_explicit_candidate_uses_current_ir_and_rejects_stale_or_dependent_order (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_explicit_schedule_requires_complete_current_contract (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_global_recurrence_is_not_prefetched (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_independent_descriptors_cannot_alias_physical_parallel_storage (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_matmul_versions_inputs_but_preserves_the_accumulator (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_mutated_prefetch_operand_is_not_scheduled (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_nested_rope_compute_loops_have_distinct_ssa_definitions (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_parallel_scope_cannot_bypass_storage_dependency_checks (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_real_versions_and_synchronization_for_short_and_steady_loops (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_reduction_scratch_has_unique_ownership_and_two_pass_state_is_preserved (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_unmodelled_sync_annotation_is_rejected (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_unsupported_depth_and_short_loop_rejected (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_wrong_target_rejected (test_bm1690_pipeline_unittest.PipelineTests) ... ok
+test_flat_tiles_require_full_per_core_pipeline_and_no_unhandled_tail (test_bm1690_workitems_unittest.WorkitemTests) ... ok
+test_invalid_launch_count_and_chip_are_rejected (test_bm1690_workitems_unittest.WorkitemTests) ... ok
+test_launch_abi_and_complete_per_core_argument_arrays (test_bm1690_workitems_unittest.WorkitemTests) ... ok
+test_six_families_keep_reductions_local_and_fit_lmem (test_bm1690_workitems_unittest.WorkitemTests) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.837s
+
+OK

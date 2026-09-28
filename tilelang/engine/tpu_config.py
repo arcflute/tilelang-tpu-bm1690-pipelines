@@ -78,6 +78,20 @@ def get_tpu_chip_spec(chip: str) -> TPUChipSpec:
         raise ValueError(f"Unsupported TPU chip {chip!r}; supported chips: {supported}") from exc
 
 
+def get_tpu_launch_cores(function, target) -> int:
+    """Explicit per-kernel launch ABI; independent of emulator topology."""
+    from tvm import tir
+    value = function.attrs.get("tilelang.tpu.launch_cores") if function.attrs else None
+    if value is None:
+        return 1
+    selection = resolve_tpu_target(target=target)
+    if selection.chip != "bm1690" or selection.programming_model != "tpukernel":
+        raise ValueError("explicit launch_cores requires BM1690 TPU-Kernel")
+    if not isinstance(value,tir.IntImm) or value.dtype == "bool" or int(value) not in (1,2,4,8):
+        raise ValueError("launch_cores must be a static integer in 1, 2, 4, 8")
+    return int(value)
+
+
 def _validate_programming_model(programming_model: str) -> TPUProgrammingModel:
     if programming_model not in ("tpukernel", "rv"):
         raise ValueError("Unsupported TPU programming model "

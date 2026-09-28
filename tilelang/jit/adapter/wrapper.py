@@ -729,6 +729,8 @@ class TLTPUSourceWrapper(object):
             f.write(content)
 
     def create_kernel_cpp(self, function_name: str = "main_kernel"):
+        from tilelang.engine.tpu_config import get_tpu_launch_cores
+        launch_cores = get_tpu_launch_cores(self.prim_func, self.target)
         num_params = len(self.function_args)
         template_file = os.path.join(self.template_dir, "kernel_template.cpp")
         output_file = os.path.join(self.output_dir, "kernel.cpp")
@@ -744,7 +746,8 @@ class TLTPUSourceWrapper(object):
         formatted_content = template_content.format(
             function_name=function_name,
             func_params=func_params,
-            struct_assignments=struct_assignments)
+            struct_assignments=struct_assignments,
+            launch_cores=launch_cores)
 
         with open(output_file, 'w') as f:
             f.write(formatted_content)

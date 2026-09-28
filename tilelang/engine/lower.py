@@ -96,6 +96,8 @@ _PORTABLE_TPU_EXTERNS = frozenset({
 _TPUKERNEL_EXTERNS = frozenset({
     "tl.tpukernel.gather",
     "tl.tpukernel.topk",
+    "tl.tpukernel.workitem_index",
+    "tl.tpukernel.workitem_num",
 })
 
 # Exact tensor-region argument positions in the compiler-owned semantic ABI.
@@ -243,6 +245,8 @@ def _validate_tpu_residual_ir(mod: tvm.IRModule, target: Target, tpu_config) -> 
         if not isinstance(function, tir.PrimFunc):
             continue
         function_name = global_var.name_hint
+        from tilelang.engine.tpu_config import get_tpu_launch_cores
+        get_tpu_launch_cores(function, target)
 
         # Source PrimFuncs are not target-bound until LowerAndLegalize.  An
         # explicitly different target is not a harmless mixed-module member:
@@ -598,6 +602,10 @@ def _validate_tpu_residual_ir(mod: tvm.IRModule, target: Target, tpu_config) -> 
             if model == "portable":
                 return
             if model == "tpukernel":
+                if extern_name in {"tl.tpukernel.workitem_index", "tl.tpukernel.workitem_num"}:
+                    if tpu_config.chip != "bm1690" or len(node.args) != 1 or str(node.dtype) != "int32":
+                        raise _tpu_contract_error(target, function_name, "workitem-ABI",
+                                                  "workitems require BM1690, no arguments and int32 return")
                 if tpu_config.programming_model == "tpukernel":
                     return
                 raise _tpu_contract_error(
@@ -876,6 +884,8 @@ def lower(
         # contract before the TPU-specific address/effect analysis consumes it.
         validate_target_module_contract(mod, target)
         mod = AssignTPUAddresses(mod, target)
+        from tilelang.engine.tpu_pipeline import validate_pipeline_storage
+        validate_pipeline_storage(mod)
     host_mod = tir.transform.Filter(_is_host_call)(mod)
     device_mod = tir.transform.Filter(_is_device_call)(mod)
 

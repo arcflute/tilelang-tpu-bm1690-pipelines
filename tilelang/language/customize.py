@@ -22,6 +22,16 @@ _TPUV7_EU_ELEMENTS = {
 _TPUV7_DESCRIPTOR_DIM_MAX = 65535
 
 
+def tpu_workitem_index():
+    """BM1690 TPU-Kernel launch workitem index (not physical CPU affinity)."""
+    return T.call_extern("int32", "tl.tpukernel.workitem_index")
+
+
+def tpu_workitem_num():
+    """BM1690 TPU-Kernel launch workitem count."""
+    return T.call_extern("int32", "tl.tpukernel.workitem_num")
+
+
 def _require_buffer(name, value):
     if not isinstance(value, Buffer):
         raise TypeError(f"{name} must be a TIR Buffer, got {type(value).__name__}")

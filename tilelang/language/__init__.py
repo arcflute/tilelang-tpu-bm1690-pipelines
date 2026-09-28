@@ -75,6 +75,7 @@ from .customize import (
     ppl_gather,  # noqa: F401
     ppl_embedding,  # noqa: F401
     ppl_topk,  # noqa: F401
+    tpu_workitem_index, tpu_workitem_num,  # noqa: F401
 )
 from .rvt import (  # noqa: F401
     rvt_call, rvt_kernel_start, rvt_set_max_cmd_id, rvt_parallel, rvt_fence, rvt_sync_i,

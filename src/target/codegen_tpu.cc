@@ -730,6 +730,15 @@ void CodeGenTileLangTPU::VisitExpr_(const CallNode *op, std::ostream &os) {
       ++tpukernel_extern_count_;
       uses_tpukernel_api_ = true;
     }
+    if (op_name == "tl.tpukernel.workitem_index" ||
+        op_name == "tl.tpukernel.workitem_num") {
+      ICHECK_EQ(target_chip_, "bm1690") << "workitem ABI requires BM1690";
+      ICHECK_EQ(op->args.size(), 1U) << "workitem queries take no arguments";
+      ICHECK(op->dtype == DataType::Int(32)) << "workitem queries return int32";
+      os << (op_name == "tl.tpukernel.workitem_index"
+                 ? "tpu_workitem_index()" : "tpu_workitem_num()");
+      return;
+    }
     if (op_name == "tl.tpu.copy") {
       ICHECK_EQ(op->args.size(), 3U)
           << op_name

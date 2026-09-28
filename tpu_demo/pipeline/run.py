@@ -145,7 +145,7 @@ def run_worker(command, directory, environment, timeout_s, max_rss_bytes):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=("baseline", "pipeline"), default="baseline")
+    parser.add_argument("--suite", choices=("baseline", "pipeline", "workitems"), default="baseline")
     parser.add_argument("--case", action="append", dest="cases")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=120)
@@ -156,6 +156,7 @@ def main():
     parser.add_argument("--stages", type=int, choices=(2, 3), default=2)
     parser.add_argument("--schedule", choices=("auto", "explicit", "reverse-loads"), default="auto")
     parser.add_argument("--reuse-swiglu-buffers", action="store_true")
+    parser.add_argument("--cores", type=int, choices=(1,2,4,8), default=1)
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or args.timeout <= 0 or args.max_rss_mib <= 0 or args.cpu_count <= 0:
         parser.error("resource limits must be positive and finite")
@@ -171,8 +172,12 @@ def main():
     allowed = sorted(os.sched_getaffinity(0))
     cpus = allowed[:min(args.cpu_count, max(1, len(allowed) - 1))]
     if args.suite == "baseline":
+        if args.cores != 1:
+            parser.error("original baseline is single-core; use the pipeline suite for mapped variants")
         from tpu_demo.cases import build_cases
         valid = [case.case_id for case in build_cases() if case.dtype == "float16"]
+    elif args.suite == "workitems":
+        valid = ["workitems"]
     else:
         from tpu_demo.pipeline.worker import pipeline_cases
         valid = pipeline_cases()
@@ -185,7 +190,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     summary = {
         "schema_version": 1, "suite": args.suite, "chip": "bm1690",
-        "runtime_mode": "cmodel", "programming_model": "tpukernel", "launch_cores": 1,
+        "runtime_mode": "cmodel", "programming_model": "tpukernel", "launch_cores": args.cores,
         "device_performance_measured": False, "hardware_overlap_verified": False,
         "started_at": datetime.now(timezone.utc).isoformat(), "identity": source_identity(),
         "limits": {"cpus": cpus, "threads": 1, "timeout_s": args.timeout, "max_rss_mib": args.max_rss_mib},
@@ -204,6 +209,7 @@ def main():
             command = [sys.executable, "-m", "tpu_demo.pipeline.worker", "--suite", args.suite,
                        "--case", case, "--seed", str(args.seed), "--size", args.size,
                        "--stages", str(args.stages), "--schedule", args.schedule]
+            command.extend(["--cores",str(args.cores)])
             if args.reuse_swiglu_buffers:
                 command.append("--reuse-swiglu-buffers")
             result = run_worker(command, directory, worker_environment(directory, cpus),

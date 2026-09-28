@@ -1,5 +1,11 @@
 # TileLang-TPU
 
+This fork develops **BM1690 pipelines for six TPU demo operator families**.
+See the [migration guide and validation status](docs/bm1690-pipelines.md) for
+the bounded CModel runner, serial/pipeline comparisons, explicit schedules,
+and workitem mapping. CModel results validate numerical behavior; BM1690 board
+latency and physical overlap remain pending remote hardware validation.
+
 TileLang-TPU is a TPU-oriented extension of
 [TileLang](https://github.com/tile-ai/tilelang) for SOPHGO accelerators. It
 preserves the TileLang Python DSL while adding TPU-specific lowering, source

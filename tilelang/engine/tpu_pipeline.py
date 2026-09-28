@@ -124,6 +124,13 @@ def effects(statement):
             visit(node.block.body)
         elif isinstance(node, (tir.Allocate, tir.DeclBuffer)):
             visit(node.body)
+        elif isinstance(node, tir.IfThenElse):
+            # Outside-loop task guards and local branches conservatively
+            # touch both arms. Conditional prefetch producers remain rejected
+            # by _copy_kind/full-tile checks.
+            visit(node.then_case)
+            if node.else_case is not None:
+                visit(node.else_case)
         elif isinstance(node, tir.Evaluate):
             call = _extern(node)
             if call is None:
@@ -179,6 +186,35 @@ def validate_parallel_scope(node):
         _error("parallel scope needs independent prefetch and compute")
     if producers.writes & (consumers.reads | consumers.writes):
         _error("parallel prefetch overwrites a concurrent compute operand")
+
+
+def validate_pipeline_storage(module):
+    """Check assigned byte ranges as well as descriptor identity before C codegen."""
+    for function in module.functions.values():
+        if not isinstance(function,tir.PrimFunc):
+            continue
+        def check(node):
+            if not isinstance(node,tir.AttrStmt) or node.attr_key != PARALLEL_SCOPE:
+                return
+            producers, consumers = Effects(), Effects()
+            for statement in _statements(node.body):
+                (producers if _copy_kind(statement) == "load" else consumers).merge(effects(statement))
+            def interval(buffer):
+                name = buffer.data.name
+                address = function.attrs.get("tilelang.tpu.lmem.address."+name)
+                size = function.attrs.get("tilelang.tpu.lmem.bytes."+name)
+                if address is None or size is None:
+                    _error(f"missing assigned storage metadata for {name}; rebuild the TPU compiler")
+                return int(address),int(address)+int(size)
+            for written in producers.writes:
+                a = interval(producers.buffers[written])
+                others = dict(consumers.buffers)
+                others.update({var:producers.buffers[var] for var in producers.writes if var != written})
+                for buffer in others.values():
+                    b = interval(buffer)
+                    if a[0] < b[1] and b[0] < a[1]:
+                        _error(f"physical storage overlap between prefetch {written.name} and {buffer.data.name}")
+        tir.stmt_functor.post_order_visit(function.body,check)
 
 
 def _replace(statement, loop_var, iteration, buffers):

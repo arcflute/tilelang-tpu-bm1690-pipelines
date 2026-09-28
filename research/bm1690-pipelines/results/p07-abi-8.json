@@ -1,0 +1,64 @@
+{
+  "chip": "bm1690",
+  "complete": true,
+  "device_performance_measured": false,
+  "evidence_note": "BM1690 CModel numerical/launch-ABI evidence. Parallel scopes remain serialized. No BM1690 hardware latency, scaling or overlap measurement.",
+  "finished_at": "2026-09-28T15:20:21.013621+00:00",
+  "hardware_overlap_verified": false,
+  "identity": {
+    "branch": "feature/bm1690-pipelines",
+    "commit": "518434837174d87a22ac3953b2ae71c344fa5262",
+    "dirty": true,
+    "native_libraries": {
+      "build-tpu/libtilelang_module.so": "88876fcc5d16be9c12fff294bbf1aecf8de7974fa41b6f85ed1cf66144de57a2",
+      "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+    },
+    "ppl_root": "/home/admin3/toolchains/ppl_v1.7.122-g05ebfb36-20260528",
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "source_sha256": "a27cf567019445424dafea6d38ee713e853cbf196738553e9d9ef459c5820f12",
+    "tvm_gitlink": "160000 commit a8a54d2b1f43c23a47f2fc08779654918eae6464\t3rdparty/tvm"
+  },
+  "launch_cores": 8,
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_rss_mib": 4096,
+    "threads": 1,
+    "timeout_s": 120
+  },
+  "num_stages": 2,
+  "passed": 1,
+  "programming_model": "tpukernel",
+  "requested_cases": [
+    "workitems"
+  ],
+  "results": [
+    {
+      "case": "workitems",
+      "cleanup_complete": true,
+      "numeric": {
+        "device_performance_measured": false,
+        "exact_ownership": true,
+        "hardware_overlap_verified": false,
+        "launch_cores": 8,
+        "status": "passed",
+        "tasks": 11
+      },
+      "peak_group_rss_bytes": 839409664,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 1.9985182439995697
+    }
+  ],
+  "reuse_swiglu_buffers": false,
+  "runtime_mode": "cmodel",
+  "schedule": "auto",
+  "schema_version": 1,
+  "size": "smoke",
+  "source_unchanged": true,
+  "started_at": "2026-09-28T15:20:18.794934+00:00",
+  "suite": "workitems"
+}

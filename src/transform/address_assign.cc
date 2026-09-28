@@ -739,11 +739,18 @@ PrimFunc InferAddress(PrimFunc f) {
 
   auto fn = f.CopyOnWrite();
   auto fn_attr = fn->attrs.CopyOnWrite();
+  int64_t high_water_bytes = 0;
   for (auto op : alloc_ops) {
     int64_t address = addrMapWithBC[op];
     fn_attr->dict.Set(tpuv7::AddressAttrKey(op->data->name_hint),
                       IntImm(DataType::Int(64), address));
+    const int64_t bytes = live_ranges[op].tensor_size;
+    fn_attr->dict.Set("tilelang.tpu.lmem.bytes." + op->data->name_hint,
+                      IntImm(DataType::Int(64), bytes));
+    high_water_bytes = std::max(high_water_bytes, address + bytes);
   }
+  fn_attr->dict.Set("tilelang.tpu.lmem.high_water_bytes",
+                    IntImm(DataType::Int(64), high_water_bytes));
 
   return f;
 }

@@ -153,6 +153,14 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "overwrites a concurrent"):
             validate_parallel_scope(scope)
 
+    def test_independent_descriptors_cannot_alias_physical_parallel_storage(self):
+        from tilelang.engine.tpu_pipeline import validate_pipeline_storage
+        function,_ = report(lower(build_elementwise_tiled(num_stages=2)))
+        corrupted = function.with_attr("tilelang.tpu.lmem.address.a_pipeline_v1",
+                                        function.attrs["tilelang.tpu.lmem.address.a"])
+        with self.assertRaisesRegex(ValueError,"physical storage overlap"):
+            validate_pipeline_storage(tvm.IRModule({"main":corrupted}))
+
     def test_matmul_versions_inputs_but_preserves_the_accumulator(self):
         from tpu_demo.matmul.matmul import build_matmul
         for depth in (2,3):
