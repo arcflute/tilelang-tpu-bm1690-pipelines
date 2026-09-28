@@ -166,8 +166,11 @@ taskset -c 0,1 nice -n 10 .venv/bin/cmake --build build-tpu --parallel 1
 
 The local source work and CModel checks above do not complete P8/P9. The remote
 BM1690 is unavailable, its existing ChunkScan SDK/runtime paths are not yet
-recorded, and GitHub HTTPS authentication is pending. Local commits are retained
-on `feature/bm1690-pipelines`; `delivery` points to the user's new repository.
+recorded. GitHub HTTPS authentication and repository write access are verified.
+The delivery repository is
+[`arcflute/tilelang-tpu-bm1690-pipelines`](https://github.com/arcflute/tilelang-tpu-bm1690-pipelines),
+branch `main`. The local development branch is `feature/bm1690-pipelines`;
+`delivery` is its delivery remote, while `origin` retains the upstream URL.
 No source checkout, installed SDK, or existing environment was overwritten.
 
 After the server returns, activate the known working ChunkScan environment and
