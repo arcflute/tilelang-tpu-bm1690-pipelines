@@ -126,6 +126,18 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "overwrites a concurrent"):
             validate_parallel_scope(scope)
 
+    def test_matmul_versions_inputs_but_preserves_the_accumulator(self):
+        from tpu_demo.matmul.matmul import build_matmul
+        for depth in (2,3):
+            artifact = lower(build_matmul(k=128,num_stages=depth))
+            _, schedules = report(artifact)
+            self.assertEqual(set(schedules[0]["buffer_versions"]), {"A_compute", "B_compute"})
+            self.assertNotIn("C_acc_pipeline", artifact.kernel_source)
+        with self.assertRaisesRegex(ValueError,"FP16"):
+            build_matmul(dtype="float32",num_stages=2)
+        # The independent FP32 local.matrix path still emits its original code.
+        self.assertIn("tpu_bdc_fp32_mm", lower(build_matmul(dtype="float32")).kernel_source)
+
 
 if __name__ == "__main__":
     unittest.main()

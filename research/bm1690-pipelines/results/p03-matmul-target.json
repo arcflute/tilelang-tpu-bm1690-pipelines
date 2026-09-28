@@ -1,0 +1,185 @@
+{
+  "chip": "bm1690",
+  "complete": true,
+  "device_performance_measured": false,
+  "evidence_note": "Serial and pipeline FP16 outputs are bitwise equal and match the independent FP32 matmul reference within the original tolerance. CModel timing is not device performance.",
+  "finished_at": "2026-09-28T14:47:32.724947+00:00",
+  "hardware_overlap_verified": false,
+  "identity": {
+    "branch": "feature/bm1690-pipelines",
+    "commit": "90c379197717cad8a38349b9bbfeae0b3650e31b",
+    "dirty": true,
+    "native_libraries": {
+      "build-tpu/libtilelang_module.so": "77b03d1513a55f15100b98bcbd8c6d2e552c8c884a925279587d18fbcb6f4747",
+      "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+    },
+    "ppl_root": "/home/admin3/toolchains/ppl_v1.7.122-g05ebfb36-20260528",
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "source_sha256": "d6d65801e329c0e59a476a3575e0474bfc4c54cbc7c092abd2eff1d11873c1d3",
+    "tvm_gitlink": "160000 commit a8a54d2b1f43c23a47f2fc08779654918eae6464\t3rdparty/tvm"
+  },
+  "launch_cores": 1,
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_rss_mib": 4096,
+    "threads": 1,
+    "timeout_s": 120
+  },
+  "passed": 1,
+  "programming_model": "tpukernel",
+  "requested_cases": [
+    "matmul"
+  ],
+  "results": [
+    {
+      "case": "matmul",
+      "cleanup_complete": true,
+      "numeric": {
+        "case": "matmul",
+        "cmodel_parallel_execution": false,
+        "device_performance_measured": false,
+        "dtype": "float16",
+        "hardware_overlap_verified": false,
+        "num_stages": 2,
+        "parameters": {
+          "block_k": 32,
+          "block_m": 32,
+          "block_n": 32,
+          "k": 1024,
+          "m": 1024,
+          "n": 1024
+        },
+        "seed": 0,
+        "serial_pipeline_bitwise_equal": true,
+        "status": "passed",
+        "variants": {
+          "pipeline": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.A_compute": 16384,
+              "tilelang.tpu.lmem.address.A_compute_pipeline_v1": 16448,
+              "tilelang.tpu.lmem.address.B_compute": 32768,
+              "tilelang.tpu.lmem.address.B_compute_pipeline_v1": 32832,
+              "tilelang.tpu.lmem.address.C_acc": 0,
+              "tilelang.tpu.lmem.address.C_output": 128
+            },
+            "output_sha256": "91850f6334339294ed5e7504aabf115c427f38c1ef1917ea80a17718d1188799",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.00390625,
+              "mean_abs_error": 4.1464664946033736e-07,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [
+              {
+                "buffer_versions": {
+                  "A_compute": [
+                    "A_compute",
+                    "A_compute_pipeline_v1"
+                  ],
+                  "B_compute": [
+                    "B_compute",
+                    "B_compute_pipeline_v1"
+                  ]
+                },
+                "cmodel_parallel_execution": false,
+                "compute_state": "single-version ordered recurrence",
+                "explicit": false,
+                "extent": 32,
+                "fingerprint": "8207a2f7c7ee037eff77cc279683456129faeaa11f4934a96212f5ceba46e9d6",
+                "loop": "ko",
+                "num_stages": 2,
+                "order": [
+                  0,
+                  1,
+                  2
+                ],
+                "prefetch_distance": 1,
+                "stage": [
+                  0,
+                  0,
+                  1
+                ],
+                "statements": [
+                  {
+                    "index": 0,
+                    "kind": "load",
+                    "reads": [
+                      "A"
+                    ],
+                    "tir": "A = T.Buffer((1024, 1024), \"float16\")\nby = T.int32()\nko = T.int32()\nA_compute = T.Buffer((32, 32), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(A[by * 32, ko * 32], 1, 32, 32), T.region(A_compute[0, 0], 2, 32, 32))",
+                    "writes": [
+                      "A_compute"
+                    ]
+                  },
+                  {
+                    "index": 1,
+                    "kind": "load",
+                    "reads": [
+                      "B"
+                    ],
+                    "tir": "B = T.Buffer((1024, 1024), \"float16\")\nko = T.int32()\nbx = T.int32()\nB_compute = T.Buffer((32, 32), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(B[ko * 32, bx * 32], 1, 32, 32), T.region(B_compute[0, 0], 2, 32, 32))",
+                    "writes": [
+                      "B_compute"
+                    ]
+                  },
+                  {
+                    "index": 2,
+                    "kind": "compute",
+                    "reads": [
+                      "A_compute",
+                      "B_compute",
+                      "C_acc"
+                    ],
+                    "tir": "A_compute = T.Buffer((32, 32), \"float16\", scope=\"shared.dyn\")\nB_compute = T.Buffer((32, 32), \"float16\", scope=\"shared.dyn\")\nC_acc = T.Buffer((32, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.gemm\", T.region(A_compute[0, 0], 1, 32, 32), T.region(B_compute[0, 0], 1, 32, 32), T.region(C_acc[0, 0], 3, 32, 32), T.bool(False), T.bool(False), 32, 32, 32, T.bool(True))",
+                    "writes": [
+                      "C_acc"
+                    ]
+                  }
+                ],
+                "stores": "after parallel end; completed before output reuse"
+              }
+            ],
+            "source_sha256": "6e1325b0bf0749b6da7252aab90fde1acdb8b8aacb9c4099a6c932d4164c9845"
+          },
+          "serial": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.A_compute": 16384,
+              "tilelang.tpu.lmem.address.B_compute": 32768,
+              "tilelang.tpu.lmem.address.C_acc": 0,
+              "tilelang.tpu.lmem.address.C_output": 128
+            },
+            "output_sha256": "91850f6334339294ed5e7504aabf115c427f38c1ef1917ea80a17718d1188799",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.00390625,
+              "mean_abs_error": 4.1464664946033736e-07,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [],
+            "source_sha256": "d46dabcd40ccd10ff76f315edfcc626601f1cfefa9a48394ef006d0ff854085e"
+          }
+        }
+      },
+      "peak_group_rss_bytes": 1012903936,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 21.590191608999703
+    }
+  ],
+  "runtime_mode": "cmodel",
+  "schema_version": 1,
+  "started_at": "2026-09-28T14:47:11.026458+00:00",
+  "suite": "pipeline"
+}

@@ -8,7 +8,7 @@ import os
 
 
 def pipeline_cases():
-    return ["elementwise-add"]
+    return ["elementwise-add", "matmul"]
 
 
 def run_pipeline_case(case, seed, size, stages=2):
@@ -23,17 +23,34 @@ def run_pipeline_case(case, seed, size, stages=2):
     configure_runtime("cmodel", False, None, chip="bm1690")
     generator = torch.Generator().manual_seed(seed)
     rows, width = (8, 128) if size == "smoke" else (1024, 1024)
-    if case != "elementwise-add":
+    if case == "elementwise-add":
+        lhs = torch.randn((rows, width), generator=generator).half()
+        rhs = torch.randn((rows, width), generator=generator).half()
+        expected = (lhs.float() + rhs.float()).half()
+        inputs = [lhs, rhs]
+        family = "elementwise"
+        parameters = {"shape": [rows, width], "block": [4,32]}
+        def build(depth):
+            return build_elementwise_tiled(rows=rows, width=width, num_stages=depth)
+    elif case == "matmul":
+        from tpu_demo.matmul.matmul import build_matmul
+        m, n, k = (32, 32, 128) if size == "smoke" else (1024, 1024, 1024)
+        block = 16 if size == "smoke" else 32
+        lhs = (torch.randn((m,k), generator=generator)*0.25).half()
+        rhs = (torch.randn((k,n), generator=generator)*0.25).half()
+        inputs = [lhs,rhs]
+        expected = (lhs.float() @ rhs.float()).half()
+        family = "matmul"
+        parameters = {"m":m,"n":n,"k":k,"block_m":block,"block_n":block,"block_k":block}
+        def build(depth):
+            return build_matmul(**parameters, num_stages=depth)
+    else:
         raise ValueError(f"unknown pipeline case {case}")
-    lhs = torch.randn((rows, width), generator=generator).half()
-    rhs = torch.randn((rows, width), generator=generator).half()
-    expected = (lhs.float() + rhs.float()).half()
-    inputs = [lhs, rhs]
     originals = [tensor.clone() for tensor in inputs]
     variants = {}
     outputs = []
     for name, depth in (("serial", 0), ("pipeline", stages)):
-        function = build_elementwise_tiled(rows=rows, width=width, num_stages=depth)
+        function = build(depth)
         artifact = tilelang.lower(function, target="tpu -mcpu=bm1690 -tpu-programming-model=tpukernel",
                                   runtime_mode="cmodel")
         Path(name + ".c").write_text(artifact.kernel_source)
@@ -58,7 +75,7 @@ def run_pipeline_case(case, seed, size, stages=2):
         for original, actual in zip(originals, inputs):
             if not torch.equal(original, actual):
                 raise AssertionError("kernel modified a read-only input")
-        atol, rtol = tolerance("float16", "elementwise")
+        atol, rtol = tolerance("float16", family)
         variants[name] = {
             "reference": comparison(output, expected, atol=atol, rtol=rtol),
             "source_sha256": hashlib.sha256(artifact.kernel_source.encode()).hexdigest(),
@@ -69,7 +86,7 @@ def run_pipeline_case(case, seed, size, stages=2):
     equal = torch.equal(*outputs)
     if not equal:
         raise AssertionError("pipeline changed same-tile serial results")
-    return {"status": "passed", "case": case, "shape": [rows, width], "dtype": "float16",
+    return {"status": "passed", "case": case, "parameters": parameters, "dtype": "float16",
             "seed": seed, "num_stages": stages, "serial_pipeline_bitwise_equal": equal,
             "variants": variants, "cmodel_parallel_execution": False,
             "hardware_overlap_verified": False, "device_performance_measured": False}

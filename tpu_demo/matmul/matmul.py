@@ -19,10 +19,15 @@ def build_matmul(*,
                  block_n: int = 16,
                  block_k: int = 16,
                  dtype: str = "float16",
-                 programming_model: str = "tpukernel"):
+                 programming_model: str = "tpukernel",
+                 num_stages: int = 0):
     if programming_model not in ("tpukernel", "rv"):
         raise ValueError(f"unsupported TPU programming model: {programming_model!r}")
     torch_dtype(dtype)
+    if isinstance(num_stages, bool) or num_stages not in (0, 2, 3):
+        raise ValueError("num_stages must be 0 (serial), 2 or 3")
+    if num_stages and (dtype != "float16" or programming_model != "tpukernel"):
+        raise ValueError("the initial Matmul pipeline supports FP16 TPU-Kernel only")
     validate_dimensions("matmul", m=m, n=n, k=k, block_m=block_m, block_n=block_n, block_k=block_k)
     validate_exact_tiling("matmul", ("m", m, block_m), ("n", n, block_n), ("k", k, block_k))
 
@@ -37,7 +42,7 @@ def build_matmul(*,
                 C_acc = T.alloc_shared((block_m, block_n), "float32")
                 C_output = T.alloc_shared((block_m, block_n), dtype)
                 T.ppl_fill(C_acc, T.float32(0))
-                for ko in T.serial(T.ceildiv(k, block_k)):
+                for ko in T.Pipelined(T.ceildiv(k, block_k), num_stages=num_stages):
                     T.ppl_copy(A[by * block_m, ko * block_k], A_compute)
                     T.ppl_copy(B[ko * block_k, bx * block_n], B_compute)
                     T.ppl_gemm(A_compute, B_compute, C_acc, accumulate=True)
