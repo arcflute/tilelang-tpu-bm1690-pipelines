@@ -84,8 +84,13 @@ def build_rmsnorm_splitk(*,
                          block_rows: int = 4,
                          block_k: int = 32,
                          dtype: str = "float16",
-                         epsilon: float = 1e-12):
+                         epsilon: float = 1e-12,
+                         num_stages: int = 0):
     torch_dtype(dtype)
+    if isinstance(num_stages, bool) or num_stages not in (0, 2, 3):
+        raise ValueError("num_stages must be 0 (serial), 2 or 3")
+    if num_stages and dtype != "float16":
+        raise ValueError("the initial Split-K pipeline supports FP16 only")
     validate_positive_scalar("rmsnorm-splitk", "epsilon", epsilon)
     validate_dimensions(
         "rmsnorm-splitk", rows=rows, width=width, block_rows=block_rows, block_k=block_k)
@@ -109,9 +114,9 @@ def build_rmsnorm_splitk(*,
                 normalized = T.alloc_shared((block_rows, block_k), "float32")
                 T.ppl_fill(sum_square, T.float32(0))
                 steps = T.ceildiv(width, block_k)
-                # Serial order is part of the correctness contract until TPU
-                # producer/consumer hazards are represented by a backend pass.
-                for ko in T.serial(steps):
+                # Each pass preserves its recurrence order. The inverse RMS
+                # is produced only after the first pipeline has fully drained.
+                for ko in T.Pipelined(steps, num_stages=num_stages):
                     T.ppl_copy(source[bx * block_rows, ko * block_k], input_local)
                     T.ppl_copy(input_local, value)
                     T.ppl_mul(square, value, value)
@@ -120,7 +125,7 @@ def build_rmsnorm_splitk(*,
                 T.ppl_mul_C(variance, sum_square, T.float32(1.0 / width))
                 T.ppl_add_C(variance, variance, T.float32(epsilon))
                 T.ppl_rsqrt(inverse_rms, variance)
-                for ko in T.serial(steps):
+                for ko in T.Pipelined(steps, num_stages=num_stages):
                     reverse_ko = steps - 1 - ko
                     T.ppl_copy(source[bx * block_rows, reverse_ko * block_k], input_local)
                     T.ppl_copy(input_local, value)

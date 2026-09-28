@@ -146,6 +146,25 @@ class PipelineTests(unittest.TestCase):
         self.assertTrue(tvm.tir.analysis.verify_ssa(function))
         self.assertEqual(set(schedules[0]["buffer_versions"]), {"x","cos","sin"})
 
+    def test_reduction_scratch_has_unique_ownership_and_two_pass_state_is_preserved(self):
+        from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm_splitk
+        for depth in (2,3):
+            function, schedules = report(lower(build_rmsnorm_splitk(num_stages=depth)))
+            self.assertEqual(len(schedules),2)
+            self.assertTrue(tvm.tir.analysis.verify_ssa(function))
+            for schedule in schedules:
+                self.assertNotIn("sum_square",schedule["buffer_versions"])
+                self.assertNotIn("inverse_rms",schedule["buffer_versions"])
+            self.assertEqual(set(schedules[1]["buffer_versions"]),{"input_local","weight_local"})
+
+    def test_attention_only_versions_k_v_mask(self):
+        from tpu_demo.flashattn.flashattn import build_flashattn
+        for depth in (2,3):
+            function, schedules = report(lower(build_flashattn(sequence=64,num_stages=depth)))
+            self.assertTrue(tvm.tir.analysis.verify_ssa(function))
+            self.assertEqual(set(schedules[0]["buffer_versions"]),{"k_compute","v_compute","mask"})
+            self.assertNotIn("row_sum_pipeline", function.script())
+
 
 if __name__ == "__main__":
     unittest.main()

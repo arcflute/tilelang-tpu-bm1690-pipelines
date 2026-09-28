@@ -31,8 +31,13 @@ def build_flashattn(*,
                     head_dim: int = 16,
                     block_m: int = 16,
                     block_n: int = 16,
-                    dtype: str = "float16"):
+                    dtype: str = "float16",
+                    num_stages: int = 0):
     torch_dtype(dtype)
+    if isinstance(num_stages, bool) or num_stages not in (0, 2, 3):
+        raise ValueError("num_stages must be 0 (serial), 2 or 3")
+    if num_stages and dtype != "float16":
+        raise ValueError("the initial attention pipeline supports FP16 only")
     validate_dimensions(
         "flashattn",
         batch=batch,
@@ -82,7 +87,7 @@ def build_flashattn(*,
                 T.ppl_fill(row_sum, T.float32(0))
                 T.ppl_fill(row_max, -T.infinity("float32"))
 
-                for ko in T.serial(T.ceildiv(sequence, block_n)):
+                for ko in T.Pipelined(T.ceildiv(sequence, block_n), num_stages=num_stages):
                     T.ppl_copy(K[bz:bz + 1, ko * block_n:(ko + 1) * block_n, by:by + 1, 0:head_dim],
                                k_compute)
                     T.ppl_copy(V[bz:bz + 1, ko * block_n:(ko + 1) * block_n, by:by + 1, 0:head_dim],

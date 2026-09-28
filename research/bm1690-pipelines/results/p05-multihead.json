@@ -1,0 +1,887 @@
+{
+  "chip": "bm1690",
+  "complete": true,
+  "device_performance_measured": false,
+  "evidence_note": "BM1690 CModel numerical validation only. Parallel scopes are serialized by USING_CMODEL; no board timing or hardware overlap evidence.",
+  "finished_at": "2026-09-28T15:02:51.375343+00:00",
+  "hardware_overlap_verified": false,
+  "identity": {
+    "branch": "feature/bm1690-pipelines",
+    "commit": "894d2b97998ff7d0245951e4bdca85d2df91c5be",
+    "dirty": true,
+    "native_libraries": {
+      "build-tpu/libtilelang_module.so": "77b03d1513a55f15100b98bcbd8c6d2e552c8c884a925279587d18fbcb6f4747",
+      "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+    },
+    "ppl_root": "/home/admin3/toolchains/ppl_v1.7.122-g05ebfb36-20260528",
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "source_sha256": "d8a37d3a0379405cfbdf04240903c46eb58156b30caa3b820c137ab504ce5f47",
+    "tvm_gitlink": "160000 commit a8a54d2b1f43c23a47f2fc08779654918eae6464\t3rdparty/tvm"
+  },
+  "launch_cores": 1,
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_rss_mib": 4096,
+    "threads": 1,
+    "timeout_s": 120
+  },
+  "passed": 2,
+  "programming_model": "tpukernel",
+  "requested_cases": [
+    "flashattn.multihead",
+    "flashattn.multihead.causal"
+  ],
+  "results": [
+    {
+      "case": "flashattn.multihead",
+      "cleanup_complete": true,
+      "numeric": {
+        "case": "flashattn.multihead",
+        "cmodel_parallel_execution": false,
+        "device_performance_measured": false,
+        "dtype": "float16",
+        "hardware_overlap_verified": false,
+        "num_stages": 2,
+        "parameters": {
+          "batch": 2,
+          "block_m": 16,
+          "block_n": 16,
+          "head_dim": 16,
+          "heads": 2,
+          "sequence": 64
+        },
+        "seed": 0,
+        "serial_pipeline_bitwise_equal": true,
+        "status": "passed",
+        "variants": {
+          "pipeline": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.accumulator": 16512,
+              "tilelang.tpu.lmem.address.chunk_sum": 16832,
+              "tilelang.tpu.lmem.address.current_max": 16768,
+              "tilelang.tpu.lmem.address.exp_coeff": 16384,
+              "tilelang.tpu.lmem.address.k_compute": 49536,
+              "tilelang.tpu.lmem.address.k_compute_pipeline_v1": 49600,
+              "tilelang.tpu.lmem.address.mask": 16704,
+              "tilelang.tpu.lmem.address.mask_pipeline_v1": 16896,
+              "tilelang.tpu.lmem.address.normalized": 16384,
+              "tilelang.tpu.lmem.address.output_local": 16448,
+              "tilelang.tpu.lmem.address.previous_max": 49408,
+              "tilelang.tpu.lmem.address.previous_scale": 32768,
+              "tilelang.tpu.lmem.address.q_compute": 16576,
+              "tilelang.tpu.lmem.address.row_max": 16640,
+              "tilelang.tpu.lmem.address.row_sum": 49152,
+              "tilelang.tpu.lmem.address.scale_work0": 49216,
+              "tilelang.tpu.lmem.address.scale_work1": 65536,
+              "tilelang.tpu.lmem.address.score_work0": 32896,
+              "tilelang.tpu.lmem.address.score_work1": 49280,
+              "tilelang.tpu.lmem.address.scores": 0,
+              "tilelang.tpu.lmem.address.scores_compute": 32832,
+              "tilelang.tpu.lmem.address.tmp_buffer_max": 16960,
+              "tilelang.tpu.lmem.address.tmp_buffer_max_macro1": 16960,
+              "tilelang.tpu.lmem.address.tmp_buffer_max_macro2": 16576,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum": 17024,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum_macro1": 17024,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum_macro2": 16384,
+              "tilelang.tpu.lmem.address.v_compute": 49344,
+              "tilelang.tpu.lmem.address.v_compute_pipeline_v1": 49472
+            },
+            "output_sha256": "6b73902b3d56450551904b0aebeb07b99f0d06112f1f8f2b27c7d24c26a6b62b",
+            "reference": {
+              "atol": 0.02,
+              "element_count": 4096,
+              "finite": true,
+              "max_abs_error": 0.00048828125,
+              "mean_abs_error": 4.76837158203125e-06,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.02
+            },
+            "schedules": [
+              {
+                "buffer_versions": {
+                  "k_compute": [
+                    "k_compute",
+                    "k_compute_pipeline_v1"
+                  ],
+                  "mask": [
+                    "mask",
+                    "mask_pipeline_v1"
+                  ],
+                  "v_compute": [
+                    "v_compute",
+                    "v_compute_pipeline_v1"
+                  ]
+                },
+                "cmodel_parallel_execution": false,
+                "compute_state": "single-version ordered recurrence",
+                "explicit": false,
+                "extent": 4,
+                "fingerprint": "62e5ed648c25beabed2b7ba40d6910619cb9f083302f34ce0201bbeebbaa3ec3",
+                "loop": "ko",
+                "num_stages": 2,
+                "order": [
+                  0,
+                  1,
+                  3,
+                  4,
+                  2,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18
+                ],
+                "prefetch_distance": 1,
+                "stage": [
+                  0,
+                  0,
+                  1,
+                  1,
+                  0,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "statements": [
+                  {
+                    "index": 0,
+                    "kind": "load",
+                    "reads": [
+                      "K"
+                    ],
+                    "tir": "K = T.Buffer((2, 64, 2, 16), \"float16\")\nbz = T.int32()\nko = T.int32()\nby = T.int32()\nk_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(K[bz, ko * 16:ko * 16 + 16, by, 0:16], 1, 1, 16, 1, 16), T.region(k_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "k_compute"
+                    ]
+                  },
+                  {
+                    "index": 1,
+                    "kind": "load",
+                    "reads": [
+                      "V"
+                    ],
+                    "tir": "V = T.Buffer((2, 64, 2, 16), \"float16\")\nbz = T.int32()\nko = T.int32()\nby = T.int32()\nv_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(V[bz, ko * 16:ko * 16 + 16, by, 0:16], 1, 1, 16, 1, 16), T.region(v_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "v_compute"
+                    ]
+                  },
+                  {
+                    "index": 2,
+                    "kind": "compute",
+                    "reads": [
+                      "k_compute",
+                      "q_compute"
+                    ],
+                    "tir": "q_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nk_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nscores = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.gemm\", T.region(q_compute[0, 0], 1, 16, 16), T.region(k_compute[0, 0], 1, 16, 16), T.region(scores[0, 0], 2, 16, 16), T.bool(False), T.bool(True), 16, 16, 16, T.bool(False))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 3,
+                    "kind": "compute",
+                    "reads": [
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul_scalar\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.float32(0.25))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 4,
+                    "kind": "load",
+                    "reads": [
+                      "Mask"
+                    ],
+                    "tir": "Mask = T.Buffer((64, 64))\nbx = T.int32()\nko = T.int32()\nmask = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(Mask[bx * 16, ko * 16], 1, 16, 16), T.region(mask[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "mask"
+                    ]
+                  },
+                  {
+                    "index": 5,
+                    "kind": "compute",
+                    "reads": [
+                      "mask",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nmask = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.region(mask[0, 0], 1, 16, 16))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 6,
+                    "kind": "compute",
+                    "reads": [
+                      "row_max"
+                    ],
+                    "tir": "row_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(row_max[0, 0], 1, 16, 1), T.region(previous_max[0, 0], 2, 16, 1))",
+                    "writes": [
+                      "previous_max"
+                    ]
+                  },
+                  {
+                    "index": 7,
+                    "kind": "compute",
+                    "reads": [
+                      "scores",
+                      "tmp_buffer_max"
+                    ],
+                    "tir": "with T.block(\"reduce_max\"):\n    scores = T.Buffer((16, 16), scope=\"shared.dyn\")\n    current_max = T.Buffer((16, 1), scope=\"shared.dyn\")\n    T.reads(scores[0, 0], current_max[0, 0])\n    T.writes()\n    tmp_buffer_max = T.alloc_buffer((16, 16), scope=\"shared.dyn\")\n    T.call_extern(\"handle\", \"tl.tpu.reduce_max\", T.region(scores[0, 0], 3, 16, 16), T.region(current_max[0, 0], 2, 16, 1), T.region(tmp_buffer_max[0, 0], 3, 16, 16), 16, 16, 16)",
+                    "writes": [
+                      "current_max",
+                      "scores",
+                      "tmp_buffer_max"
+                    ]
+                  },
+                  {
+                    "index": 8,
+                    "kind": "compute",
+                    "reads": [
+                      "current_max",
+                      "previous_max"
+                    ],
+                    "tir": "row_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\ncurrent_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.max\", T.region(row_max[0, 0], 2, 16, 1), T.region(previous_max[0, 0], 1, 16, 1), T.region(current_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_max"
+                    ]
+                  },
+                  {
+                    "index": 9,
+                    "kind": "compute",
+                    "reads": [
+                      "previous_max",
+                      "row_max"
+                    ],
+                    "tir": "previous_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nrow_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.sub\", T.region(previous_scale[0, 0], 2, 16, 1), T.region(previous_max[0, 0], 1, 16, 1), T.region(row_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "previous_scale"
+                    ]
+                  },
+                  {
+                    "index": 10,
+                    "kind": "compute",
+                    "reads": [
+                      "exp_coeff",
+                      "previous_scale",
+                      "scale_work0",
+                      "scale_work1"
+                    ],
+                    "tir": "previous_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nscale_work0 = T.Buffer((16, 1), scope=\"shared.dyn\")\nscale_work1 = T.Buffer((16, 1), scope=\"shared.dyn\")\nexp_coeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(previous_scale[0, 0], 3, 16, 1), T.region(scale_work0[0, 0], 3, 16, 1), T.region(scale_work1[0, 0], 3, 16, 1), T.region(exp_coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "exp_coeff",
+                      "previous_scale",
+                      "scale_work0",
+                      "scale_work1"
+                    ]
+                  },
+                  {
+                    "index": 11,
+                    "kind": "compute",
+                    "reads": [
+                      "row_max",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nrow_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.sub\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.region(row_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 12,
+                    "kind": "compute",
+                    "reads": [
+                      "exp_coeff",
+                      "score_work0",
+                      "score_work1",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nscore_work0 = T.Buffer((16, 16), scope=\"shared.dyn\")\nscore_work1 = T.Buffer((16, 16), scope=\"shared.dyn\")\nexp_coeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(scores[0, 0], 3, 16, 16), T.region(score_work0[0, 0], 3, 16, 16), T.region(score_work1[0, 0], 3, 16, 16), T.region(exp_coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "exp_coeff",
+                      "score_work0",
+                      "score_work1",
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 13,
+                    "kind": "compute",
+                    "reads": [
+                      "scores",
+                      "tmp_buffer_sum"
+                    ],
+                    "tir": "with T.block(\"reduce_sum\"):\n    scores = T.Buffer((16, 16), scope=\"shared.dyn\")\n    chunk_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\n    T.reads(scores[0, 0], chunk_sum[0, 0])\n    T.writes()\n    tmp_buffer_sum = T.alloc_buffer((16, 16), scope=\"shared.dyn\")\n    T.call_extern(\"handle\", \"tl.tpu.reduce_sum\", T.region(scores[0, 0], 3, 16, 16), T.region(chunk_sum[0, 0], 2, 16, 1), T.region(tmp_buffer_sum[0, 0], 3, 16, 16), 16, 16, 16)",
+                    "writes": [
+                      "chunk_sum",
+                      "scores",
+                      "tmp_buffer_sum"
+                    ]
+                  },
+                  {
+                    "index": 14,
+                    "kind": "compute",
+                    "reads": [
+                      "previous_scale",
+                      "row_sum"
+                    ],
+                    "tir": "row_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(row_sum[0, 0], 2, 16, 1), T.region(row_sum[0, 0], 1, 16, 1), T.region(previous_scale[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_sum"
+                    ]
+                  },
+                  {
+                    "index": 15,
+                    "kind": "compute",
+                    "reads": [
+                      "chunk_sum",
+                      "row_sum"
+                    ],
+                    "tir": "row_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nchunk_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add\", T.region(row_sum[0, 0], 2, 16, 1), T.region(row_sum[0, 0], 1, 16, 1), T.region(chunk_sum[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_sum"
+                    ]
+                  },
+                  {
+                    "index": 16,
+                    "kind": "compute",
+                    "reads": [
+                      "accumulator",
+                      "previous_scale"
+                    ],
+                    "tir": "accumulator = T.Buffer((16, 16), scope=\"shared.dyn\")\nprevious_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(accumulator[0, 0], 2, 16, 16), T.region(accumulator[0, 0], 1, 16, 16), T.region(previous_scale[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "accumulator"
+                    ]
+                  },
+                  {
+                    "index": 17,
+                    "kind": "compute",
+                    "reads": [
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nscores_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(scores[0, 0], 1, 16, 16), T.region(scores_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "scores_compute"
+                    ]
+                  },
+                  {
+                    "index": 18,
+                    "kind": "compute",
+                    "reads": [
+                      "accumulator",
+                      "scores_compute",
+                      "v_compute"
+                    ],
+                    "tir": "scores_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nv_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\naccumulator = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.gemm\", T.region(scores_compute[0, 0], 1, 16, 16), T.region(v_compute[0, 0], 1, 16, 16), T.region(accumulator[0, 0], 3, 16, 16), T.bool(False), T.bool(False), 16, 16, 16, T.bool(True))",
+                    "writes": [
+                      "accumulator"
+                    ]
+                  }
+                ],
+                "stores": "after parallel end; completed before output reuse"
+              }
+            ],
+            "source_sha256": "1638b00b8b02b3ee99aef2ee93220b5883fdcbec9d3a8418683473a39fddb045"
+          },
+          "serial": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.accumulator": 16512,
+              "tilelang.tpu.lmem.address.chunk_sum": 16704,
+              "tilelang.tpu.lmem.address.current_max": 16384,
+              "tilelang.tpu.lmem.address.exp_coeff": 16384,
+              "tilelang.tpu.lmem.address.k_compute": 32768,
+              "tilelang.tpu.lmem.address.mask": 16384,
+              "tilelang.tpu.lmem.address.normalized": 16384,
+              "tilelang.tpu.lmem.address.output_local": 16448,
+              "tilelang.tpu.lmem.address.previous_max": 32832,
+              "tilelang.tpu.lmem.address.previous_scale": 32768,
+              "tilelang.tpu.lmem.address.q_compute": 16640,
+              "tilelang.tpu.lmem.address.row_max": 16576,
+              "tilelang.tpu.lmem.address.row_sum": 49152,
+              "tilelang.tpu.lmem.address.scale_work0": 49216,
+              "tilelang.tpu.lmem.address.scale_work1": 65536,
+              "tilelang.tpu.lmem.address.score_work0": 32832,
+              "tilelang.tpu.lmem.address.score_work1": 49216,
+              "tilelang.tpu.lmem.address.scores": 0,
+              "tilelang.tpu.lmem.address.scores_compute": 49216,
+              "tilelang.tpu.lmem.address.tmp_buffer_max": 16448,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum": 16768,
+              "tilelang.tpu.lmem.address.v_compute": 32896
+            },
+            "output_sha256": "6b73902b3d56450551904b0aebeb07b99f0d06112f1f8f2b27c7d24c26a6b62b",
+            "reference": {
+              "atol": 0.02,
+              "element_count": 4096,
+              "finite": true,
+              "max_abs_error": 0.00048828125,
+              "mean_abs_error": 4.76837158203125e-06,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.02
+            },
+            "schedules": [],
+            "source_sha256": "4d2268020e0226550fcc75b2e575658680b28cee0a46b8d25ada40d8d2b48877"
+          }
+        }
+      },
+      "peak_group_rss_bytes": 992006144,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 4.5297993639997
+    },
+    {
+      "case": "flashattn.multihead.causal",
+      "cleanup_complete": true,
+      "numeric": {
+        "case": "flashattn.multihead.causal",
+        "cmodel_parallel_execution": false,
+        "device_performance_measured": false,
+        "dtype": "float16",
+        "hardware_overlap_verified": false,
+        "num_stages": 2,
+        "parameters": {
+          "batch": 2,
+          "block_m": 16,
+          "block_n": 16,
+          "head_dim": 16,
+          "heads": 2,
+          "sequence": 64
+        },
+        "seed": 0,
+        "serial_pipeline_bitwise_equal": true,
+        "status": "passed",
+        "variants": {
+          "pipeline": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.accumulator": 16512,
+              "tilelang.tpu.lmem.address.chunk_sum": 16832,
+              "tilelang.tpu.lmem.address.current_max": 16768,
+              "tilelang.tpu.lmem.address.exp_coeff": 16384,
+              "tilelang.tpu.lmem.address.k_compute": 49536,
+              "tilelang.tpu.lmem.address.k_compute_pipeline_v1": 49600,
+              "tilelang.tpu.lmem.address.mask": 16704,
+              "tilelang.tpu.lmem.address.mask_pipeline_v1": 16896,
+              "tilelang.tpu.lmem.address.normalized": 16384,
+              "tilelang.tpu.lmem.address.output_local": 16448,
+              "tilelang.tpu.lmem.address.previous_max": 49408,
+              "tilelang.tpu.lmem.address.previous_scale": 32768,
+              "tilelang.tpu.lmem.address.q_compute": 16576,
+              "tilelang.tpu.lmem.address.row_max": 16640,
+              "tilelang.tpu.lmem.address.row_sum": 49152,
+              "tilelang.tpu.lmem.address.scale_work0": 49216,
+              "tilelang.tpu.lmem.address.scale_work1": 65536,
+              "tilelang.tpu.lmem.address.score_work0": 32896,
+              "tilelang.tpu.lmem.address.score_work1": 49280,
+              "tilelang.tpu.lmem.address.scores": 0,
+              "tilelang.tpu.lmem.address.scores_compute": 32832,
+              "tilelang.tpu.lmem.address.tmp_buffer_max": 16960,
+              "tilelang.tpu.lmem.address.tmp_buffer_max_macro1": 16960,
+              "tilelang.tpu.lmem.address.tmp_buffer_max_macro2": 16576,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum": 17024,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum_macro1": 17024,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum_macro2": 16384,
+              "tilelang.tpu.lmem.address.v_compute": 49344,
+              "tilelang.tpu.lmem.address.v_compute_pipeline_v1": 49472
+            },
+            "output_sha256": "4ec5b31535bc95576db6f818c7e1594ff81e007c5774a859d294daf5ec7e4ab1",
+            "reference": {
+              "atol": 0.02,
+              "element_count": 4096,
+              "finite": true,
+              "max_abs_error": 0.00048828125,
+              "mean_abs_error": 9.5367431640625e-06,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.02
+            },
+            "schedules": [
+              {
+                "buffer_versions": {
+                  "k_compute": [
+                    "k_compute",
+                    "k_compute_pipeline_v1"
+                  ],
+                  "mask": [
+                    "mask",
+                    "mask_pipeline_v1"
+                  ],
+                  "v_compute": [
+                    "v_compute",
+                    "v_compute_pipeline_v1"
+                  ]
+                },
+                "cmodel_parallel_execution": false,
+                "compute_state": "single-version ordered recurrence",
+                "explicit": false,
+                "extent": 4,
+                "fingerprint": "62e5ed648c25beabed2b7ba40d6910619cb9f083302f34ce0201bbeebbaa3ec3",
+                "loop": "ko",
+                "num_stages": 2,
+                "order": [
+                  0,
+                  1,
+                  3,
+                  4,
+                  2,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18
+                ],
+                "prefetch_distance": 1,
+                "stage": [
+                  0,
+                  0,
+                  1,
+                  1,
+                  0,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "statements": [
+                  {
+                    "index": 0,
+                    "kind": "load",
+                    "reads": [
+                      "K"
+                    ],
+                    "tir": "K = T.Buffer((2, 64, 2, 16), \"float16\")\nbz = T.int32()\nko = T.int32()\nby = T.int32()\nk_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(K[bz, ko * 16:ko * 16 + 16, by, 0:16], 1, 1, 16, 1, 16), T.region(k_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "k_compute"
+                    ]
+                  },
+                  {
+                    "index": 1,
+                    "kind": "load",
+                    "reads": [
+                      "V"
+                    ],
+                    "tir": "V = T.Buffer((2, 64, 2, 16), \"float16\")\nbz = T.int32()\nko = T.int32()\nby = T.int32()\nv_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(V[bz, ko * 16:ko * 16 + 16, by, 0:16], 1, 1, 16, 1, 16), T.region(v_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "v_compute"
+                    ]
+                  },
+                  {
+                    "index": 2,
+                    "kind": "compute",
+                    "reads": [
+                      "k_compute",
+                      "q_compute"
+                    ],
+                    "tir": "q_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nk_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nscores = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.gemm\", T.region(q_compute[0, 0], 1, 16, 16), T.region(k_compute[0, 0], 1, 16, 16), T.region(scores[0, 0], 2, 16, 16), T.bool(False), T.bool(True), 16, 16, 16, T.bool(False))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 3,
+                    "kind": "compute",
+                    "reads": [
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul_scalar\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.float32(0.25))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 4,
+                    "kind": "load",
+                    "reads": [
+                      "Mask"
+                    ],
+                    "tir": "Mask = T.Buffer((64, 64))\nbx = T.int32()\nko = T.int32()\nmask = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(Mask[bx * 16, ko * 16], 1, 16, 16), T.region(mask[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "mask"
+                    ]
+                  },
+                  {
+                    "index": 5,
+                    "kind": "compute",
+                    "reads": [
+                      "mask",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nmask = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.region(mask[0, 0], 1, 16, 16))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 6,
+                    "kind": "compute",
+                    "reads": [
+                      "row_max"
+                    ],
+                    "tir": "row_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(row_max[0, 0], 1, 16, 1), T.region(previous_max[0, 0], 2, 16, 1))",
+                    "writes": [
+                      "previous_max"
+                    ]
+                  },
+                  {
+                    "index": 7,
+                    "kind": "compute",
+                    "reads": [
+                      "scores",
+                      "tmp_buffer_max"
+                    ],
+                    "tir": "with T.block(\"reduce_max\"):\n    scores = T.Buffer((16, 16), scope=\"shared.dyn\")\n    current_max = T.Buffer((16, 1), scope=\"shared.dyn\")\n    T.reads(scores[0, 0], current_max[0, 0])\n    T.writes()\n    tmp_buffer_max = T.alloc_buffer((16, 16), scope=\"shared.dyn\")\n    T.call_extern(\"handle\", \"tl.tpu.reduce_max\", T.region(scores[0, 0], 3, 16, 16), T.region(current_max[0, 0], 2, 16, 1), T.region(tmp_buffer_max[0, 0], 3, 16, 16), 16, 16, 16)",
+                    "writes": [
+                      "current_max",
+                      "scores",
+                      "tmp_buffer_max"
+                    ]
+                  },
+                  {
+                    "index": 8,
+                    "kind": "compute",
+                    "reads": [
+                      "current_max",
+                      "previous_max"
+                    ],
+                    "tir": "row_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\ncurrent_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.max\", T.region(row_max[0, 0], 2, 16, 1), T.region(previous_max[0, 0], 1, 16, 1), T.region(current_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_max"
+                    ]
+                  },
+                  {
+                    "index": 9,
+                    "kind": "compute",
+                    "reads": [
+                      "previous_max",
+                      "row_max"
+                    ],
+                    "tir": "previous_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nrow_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.sub\", T.region(previous_scale[0, 0], 2, 16, 1), T.region(previous_max[0, 0], 1, 16, 1), T.region(row_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "previous_scale"
+                    ]
+                  },
+                  {
+                    "index": 10,
+                    "kind": "compute",
+                    "reads": [
+                      "exp_coeff",
+                      "previous_scale",
+                      "scale_work0",
+                      "scale_work1"
+                    ],
+                    "tir": "previous_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nscale_work0 = T.Buffer((16, 1), scope=\"shared.dyn\")\nscale_work1 = T.Buffer((16, 1), scope=\"shared.dyn\")\nexp_coeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(previous_scale[0, 0], 3, 16, 1), T.region(scale_work0[0, 0], 3, 16, 1), T.region(scale_work1[0, 0], 3, 16, 1), T.region(exp_coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "exp_coeff",
+                      "previous_scale",
+                      "scale_work0",
+                      "scale_work1"
+                    ]
+                  },
+                  {
+                    "index": 11,
+                    "kind": "compute",
+                    "reads": [
+                      "row_max",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nrow_max = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.sub\", T.region(scores[0, 0], 2, 16, 16), T.region(scores[0, 0], 1, 16, 16), T.region(row_max[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 12,
+                    "kind": "compute",
+                    "reads": [
+                      "exp_coeff",
+                      "score_work0",
+                      "score_work1",
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nscore_work0 = T.Buffer((16, 16), scope=\"shared.dyn\")\nscore_work1 = T.Buffer((16, 16), scope=\"shared.dyn\")\nexp_coeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(scores[0, 0], 3, 16, 16), T.region(score_work0[0, 0], 3, 16, 16), T.region(score_work1[0, 0], 3, 16, 16), T.region(exp_coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "exp_coeff",
+                      "score_work0",
+                      "score_work1",
+                      "scores"
+                    ]
+                  },
+                  {
+                    "index": 13,
+                    "kind": "compute",
+                    "reads": [
+                      "scores",
+                      "tmp_buffer_sum"
+                    ],
+                    "tir": "with T.block(\"reduce_sum\"):\n    scores = T.Buffer((16, 16), scope=\"shared.dyn\")\n    chunk_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\n    T.reads(scores[0, 0], chunk_sum[0, 0])\n    T.writes()\n    tmp_buffer_sum = T.alloc_buffer((16, 16), scope=\"shared.dyn\")\n    T.call_extern(\"handle\", \"tl.tpu.reduce_sum\", T.region(scores[0, 0], 3, 16, 16), T.region(chunk_sum[0, 0], 2, 16, 1), T.region(tmp_buffer_sum[0, 0], 3, 16, 16), 16, 16, 16)",
+                    "writes": [
+                      "chunk_sum",
+                      "scores",
+                      "tmp_buffer_sum"
+                    ]
+                  },
+                  {
+                    "index": 14,
+                    "kind": "compute",
+                    "reads": [
+                      "previous_scale",
+                      "row_sum"
+                    ],
+                    "tir": "row_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nprevious_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(row_sum[0, 0], 2, 16, 1), T.region(row_sum[0, 0], 1, 16, 1), T.region(previous_scale[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_sum"
+                    ]
+                  },
+                  {
+                    "index": 15,
+                    "kind": "compute",
+                    "reads": [
+                      "chunk_sum",
+                      "row_sum"
+                    ],
+                    "tir": "row_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nchunk_sum = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add\", T.region(row_sum[0, 0], 2, 16, 1), T.region(row_sum[0, 0], 1, 16, 1), T.region(chunk_sum[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "row_sum"
+                    ]
+                  },
+                  {
+                    "index": 16,
+                    "kind": "compute",
+                    "reads": [
+                      "accumulator",
+                      "previous_scale"
+                    ],
+                    "tir": "accumulator = T.Buffer((16, 16), scope=\"shared.dyn\")\nprevious_scale = T.Buffer((16, 1), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(accumulator[0, 0], 2, 16, 16), T.region(accumulator[0, 0], 1, 16, 16), T.region(previous_scale[0, 0], 1, 16, 1))",
+                    "writes": [
+                      "accumulator"
+                    ]
+                  },
+                  {
+                    "index": 17,
+                    "kind": "compute",
+                    "reads": [
+                      "scores"
+                    ],
+                    "tir": "scores = T.Buffer((16, 16), scope=\"shared.dyn\")\nscores_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(scores[0, 0], 1, 16, 16), T.region(scores_compute[0, 0], 2, 16, 16))",
+                    "writes": [
+                      "scores_compute"
+                    ]
+                  },
+                  {
+                    "index": 18,
+                    "kind": "compute",
+                    "reads": [
+                      "accumulator",
+                      "scores_compute",
+                      "v_compute"
+                    ],
+                    "tir": "scores_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\nv_compute = T.Buffer((16, 16), \"float16\", scope=\"shared.dyn\")\naccumulator = T.Buffer((16, 16), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.gemm\", T.region(scores_compute[0, 0], 1, 16, 16), T.region(v_compute[0, 0], 1, 16, 16), T.region(accumulator[0, 0], 3, 16, 16), T.bool(False), T.bool(False), 16, 16, 16, T.bool(True))",
+                    "writes": [
+                      "accumulator"
+                    ]
+                  }
+                ],
+                "stores": "after parallel end; completed before output reuse"
+              }
+            ],
+            "source_sha256": "1638b00b8b02b3ee99aef2ee93220b5883fdcbec9d3a8418683473a39fddb045"
+          },
+          "serial": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.accumulator": 16512,
+              "tilelang.tpu.lmem.address.chunk_sum": 16704,
+              "tilelang.tpu.lmem.address.current_max": 16384,
+              "tilelang.tpu.lmem.address.exp_coeff": 16384,
+              "tilelang.tpu.lmem.address.k_compute": 32768,
+              "tilelang.tpu.lmem.address.mask": 16384,
+              "tilelang.tpu.lmem.address.normalized": 16384,
+              "tilelang.tpu.lmem.address.output_local": 16448,
+              "tilelang.tpu.lmem.address.previous_max": 32832,
+              "tilelang.tpu.lmem.address.previous_scale": 32768,
+              "tilelang.tpu.lmem.address.q_compute": 16640,
+              "tilelang.tpu.lmem.address.row_max": 16576,
+              "tilelang.tpu.lmem.address.row_sum": 49152,
+              "tilelang.tpu.lmem.address.scale_work0": 49216,
+              "tilelang.tpu.lmem.address.scale_work1": 65536,
+              "tilelang.tpu.lmem.address.score_work0": 32832,
+              "tilelang.tpu.lmem.address.score_work1": 49216,
+              "tilelang.tpu.lmem.address.scores": 0,
+              "tilelang.tpu.lmem.address.scores_compute": 49216,
+              "tilelang.tpu.lmem.address.tmp_buffer_max": 16448,
+              "tilelang.tpu.lmem.address.tmp_buffer_sum": 16768,
+              "tilelang.tpu.lmem.address.v_compute": 32896
+            },
+            "output_sha256": "4ec5b31535bc95576db6f818c7e1594ff81e007c5774a859d294daf5ec7e4ab1",
+            "reference": {
+              "atol": 0.02,
+              "element_count": 4096,
+              "finite": true,
+              "max_abs_error": 0.00048828125,
+              "mean_abs_error": 9.5367431640625e-06,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.02
+            },
+            "schedules": [],
+            "source_sha256": "4d2268020e0226550fcc75b2e575658680b28cee0a46b8d25ada40d8d2b48877"
+          }
+        }
+      },
+      "peak_group_rss_bytes": 994738176,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 4.641153104000296
+    }
+  ],
+  "runtime_mode": "cmodel",
+  "schema_version": 1,
+  "started_at": "2026-09-28T15:02:42.096291+00:00",
+  "suite": "pipeline"
+}

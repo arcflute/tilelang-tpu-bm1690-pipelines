@@ -9,7 +9,10 @@ import os
 
 def pipeline_cases():
     return ["elementwise-add", "elementwise-sub", "elementwise-mul", "elementwise-div",
-            "matmul", "rope", "swiglu"]
+            "matmul", "rope", "swiglu", "rmsnorm", "rmsnorm-splitk"] + [
+                "flashattn." + variant + (".causal" if causal else "")
+                for causal in (False,True)
+                for variant in ("balanced","descending-max","weighted-keys","multihead")]
 
 
 def run_pipeline_case(case, seed, size, stages=2):
@@ -70,6 +73,58 @@ def run_pipeline_case(case, seed, size, stages=2):
                       "block_width":32 if size == "smoke" else 128}
         def build(depth):
             return pipeline_kernel_tiles(build_swiglu(**parameters),depth)
+    elif case in ("rmsnorm", "rmsnorm-splitk"):
+        from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm, build_rmsnorm_splitk
+        rows = 16 if size == "smoke" else 1024
+        source = torch.randn((rows,width),generator=generator).half()
+        # Exercise the epsilon path, small magnitudes, and nonuniform weights.
+        source[0] = 0
+        source[1] *= 0.001
+        weight = (torch.randn((rows,width),generator=generator)*0.25+1).half()
+        inputs = [source,weight]
+        normalized = source.float()*torch.rsqrt(source.float().square().mean(dim=1,keepdim=True)+1e-12)
+        expected = (normalized.half().float()*weight.float()).half()
+        family = "rmsnorm"
+        parameters = {"rows":rows,"width":width,"block_rows":4 if size == "smoke" else 32,"epsilon":1e-12}
+        if case == "rmsnorm-splitk":
+            parameters["block_k"] = 32 if size == "smoke" else 128
+        def build(depth):
+            if case == "rmsnorm-splitk":
+                return build_rmsnorm_splitk(**parameters,num_stages=depth)
+            return pipeline_kernel_tiles(build_rmsnorm(**parameters),depth)
+    elif case.startswith("flashattn."):
+        from tpu_demo.flashattn.flashattn import build_flashattn, _reference, _attention_mask
+        variant = case.split(".")[1]
+        causal = case.endswith(".causal")
+        batch = heads = 2 if variant == "multihead" else 1
+        sequence, head_dim = (64,16) if size == "smoke" else (1024,64)
+        shape = (batch,sequence,heads,head_dim)
+        if variant == "descending-max":
+            q = torch.full(shape,10.0,dtype=torch.float16)
+            k = torch.full(shape,-10.0,dtype=torch.float16)
+            k[:,:sequence//2] = 10
+            v = (torch.randn(shape,generator=generator)*0.5).half()
+        elif variant == "weighted-keys":
+            query_scale = torch.linspace(0.75,1.5,sequence).reshape(1,sequence,1,1)
+            key_scale = torch.linspace(-1,1,sequence).reshape(1,sequence,1,1)
+            channel_scale = torch.linspace(-0.5,0.5,head_dim).reshape(1,1,1,head_dim)
+            q = (0.5*query_scale).expand(shape).half().contiguous()
+            k = (0.5*key_scale).expand(shape).half().contiguous()
+            v = (0.5*key_scale+0.25*channel_scale).expand(shape).half().contiguous()
+        else:
+            q = (torch.randn(shape,generator=generator)*0.25).half()
+            k = (torch.randn(shape,generator=generator)*0.25).half()
+            v = torch.full(shape,0.25,dtype=torch.float16)
+            v[:,sequence//2:] = 0.75
+        mask = _attention_mask(sequence,causal)
+        inputs = [q,k,v,mask]
+        expected = _reference(*inputs,"float16")
+        family = "flashattn"
+        parameters = {"batch":batch,"heads":heads,"sequence":sequence,"head_dim":head_dim,
+                      "block_m":16 if size == "smoke" else 32,
+                      "block_n":16 if size == "smoke" else 32}
+        def build(depth):
+            return build_flashattn(**parameters,num_stages=depth)
     else:
         raise ValueError(f"unknown pipeline case {case}")
     originals = [tensor.clone() for tensor in inputs]

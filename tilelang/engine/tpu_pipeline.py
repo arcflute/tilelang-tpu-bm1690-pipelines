@@ -51,10 +51,14 @@ def _seq(statements):
 def _statements(statement):
     if isinstance(statement, tir.BlockRealize):
         block = statement.block
-        if block.alloc_buffers or block.match_buffers or block.iter_vars or block.init is not None:
-            _error("pipeline-body block must not own allocations, aliases, iterators or init")
+        if block.match_buffers or block.iter_vars or block.init is not None:
+            _error("pipeline-body block must not own aliases, iterators or init")
         if not arith.Analyzer().can_prove(statement.predicate):
             _error("conditional pipeline-body block is unsupported")
+        if block.alloc_buffers:
+            # An opaque local compute macro (e.g. reduce) is one statement;
+            # its private scratch ownership must survive schedule expansion.
+            return [statement]
         return _statements(block.body)
     if isinstance(statement, tir.SeqStmt):
         result = []
@@ -179,6 +183,15 @@ def validate_parallel_scope(node):
 
 def _replace(statement, loop_var, iteration, buffers):
     statement = tir.stmt_functor.substitute(statement, {loop_var: iteration})
+    buffers = dict(buffers)
+    def fresh_private_allocations(node):
+        if isinstance(node, tir.Block):
+            for buffer in node.alloc_buffers:
+                buffers[buffer.data] = tir.decl_buffer(
+                    buffer.shape, buffer.dtype, name=buffer.name, scope=buffer.scope(),
+                    elem_offset=buffer.elem_offset, strides=buffer.strides,
+                    data_alignment=buffer.data_alignment, offset_factor=buffer.offset_factor)
+    tir.stmt_functor.post_order_visit(statement, fresh_private_allocations)
     def rewrite(node):
         if isinstance(node, tir.BufferLoad) and node.buffer.data in buffers:
             return tir.BufferLoad(buffers[node.buffer.data], node.indices, node.span)
@@ -186,7 +199,8 @@ def _replace(statement, loop_var, iteration, buffers):
             def regions(items):
                 return [tir.BufferRegion(buffers.get(item.buffer.data, item.buffer), item.region) for item in items]
             return tir.Block(node.iter_vars, regions(node.reads), regions(node.writes), node.name_hint,
-                             node.body, node.init, node.alloc_buffers, node.match_buffers,
+                             node.body, node.init,
+                             [buffers.get(buffer.data, buffer) for buffer in node.alloc_buffers], node.match_buffers,
                              node.annotations)
         return None
     return tir.stmt_functor.ir_transform(statement, None, rewrite, ["tir.BufferLoad", "tir.Block"])
