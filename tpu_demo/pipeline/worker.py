@@ -15,7 +15,7 @@ def pipeline_cases():
                 for variant in ("balanced","descending-max","weighted-keys","multihead")]
 
 
-def run_pipeline_case(case, seed, size, stages=2):
+def run_pipeline_case(case, seed, size, stages=2, schedule="auto", reuse_buffers=False):
     """Compare identical arithmetic/tiling, using independent reference math."""
     from pathlib import Path
     import hashlib
@@ -130,8 +130,21 @@ def run_pipeline_case(case, seed, size, stages=2):
     originals = [tensor.clone() for tensor in inputs]
     variants = {}
     outputs = []
-    for name, depth in (("serial", 0), ("pipeline", stages)):
+    candidates = [("serial", 0), ("pipeline", stages)]
+    if reuse_buffers:
+        if case != "swiglu":
+            raise ValueError("buffer reuse is currently specific to SwiGLU")
+        candidates += [("reuse_serial",0),("reuse_pipeline",stages)]
+    for name, depth in candidates:
         function = build(depth)
+        if name.startswith("reuse_"):
+            from tpu_demo.pipeline.kernels import reuse_swiglu_buffers
+            function = reuse_swiglu_buffers(function)
+        if depth and schedule != "auto":
+            from tilelang.engine.tpu_pipeline import bind_explicit_schedule
+            function = bind_explicit_schedule(
+                function, tilelang.tvm.target.Target("tpu -mcpu=bm1690 -tpu-programming-model=tpukernel"),
+                reverse_loads=schedule == "reverse-loads")
         artifact = tilelang.lower(function, target="tpu -mcpu=bm1690 -tpu-programming-model=tpukernel",
                                   runtime_mode="cmodel")
         Path(name + ".c").write_text(artifact.kernel_source)
@@ -164,11 +177,12 @@ def run_pipeline_case(case, seed, size, stages=2):
             "output_sha256": hashlib.sha256(output.numpy().tobytes()).hexdigest(),
         }
         outputs.append(output)
-    equal = torch.equal(*outputs)
+    equal = all(torch.equal(outputs[0],output) for output in outputs[1:])
     if not equal:
         raise AssertionError("pipeline changed same-tile serial results")
     return {"status": "passed", "case": case, "parameters": parameters, "dtype": "float16",
-            "seed": seed, "num_stages": stages, "serial_pipeline_bitwise_equal": equal,
+            "seed": seed, "num_stages": stages, "schedule": schedule, "serial_pipeline_bitwise_equal": equal,
+            "reuse_swiglu_buffers": reuse_buffers,
             "variants": variants, "cmodel_parallel_execution": False,
             "hardware_overlap_verified": False, "device_performance_measured": False}
 
@@ -179,6 +193,9 @@ def main():
     parser.add_argument("--case", required=True)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--size", choices=("smoke", "target"), default="smoke")
+    parser.add_argument("--stages", type=int, choices=(2, 3), default=2)
+    parser.add_argument("--schedule", choices=("auto", "explicit", "reverse-loads"), default="auto")
+    parser.add_argument("--reuse-swiglu-buffers", action="store_true")
     args = parser.parse_args()
     cpus = os.environ.get("BM1690_PIPELINE_CPUS")
     if not cpus:
@@ -193,7 +210,8 @@ def main():
         result = run_case(args.case, chip="bm1690", programming_model="tpukernel",
                           runtime_mode="cmodel", seed=args.seed)
     else:
-        result = run_pipeline_case(args.case, args.seed, args.size)
+        result = run_pipeline_case(args.case, args.seed, args.size, args.stages, args.schedule,
+                                   args.reuse_swiglu_buffers)
     print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
 
 

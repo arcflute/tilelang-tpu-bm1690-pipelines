@@ -386,3 +386,36 @@ def lower_tpu_pipelines(module):
            for f in result.functions.values()):
         result = tir.transform.ConvertSSA()(result)
     return result
+
+
+def bind_explicit_schedule(function, target, *, reverse_loads=False):
+    """Generate a P6 candidate from this function's legalized statements.
+
+    Returns legalized IR with a fingerprint-bound contract. The normal compiler
+    still validates that contract; this helper does not bypass effect checks.
+    Reversing independent loads is a candidate, not a performance assertion.
+    """
+    from tilelang.engine.phase import LowerAndLegalize
+    legalized = LowerAndLegalize(IRModule({"main": function}), target)["main"]
+    planned = _lower_function(legalized)
+    if not planned.attrs or REPORT_ATTR not in planned.attrs:
+        _error("explicit schedule needs at least one pipelined loop")
+    reports = iter(json.loads(str(planned.attrs[REPORT_ATTR])))
+
+    def annotate(node):
+        if not isinstance(node, tir.For) or "num_stages" not in node.annotations:
+            return None
+        report = next(reports)
+        order = report["order"]
+        if reverse_loads:
+            loads = [item["index"] for item in report["statements"] if item["kind"] == "load"]
+            positions = sorted(order[index] for index in loads)
+            for index, position in zip(reversed(loads), positions):
+                order[index] = position
+        annotations = dict(node.annotations)
+        annotations.update(tl_pipeline_order=order, tl_pipeline_stage=report["stage"],
+                           tl_pipeline_fingerprint=report["fingerprint"])
+        return tir.For(node.loop_var, node.min, node.extent, node.kind, node.body,
+                       node.thread_binding, annotations)
+
+    return legalized.with_body(tir.stmt_functor.ir_transform(legalized.body, None, annotate, ["tir.For"]))

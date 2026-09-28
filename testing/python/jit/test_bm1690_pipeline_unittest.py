@@ -80,6 +80,33 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "permutation"):
             lower(annotate(function, tl_pipeline_order=[0,0,2,3], tl_pipeline_stage=[0,0,1,1]))
 
+    def test_explicit_candidate_uses_current_ir_and_rejects_stale_or_dependent_order(self):
+        from tilelang.engine.tpu_pipeline import bind_explicit_schedule
+        from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm_splitk
+        for function in (build_elementwise_tiled(num_stages=3), build_rmsnorm_splitk(num_stages=3)):
+            bound = bind_explicit_schedule(function, tvm.target.Target(TARGET), reverse_loads=True)
+            _, schedules = report(lower(bound))
+            self.assertTrue(all(s["explicit"] for s in schedules))
+            with self.assertRaisesRegex(ValueError, "fingerprint"):
+                lower(annotate(bound, tl_pipeline_fingerprint="obsolete"))
+        function = bind_explicit_schedule(build_rmsnorm_splitk(num_stages=2), tvm.target.Target(TARGET))
+        def reverse_compute(node):
+            if isinstance(node,tvm.tir.For) and "num_stages" in node.annotations:
+                annotations = dict(node.annotations)
+                order = [int(x) for x in annotations["tl_pipeline_order"]]
+                stages = [int(x) for x in annotations["tl_pipeline_stage"]]
+                compute = [i for i,stage in enumerate(stages) if stage]
+                # Reverse a dependent local compute pair within its group.
+                a,b = compute[:2]
+                order[a],order[b] = order[b],order[a]
+                annotations["tl_pipeline_order"] = order
+                return tvm.tir.For(node.loop_var,node.min,node.extent,node.kind,node.body,
+                                   node.thread_binding,annotations)
+            return None
+        invalid = function.with_body(tvm.tir.stmt_functor.ir_transform(function.body,None,reverse_compute,["tir.For"]))
+        with self.assertRaisesRegex(ValueError,"RAW/WAR/WAW"):
+            lower(invalid)
+
     def test_mutated_prefetch_operand_is_not_scheduled(self):
         @T.prim_func
         def invalid(source: T.Tensor((8,32), "float16"), destination: T.Tensor((8,32), "float16")):

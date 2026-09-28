@@ -78,3 +78,41 @@ def build_elementwise_tiled(operation="add", *, rows=8, width=128,
                 calculate(c, a, b)
                 T.ppl_copy(c, output[row, col])
     return elementwise_tiled
+
+
+def reuse_swiglu_buffers(function):
+    """Independent FP16 SwiGLU experiment with unchanged FP32 operations.
+
+    Reuse only sequential pointwise values. Exp's three scratch buffers remain
+    distinct, as do all pipelined inputs. This is deliberately opt-in and tied
+    to this demo's named buffers rather than a generic aliasing pass.
+    """
+    from tvm import tir, IRModule, target
+    from tilelang.engine.phase import LowerAndLegalize
+    function = LowerAndLegalize(IRModule({"main": function}), target.Target(
+        "tpu -mcpu=bm1690 -tpu-programming-model=tpukernel"))["main"]
+    if "swiglu_low_precision" != str(function.attrs["global_symbol"]) or \
+            any(buffer.dtype != "float16" for buffer in function.buffer_map.values()):
+        raise ValueError("storage reuse requires the existing FP16 SwiGLU builder")
+    allocated = {}
+    def collect(node):
+        if isinstance(node,tir.Block):
+            for buffer in node.alloc_buffers:
+                allocated[buffer.name] = buffer
+    tir.stmt_functor.post_order_visit(function.body,collect)
+    names = {"denominator":"negative_gate", "sigmoid":"negative_gate",
+             "silu":"gate_f32", "output_f32":"gate_f32"}
+    if not set(names).union(names.values()).issubset(allocated):
+        raise ValueError("SwiGLU allocation contract changed")
+    mapping = {allocated[source].data:allocated[destination] for source,destination in names.items()}
+    def rewrite(node):
+        if isinstance(node,tir.BufferLoad) and node.buffer.data in mapping:
+            return tir.BufferLoad(mapping[node.buffer.data],node.indices,node.span)
+        if isinstance(node,tir.Block):
+            def regions(items):
+                return [tir.BufferRegion(mapping.get(item.buffer.data,item.buffer),item.region) for item in items]
+            return tir.Block(node.iter_vars,regions(node.reads),regions(node.writes),node.name_hint,
+                             node.body,node.init,[b for b in node.alloc_buffers if b.data not in mapping],
+                             node.match_buffers,node.annotations)
+        return None
+    return function.with_body(tir.stmt_functor.ir_transform(function.body,None,rewrite,["tir.BufferLoad","tir.Block"]))

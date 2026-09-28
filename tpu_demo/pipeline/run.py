@@ -8,6 +8,7 @@ The parent stays outside the worker's CPU affinity and monitors the entire group
 from __future__ import annotations
 
 import argparse
+import fcntl
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -152,11 +153,21 @@ def main():
     parser.add_argument("--cpu-count", type=int, default=2)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--size", choices=("smoke", "target"), default="smoke")
+    parser.add_argument("--stages", type=int, choices=(2, 3), default=2)
+    parser.add_argument("--schedule", choices=("auto", "explicit", "reverse-loads"), default="auto")
+    parser.add_argument("--reuse-swiglu-buffers", action="store_true")
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or args.timeout <= 0 or args.max_rss_mib <= 0 or args.cpu_count <= 0:
         parser.error("resource limits must be positive and finite")
     if not os.environ.get("PPL_PROJECT_ROOT"):
         parser.error("activate the existing environment and set PPL_PROJECT_ROOT")
+    # One emulator matrix per user, including separate shells/checkouts. Keep
+    # the descriptor alive until this runner exits; fail immediately if busy.
+    lock = open(f"/tmp/tilelang-bm1690-cmodel-{os.getuid()}.lock", "a")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        parser.error("another bounded BM1690 CModel runner is active")
     allowed = sorted(os.sched_getaffinity(0))
     cpus = allowed[:min(args.cpu_count, max(1, len(allowed) - 1))]
     if args.suite == "baseline":
@@ -166,6 +177,8 @@ def main():
         from tpu_demo.pipeline.worker import pipeline_cases
         valid = pipeline_cases()
     cases = args.cases or valid
+    if args.reuse_swiglu_buffers and (args.suite != "pipeline" or cases != ["swiglu"]):
+        parser.error("--reuse-swiglu-buffers requires --suite pipeline --case swiglu")
     if not cases or len(cases) != len(set(cases)) or any(case not in valid for case in cases):
         parser.error(f"case selection must be unique and drawn from {valid}")
     output = args.output.resolve()
@@ -177,6 +190,8 @@ def main():
         "started_at": datetime.now(timezone.utc).isoformat(), "identity": source_identity(),
         "limits": {"cpus": cpus, "threads": 1, "timeout_s": args.timeout, "max_rss_mib": args.max_rss_mib},
         "requested_cases": cases, "results": [], "complete": False,
+        "size": args.size, "num_stages": args.stages, "schedule": args.schedule,
+        "reuse_swiglu_buffers": args.reuse_swiglu_buffers,
     }
     summary_path = output / "summary.json"
     def save():
@@ -187,7 +202,10 @@ def main():
             directory = output / case
             directory.mkdir()
             command = [sys.executable, "-m", "tpu_demo.pipeline.worker", "--suite", args.suite,
-                       "--case", case, "--seed", str(args.seed), "--size", args.size]
+                       "--case", case, "--seed", str(args.seed), "--size", args.size,
+                       "--stages", str(args.stages), "--schedule", args.schedule]
+            if args.reuse_swiglu_buffers:
+                command.append("--reuse-swiglu-buffers")
             result = run_worker(command, directory, worker_environment(directory, cpus),
                                 args.timeout, args.max_rss_mib * 1024**2)
             result["case"] = case
@@ -196,6 +214,12 @@ def main():
             save()
             if result["status"] != "passed":
                 return 1
+        final_identity = source_identity()
+        summary["source_unchanged"] = all(summary["identity"][key] == final_identity[key]
+                                          for key in ("source_sha256", "native_libraries", "tvm_gitlink"))
+        if not summary["source_unchanged"]:
+            summary["reason"] = "source_or_native_library_changed_during_run"
+            return 1
         summary["complete"] = True
         return 0
     finally:

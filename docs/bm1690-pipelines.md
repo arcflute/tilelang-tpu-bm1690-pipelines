@@ -77,3 +77,35 @@ the final IR verifier independently rejects overlapping producer/consumer data.
 Generated C retains `tpu_parallel_start/end` under `#ifndef USING_CMODEL`.
 The existing CModel build defines `USING_CMODEL`: numerical validation therefore
 does not validate physical overlap or the board's synchronization implementation.
+
+## Validated single-core candidates
+
+All six families have FP16 serial and pipeline implementations. The original
+15-case FP16 suite passes after the changes. Same-tile serial and depth-two
+pipelines pass the target workloads above; attention also covers descending
+maxima, nonuniform key weights, both mask modes and a separate multihead smoke
+test. Outputs are bitwise equal to the same-tile serial version and satisfy
+the original demo's independent-reference tolerances.
+
+Depth-three pipelines with reversed independent load order pass all 17 smoke
+cases. Explicit arrays are generated from each legalized loop by
+`bind_explicit_schedule`, then revalidated during compilation. Split-K's two
+loops have separate contracts; attention's online state remains ordered.
+
+```bash
+.risc/bin/python -m tpu_demo.pipeline.run --suite pipeline --stages 3 \
+  --schedule reverse-loads --output research/artifacts/bm1690-pipelines/depth3-new
+.risc/bin/python -m tpu_demo.pipeline.run --suite pipeline --case swiglu \
+  --size target --reuse-swiglu-buffers --stages 3 --schedule reverse-loads \
+  --output research/artifacts/bm1690-pipelines/swiglu-reuse-new
+```
+
+The SwiGLU experiment separately compares serial, pipeline, reuse-serial and
+reuse-pipeline. Its FP32 arithmetic/rounding and exp scratch contract are
+unchanged; target-size results are bitwise equal. Neither schedule candidates
+nor storage reuse have a measured BM1690 speedup yet.
+
+The runner rejects concurrent matrices from the same user and rejects a run
+whose source or native-library hashes change during execution. Full C/TIR/logs
+remain in the local artifact directories; portable summaries and schedule
+reports are under `research/bm1690-pipelines/results/`.

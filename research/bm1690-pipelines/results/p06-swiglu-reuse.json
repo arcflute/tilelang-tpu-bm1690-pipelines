@@ -1,0 +1,613 @@
+{
+  "chip": "bm1690",
+  "complete": true,
+  "device_performance_measured": false,
+  "evidence_note": "Numerical CModel evidence only; no hardware timing or overlap. Source hash identifies the tested tree.",
+  "finished_at": "2026-09-28T15:09:58.187809+00:00",
+  "hardware_overlap_verified": false,
+  "identity": {
+    "branch": "feature/bm1690-pipelines",
+    "commit": "48df994d0e8291851f575e185bee59b7a30916ea",
+    "dirty": true,
+    "native_libraries": {
+      "build-tpu/libtilelang_module.so": "77b03d1513a55f15100b98bcbd8c6d2e552c8c884a925279587d18fbcb6f4747",
+      "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+    },
+    "ppl_root": "/home/admin3/toolchains/ppl_v1.7.122-g05ebfb36-20260528",
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "source_sha256": "0810877cf77b7414ec77fc7bccff37b77dfae49342ba99060422dbbd058d5fd1",
+    "tvm_gitlink": "160000 commit a8a54d2b1f43c23a47f2fc08779654918eae6464\t3rdparty/tvm"
+  },
+  "launch_cores": 1,
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_rss_mib": 4096,
+    "threads": 1,
+    "timeout_s": 120
+  },
+  "num_stages": 3,
+  "passed": 1,
+  "programming_model": "tpukernel",
+  "requested_cases": [
+    "swiglu"
+  ],
+  "results": [
+    {
+      "case": "swiglu",
+      "cleanup_complete": true,
+      "numeric": {
+        "case": "swiglu",
+        "cmodel_parallel_execution": false,
+        "device_performance_measured": false,
+        "dtype": "float16",
+        "hardware_overlap_verified": false,
+        "num_stages": 3,
+        "parameters": {
+          "block_rows": 32,
+          "block_width": 128,
+          "rows": 1024,
+          "width": 1024
+        },
+        "reuse_swiglu_buffers": true,
+        "schedule": "reverse-loads",
+        "seed": 0,
+        "serial_pipeline_bitwise_equal": true,
+        "status": "passed",
+        "variants": {
+          "pipeline": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.coeff": 49152,
+              "tilelang.tpu.lmem.address.denominator": 1536,
+              "tilelang.tpu.lmem.address.gate_f32": 512,
+              "tilelang.tpu.lmem.address.gate_input": 2816,
+              "tilelang.tpu.lmem.address.gate_input_pipeline_v1": 3328,
+              "tilelang.tpu.lmem.address.gate_input_pipeline_v2": 3840,
+              "tilelang.tpu.lmem.address.negative_gate": 0,
+              "tilelang.tpu.lmem.address.one": 16896,
+              "tilelang.tpu.lmem.address.output_f32": 2048,
+              "tilelang.tpu.lmem.address.output_local": 3584,
+              "tilelang.tpu.lmem.address.sigmoid": 17408,
+              "tilelang.tpu.lmem.address.silu": 17920,
+              "tilelang.tpu.lmem.address.up_f32": 1024,
+              "tilelang.tpu.lmem.address.up_input": 2560,
+              "tilelang.tpu.lmem.address.up_input_pipeline_v1": 3072,
+              "tilelang.tpu.lmem.address.up_input_pipeline_v2": 4096,
+              "tilelang.tpu.lmem.address.work0": 16384,
+              "tilelang.tpu.lmem.address.work1": 32768
+            },
+            "output_sha256": "3b871fb81b652ad2919b6323ce1bcdcddfe5f6ade91aa9c57578cf7e417769f8",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.0009765625,
+              "mean_abs_error": 1.5227669791784137e-08,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [
+              {
+                "buffer_versions": {
+                  "gate_input": [
+                    "gate_input",
+                    "gate_input_pipeline_v1",
+                    "gate_input_pipeline_v2"
+                  ],
+                  "up_input": [
+                    "up_input",
+                    "up_input_pipeline_v1",
+                    "up_input_pipeline_v2"
+                  ]
+                },
+                "cmodel_parallel_execution": false,
+                "compute_state": "single-version ordered recurrence",
+                "explicit": true,
+                "extent": 256,
+                "fingerprint": "ea8fa7ae9edcaaf7e2407ff436ac250e431e381e9155c0aa896b1c0f55b201e2",
+                "loop": "output_tile",
+                "num_stages": 3,
+                "order": [
+                  1,
+                  0,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "prefetch_distance": 2,
+                "stage": [
+                  0,
+                  0,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2
+                ],
+                "statements": [
+                  {
+                    "index": 0,
+                    "kind": "load",
+                    "reads": [
+                      "gate"
+                    ],
+                    "tir": "gate = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\ngate_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(gate[output_tile // 8 * 32, output_tile % 8 * 128], 1, 32, 128), T.region(gate_input[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "gate_input"
+                    ]
+                  },
+                  {
+                    "index": 1,
+                    "kind": "load",
+                    "reads": [
+                      "up"
+                    ],
+                    "tir": "up = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\nup_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(up[output_tile // 8 * 32, output_tile % 8 * 128], 1, 32, 128), T.region(up_input[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "up_input"
+                    ]
+                  },
+                  {
+                    "index": 2,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_input"
+                    ],
+                    "tir": "gate_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\ngate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(gate_input[0, 0], 1, 32, 128), T.region(gate_f32[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "gate_f32"
+                    ]
+                  },
+                  {
+                    "index": 3,
+                    "kind": "compute",
+                    "reads": [
+                      "up_input"
+                    ],
+                    "tir": "up_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nup_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(up_input[0, 0], 1, 32, 128), T.region(up_f32[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "up_f32"
+                    ]
+                  },
+                  {
+                    "index": 4,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\ngate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul_scalar\", T.region(negative_gate[0, 0], 2, 32, 128), T.region(gate_f32[0, 0], 1, 32, 128), T.float32(-1))",
+                    "writes": [
+                      "negative_gate"
+                    ]
+                  },
+                  {
+                    "index": 5,
+                    "kind": "compute",
+                    "reads": [
+                      "coeff",
+                      "negative_gate",
+                      "work0",
+                      "work1"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\nwork0 = T.Buffer((32, 128), scope=\"shared.dyn\")\nwork1 = T.Buffer((32, 128), scope=\"shared.dyn\")\ncoeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(negative_gate[0, 0], 3, 32, 128), T.region(work0[0, 0], 3, 32, 128), T.region(work1[0, 0], 3, 32, 128), T.region(coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "coeff",
+                      "negative_gate",
+                      "work0",
+                      "work1"
+                    ]
+                  },
+                  {
+                    "index": 6,
+                    "kind": "compute",
+                    "reads": [
+                      "negative_gate"
+                    ],
+                    "tir": "denominator = T.Buffer((32, 128), scope=\"shared.dyn\")\nnegative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add_scalar\", T.region(denominator[0, 0], 2, 32, 128), T.region(negative_gate[0, 0], 1, 32, 128), T.float32(1))",
+                    "writes": [
+                      "denominator"
+                    ]
+                  },
+                  {
+                    "index": 7,
+                    "kind": "compute",
+                    "reads": [],
+                    "tir": "one = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.fill\", T.region(one[0, 0], 2, 32, 128), T.float32(1))",
+                    "writes": [
+                      "one"
+                    ]
+                  },
+                  {
+                    "index": 8,
+                    "kind": "compute",
+                    "reads": [
+                      "denominator",
+                      "one"
+                    ],
+                    "tir": "sigmoid = T.Buffer((32, 128), scope=\"shared.dyn\")\none = T.Buffer((32, 128), scope=\"shared.dyn\")\ndenominator = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.div\", T.region(sigmoid[0, 0], 2, 32, 128), T.region(one[0, 0], 1, 32, 128), T.region(denominator[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "sigmoid"
+                    ]
+                  },
+                  {
+                    "index": 9,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32",
+                      "sigmoid"
+                    ],
+                    "tir": "silu = T.Buffer((32, 128), scope=\"shared.dyn\")\ngate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nsigmoid = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(silu[0, 0], 2, 32, 128), T.region(gate_f32[0, 0], 1, 32, 128), T.region(sigmoid[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "silu"
+                    ]
+                  },
+                  {
+                    "index": 10,
+                    "kind": "compute",
+                    "reads": [
+                      "silu",
+                      "up_f32"
+                    ],
+                    "tir": "output_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nsilu = T.Buffer((32, 128), scope=\"shared.dyn\")\nup_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(output_f32[0, 0], 2, 32, 128), T.region(silu[0, 0], 1, 32, 128), T.region(up_f32[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "output_f32"
+                    ]
+                  },
+                  {
+                    "index": 11,
+                    "kind": "compute",
+                    "reads": [
+                      "output_f32"
+                    ],
+                    "tir": "output_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\noutput_local = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(output_f32[0, 0], 1, 32, 128), T.region(output_local[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "output_local"
+                    ]
+                  },
+                  {
+                    "index": 12,
+                    "kind": "store",
+                    "reads": [
+                      "output_local"
+                    ],
+                    "tir": "output_local = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\ndestination = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(output_local[0, 0], 1, 32, 128), T.region(destination[output_tile // 8 * 32, output_tile % 8 * 128], 2, 32, 128))",
+                    "writes": [
+                      "destination"
+                    ]
+                  }
+                ],
+                "stores": "after parallel end; completed before output reuse"
+              }
+            ],
+            "source_sha256": "00c99b16548656f9a77dfd0aad57b25e1f5a80f6bd3fa2e2435fae54e24556c8"
+          },
+          "reuse_pipeline": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.coeff": 49152,
+              "tilelang.tpu.lmem.address.gate_f32": 16896,
+              "tilelang.tpu.lmem.address.gate_input": 18176,
+              "tilelang.tpu.lmem.address.gate_input_pipeline_v1": 18688,
+              "tilelang.tpu.lmem.address.gate_input_pipeline_v2": 19200,
+              "tilelang.tpu.lmem.address.negative_gate": 0,
+              "tilelang.tpu.lmem.address.one": 17408,
+              "tilelang.tpu.lmem.address.output_local": 18944,
+              "tilelang.tpu.lmem.address.up_f32": 33280,
+              "tilelang.tpu.lmem.address.up_input": 17920,
+              "tilelang.tpu.lmem.address.up_input_pipeline_v1": 18432,
+              "tilelang.tpu.lmem.address.up_input_pipeline_v2": 19456,
+              "tilelang.tpu.lmem.address.work0": 16384,
+              "tilelang.tpu.lmem.address.work1": 32768
+            },
+            "output_sha256": "3b871fb81b652ad2919b6323ce1bcdcddfe5f6ade91aa9c57578cf7e417769f8",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.0009765625,
+              "mean_abs_error": 1.5227669791784137e-08,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [
+              {
+                "buffer_versions": {
+                  "gate_input": [
+                    "gate_input",
+                    "gate_input_pipeline_v1",
+                    "gate_input_pipeline_v2"
+                  ],
+                  "up_input": [
+                    "up_input",
+                    "up_input_pipeline_v1",
+                    "up_input_pipeline_v2"
+                  ]
+                },
+                "cmodel_parallel_execution": false,
+                "compute_state": "single-version ordered recurrence",
+                "explicit": true,
+                "extent": 256,
+                "fingerprint": "986e8b2d566057a0aff3d277ba0bb5f1cb5104424006b505ab4ad90aa37e589c",
+                "loop": "output_tile",
+                "num_stages": 3,
+                "order": [
+                  1,
+                  0,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "prefetch_distance": 2,
+                "stage": [
+                  0,
+                  0,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2,
+                  2
+                ],
+                "statements": [
+                  {
+                    "index": 0,
+                    "kind": "load",
+                    "reads": [
+                      "gate"
+                    ],
+                    "tir": "gate = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\ngate_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(gate[output_tile // 8 * 32, output_tile % 8 * 128], 1, 32, 128), T.region(gate_input[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "gate_input"
+                    ]
+                  },
+                  {
+                    "index": 1,
+                    "kind": "load",
+                    "reads": [
+                      "up"
+                    ],
+                    "tir": "up = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\nup_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(up[output_tile // 8 * 32, output_tile % 8 * 128], 1, 32, 128), T.region(up_input[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "up_input"
+                    ]
+                  },
+                  {
+                    "index": 2,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_input"
+                    ],
+                    "tir": "gate_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\ngate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(gate_input[0, 0], 1, 32, 128), T.region(gate_f32[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "gate_f32"
+                    ]
+                  },
+                  {
+                    "index": 3,
+                    "kind": "compute",
+                    "reads": [
+                      "up_input"
+                    ],
+                    "tir": "up_input = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nup_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(up_input[0, 0], 1, 32, 128), T.region(up_f32[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "up_f32"
+                    ]
+                  },
+                  {
+                    "index": 4,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\ngate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul_scalar\", T.region(negative_gate[0, 0], 2, 32, 128), T.region(gate_f32[0, 0], 1, 32, 128), T.float32(-1))",
+                    "writes": [
+                      "negative_gate"
+                    ]
+                  },
+                  {
+                    "index": 5,
+                    "kind": "compute",
+                    "reads": [
+                      "coeff",
+                      "negative_gate",
+                      "work0",
+                      "work1"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\nwork0 = T.Buffer((32, 128), scope=\"shared.dyn\")\nwork1 = T.Buffer((32, 128), scope=\"shared.dyn\")\ncoeff = T.Buffer((64, 32), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.exp\", T.region(negative_gate[0, 0], 3, 32, 128), T.region(work0[0, 0], 3, 32, 128), T.region(work1[0, 0], 3, 32, 128), T.region(coeff[0, 0], 3, 64, 32))",
+                    "writes": [
+                      "coeff",
+                      "negative_gate",
+                      "work0",
+                      "work1"
+                    ]
+                  },
+                  {
+                    "index": 6,
+                    "kind": "compute",
+                    "reads": [
+                      "negative_gate"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add_scalar\", T.region(negative_gate[0, 0], 2, 32, 128), T.region(negative_gate[0, 0], 1, 32, 128), T.float32(1))",
+                    "writes": [
+                      "negative_gate"
+                    ]
+                  },
+                  {
+                    "index": 7,
+                    "kind": "compute",
+                    "reads": [],
+                    "tir": "one = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.fill\", T.region(one[0, 0], 2, 32, 128), T.float32(1))",
+                    "writes": [
+                      "one"
+                    ]
+                  },
+                  {
+                    "index": 8,
+                    "kind": "compute",
+                    "reads": [
+                      "negative_gate",
+                      "one"
+                    ],
+                    "tir": "negative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\none = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.div\", T.region(negative_gate[0, 0], 2, 32, 128), T.region(one[0, 0], 1, 32, 128), T.region(negative_gate[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "negative_gate"
+                    ]
+                  },
+                  {
+                    "index": 9,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32",
+                      "negative_gate"
+                    ],
+                    "tir": "gate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nnegative_gate = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(gate_f32[0, 0], 2, 32, 128), T.region(gate_f32[0, 0], 1, 32, 128), T.region(negative_gate[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "gate_f32"
+                    ]
+                  },
+                  {
+                    "index": 10,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32",
+                      "up_f32"
+                    ],
+                    "tir": "gate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nup_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.mul\", T.region(gate_f32[0, 0], 2, 32, 128), T.region(gate_f32[0, 0], 1, 32, 128), T.region(up_f32[0, 0], 1, 32, 128))",
+                    "writes": [
+                      "gate_f32"
+                    ]
+                  },
+                  {
+                    "index": 11,
+                    "kind": "compute",
+                    "reads": [
+                      "gate_f32"
+                    ],
+                    "tir": "gate_f32 = T.Buffer((32, 128), scope=\"shared.dyn\")\noutput_local = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(gate_f32[0, 0], 1, 32, 128), T.region(output_local[0, 0], 2, 32, 128))",
+                    "writes": [
+                      "output_local"
+                    ]
+                  },
+                  {
+                    "index": 12,
+                    "kind": "store",
+                    "reads": [
+                      "output_local"
+                    ],
+                    "tir": "output_local = T.Buffer((32, 128), \"float16\", scope=\"shared.dyn\")\ndestination = T.Buffer((1024, 1024), \"float16\")\noutput_tile = T.int32()\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(output_local[0, 0], 1, 32, 128), T.region(destination[output_tile // 8 * 32, output_tile % 8 * 128], 2, 32, 128))",
+                    "writes": [
+                      "destination"
+                    ]
+                  }
+                ],
+                "stores": "after parallel end; completed before output reuse"
+              }
+            ],
+            "source_sha256": "e9f03009a6a6f2f2664e8cf55218b058b38e65384dac2d8b132278e7129a6b51"
+          },
+          "reuse_serial": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.coeff": 49152,
+              "tilelang.tpu.lmem.address.gate_f32": 16896,
+              "tilelang.tpu.lmem.address.gate_input": 16384,
+              "tilelang.tpu.lmem.address.negative_gate": 0,
+              "tilelang.tpu.lmem.address.one": 16384,
+              "tilelang.tpu.lmem.address.output_local": 16384,
+              "tilelang.tpu.lmem.address.up_f32": 33280,
+              "tilelang.tpu.lmem.address.up_input": 16640,
+              "tilelang.tpu.lmem.address.work0": 16384,
+              "tilelang.tpu.lmem.address.work1": 32768
+            },
+            "output_sha256": "3b871fb81b652ad2919b6323ce1bcdcddfe5f6ade91aa9c57578cf7e417769f8",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.0009765625,
+              "mean_abs_error": 1.5227669791784137e-08,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [],
+            "source_sha256": "0866e208df9a3b72763a96246824bc6bb08b6ca8333c8b2339ff9d10f498165c"
+          },
+          "serial": {
+            "local_addresses": {
+              "tilelang.tpu.lmem.address.coeff": 49152,
+              "tilelang.tpu.lmem.address.denominator": 1536,
+              "tilelang.tpu.lmem.address.gate_f32": 512,
+              "tilelang.tpu.lmem.address.gate_input": 0,
+              "tilelang.tpu.lmem.address.negative_gate": 0,
+              "tilelang.tpu.lmem.address.one": 16384,
+              "tilelang.tpu.lmem.address.output_f32": 0,
+              "tilelang.tpu.lmem.address.output_local": 512,
+              "tilelang.tpu.lmem.address.sigmoid": 16896,
+              "tilelang.tpu.lmem.address.silu": 16384,
+              "tilelang.tpu.lmem.address.up_f32": 1024,
+              "tilelang.tpu.lmem.address.up_input": 256,
+              "tilelang.tpu.lmem.address.work0": 16384,
+              "tilelang.tpu.lmem.address.work1": 32768
+            },
+            "output_sha256": "3b871fb81b652ad2919b6323ce1bcdcddfe5f6ade91aa9c57578cf7e417769f8",
+            "reference": {
+              "atol": 0.01,
+              "element_count": 1048576,
+              "finite": true,
+              "max_abs_error": 0.0009765625,
+              "mean_abs_error": 1.5227669791784137e-08,
+              "mismatched_elements": 0,
+              "passed": true,
+              "rtol": 0.01
+            },
+            "schedules": [],
+            "source_sha256": "1b547ff5f71f4c5268c1a1daaf8695a8c7476a00cf7bd6d720dd6c51a3d8176c"
+          }
+        }
+      },
+      "peak_group_rss_bytes": 1063321600,
+      "reason": null,
+      "returncode": 0,
+      "status": "passed",
+      "wall_seconds": 9.67749623600048
+    }
+  ],
+  "reuse_swiglu_buffers": true,
+  "runtime_mode": "cmodel",
+  "schedule": "reverse-loads",
+  "schema_version": 1,
+  "size": "target",
+  "source_unchanged": true,
+  "started_at": "2026-09-28T15:09:48.269166+00:00",
+  "suite": "pipeline"
+}
