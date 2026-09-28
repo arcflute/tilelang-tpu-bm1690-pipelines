@@ -364,5 +364,11 @@ def _lower_function(function):
 
 def lower_tpu_pipelines(module):
     """Run before allocation placement, while Buffer ownership is still explicit."""
-    return IRModule({gv: _lower_function(f) if isinstance(f, tir.PrimFunc) else f
-                     for gv, f in module.functions.items()}, attrs=module.attrs)
+    result = IRModule({gv: _lower_function(f) if isinstance(f, tir.PrimFunc) else f
+                       for gv, f in module.functions.items()}, attrs=module.attrs)
+    # Prologue/steady branches/epilogue can duplicate nested compute loops.
+    # Renew their bound scalar Vars before any pass relies on SSA identity.
+    if any(isinstance(f, tir.PrimFunc) and f.attrs and REPORT_ATTR in f.attrs
+           for f in result.functions.values()):
+        result = tir.transform.ConvertSSA()(result)
+    return result

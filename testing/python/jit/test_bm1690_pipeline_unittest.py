@@ -138,6 +138,14 @@ class PipelineTests(unittest.TestCase):
         # The independent FP32 local.matrix path still emits its original code.
         self.assertIn("tpu_bdc_fp32_mm", lower(build_matmul(dtype="float32")).kernel_source)
 
+    def test_nested_rope_compute_loops_have_distinct_ssa_definitions(self):
+        from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
+        from tpu_demo.rope.rope import build_rope
+        artifact = lower(pipeline_kernel_tiles(build_rope(rows=8,width=128),2))
+        function, schedules = report(artifact)
+        self.assertTrue(tvm.tir.analysis.verify_ssa(function))
+        self.assertEqual(set(schedules[0]["buffer_versions"]), {"x","cos","sin"})
+
 
 if __name__ == "__main__":
     unittest.main()

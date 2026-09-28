@@ -8,7 +8,8 @@ import os
 
 
 def pipeline_cases():
-    return ["elementwise-add", "matmul"]
+    return ["elementwise-add", "elementwise-sub", "elementwise-mul", "elementwise-div",
+            "matmul", "rope", "swiglu"]
 
 
 def run_pipeline_case(case, seed, size, stages=2):
@@ -18,20 +19,23 @@ def run_pipeline_case(case, seed, size, stages=2):
     import torch
     import tilelang
     from tpu_demo.common import comparison, configure_runtime, tolerance
-    from tpu_demo.pipeline.kernels import build_elementwise_tiled
+    from tpu_demo.pipeline.kernels import build_elementwise_tiled, pipeline_kernel_tiles
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     generator = torch.Generator().manual_seed(seed)
     rows, width = (8, 128) if size == "smoke" else (1024, 1024)
-    if case == "elementwise-add":
+    if case.startswith("elementwise-"):
+        operation = case.split("-")[1]
         lhs = torch.randn((rows, width), generator=generator).half()
-        rhs = torch.randn((rows, width), generator=generator).half()
-        expected = (lhs.float() + rhs.float()).half()
+        rhs = (torch.rand((rows, width), generator=generator)*1.5+0.5).half() if operation == "div" else torch.randn((rows, width), generator=generator).half()
+        calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[operation]
+        expected = calculate(lhs.float(), rhs.float()).half()
         inputs = [lhs, rhs]
-        family = "elementwise"
-        parameters = {"shape": [rows, width], "block": [4,32]}
+        family = "elementwise-div" if operation == "div" else "elementwise"
+        block_rows, block_width = (4,32) if size == "smoke" else (32,128)
+        parameters = {"rows": rows, "width": width, "block_rows": block_rows, "block_width": block_width}
         def build(depth):
-            return build_elementwise_tiled(rows=rows, width=width, num_stages=depth)
+            return build_elementwise_tiled(operation, **parameters, num_stages=depth)
     elif case == "matmul":
         from tpu_demo.matmul.matmul import build_matmul
         m, n, k = (32, 32, 128) if size == "smoke" else (1024, 1024, 1024)
@@ -44,6 +48,28 @@ def run_pipeline_case(case, seed, size, stages=2):
         parameters = {"m":m,"n":n,"k":k,"block_m":block,"block_n":block,"block_k":block}
         def build(depth):
             return build_matmul(**parameters, num_stages=depth)
+    elif case == "rope":
+        from tpu_demo.rope.rope import build_rope, _cosine_sine, _reference
+        source = torch.randn((rows,width), generator=generator).half()
+        cosine, sine = _cosine_sine(rows,width)
+        inputs = [source,cosine,sine]
+        expected = _reference(*inputs)
+        family = "rope"
+        parameters = {"rows":rows,"width":width,"block_rows":4 if size == "smoke" else 32,
+                      "block_width":32 if size == "smoke" else 64}
+        def build(depth):
+            return pipeline_kernel_tiles(build_rope(**parameters),depth)
+    elif case == "swiglu":
+        from tpu_demo.swiglu.swiglu import build_swiglu
+        gate = torch.randn((rows,width), generator=generator).clamp(-3,3).half()
+        up = torch.randn((rows,width), generator=generator).half()
+        inputs = [gate,up]
+        expected = (up.float()*torch.nn.functional.silu(gate.float())).half()
+        family = "swiglu"
+        parameters = {"rows":rows,"width":width,"block_rows":4 if size == "smoke" else 32,
+                      "block_width":32 if size == "smoke" else 128}
+        def build(depth):
+            return pipeline_kernel_tiles(build_swiglu(**parameters),depth)
     else:
         raise ValueError(f"unknown pipeline case {case}")
     originals = [tensor.clone() for tensor in inputs]
