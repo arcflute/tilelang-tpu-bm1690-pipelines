@@ -367,10 +367,24 @@ device-mapping and process-guard checks. The exact exported sources and this
 entry's input/reference/staging functions pass all three variants on CModel;
 outputs are bitwise equal and the stdlib reference matches CPU PyTorch. See
 `research/bm1690-pipelines/results/p8-add-pcie-inputs-cmodel.json`. Fake-host
-tests and CModel are explicitly separate from board validation, which is still
-pending. The generated host template prints a single-call time; this entry
+tests and CModel are explicitly separate from board validation. The generated
+host template prints a single-call time; this entry
 does **not** promote it to an accepted performance result. Synchronized-call
 sampling, the six-family board matrix and P9 reporting remain incomplete.
+
+The user has now run the **original Add** from the pinned P8.1 build using the
+runner at `2d746196610c08010aa762f749fc4af2839521d1`. Device-0 mapping, source/
+build/runtime validation, the host call and reference comparison all completed;
+both worker and outer run returned zero. The 8x128 FP16 output is finite, with
+zero mismatched elements and maximum absolute error 0, and is bitwise equal to
+the independent reference. Its input/output SHA256 values also match the
+recorded CModel run. The evidence is preserved in
+`research/bm1690-pipelines/results/p8-add-original-board-user-reported.json`.
+The printed 177-us host-wrapper time is one unwarmed diagnostic sample only.
+The remote full result JSON and binary artifacts have not been copied here.
+Same-tile serial and pipeline board execution remain pending; validate them
+in that order using the retained previous-stage receipts. This original Add
+result does not establish hardware overlap or other shapes/operators.
 
 The timing entry will allocate/upload once, warm up, and record each invocation
 of the wrapper containing launch plus `tpuRtStreamSynchronize` with
