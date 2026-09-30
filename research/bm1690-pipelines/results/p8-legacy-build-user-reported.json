@@ -1,0 +1,20 @@
+{
+  "schema": "bm1690-legacy-build-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "delivery_commit": "53f04f868aa51f08f370ae1faa61fbf1d46c47b0",
+  "profile": "ppl14-bm1690-pcie",
+  "builder_sha256": "51c39e19dfd0d968ccbe17456048236645d3ff279eaec3b996baf000028c0f70",
+  "bundle_sha256": "32de4a5ca1a06804534391e00c4075f2d7373ff52ca1b2d1d0b1ac7421e32bac",
+  "download_and_hash_checks_passed": true,
+  "build_exit": 0,
+  "variants": ["original", "serial", "pipeline"],
+  "successful_commands_per_variant": 6,
+  "reported_marker": "BUILD_ONLY_OK variants=3 board_runtime_loaded=false kernel_launches=0",
+  "board_runtime_loaded": false,
+  "kernel_launches": 0,
+  "artifact_hashes_received_at_development_host": false,
+  "artifact_hash_location": "remote build/result.json",
+  "device_correctness_verified": false,
+  "device_performance_measured": false,
+  "hardware_overlap_verified": false
+}

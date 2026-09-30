@@ -1,0 +1,93 @@
+{
+  "cleanup_complete": true,
+  "cmodel_sdk_release": "ppl_v1.7.122-g05ebfb36-20260528",
+  "evidence_kind": "local_cmodel_execution",
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_group_rss_mib": 4096,
+    "timeout_seconds": 120
+  },
+  "numeric": {
+    "all_variants_bitwise_equal": true,
+    "bundle_sha256": "32de4a5ca1a06804534391e00c4075f2d7373ff52ca1b2d1d0b1ac7421e32bac",
+    "device_performance_measured": false,
+    "dtype": "float16",
+    "hardware_overlap_verified": false,
+    "input_sha256": "da54a02c5b51968628f2547e4117871bfef6a291cb6ce1255779d61aafa6ad04",
+    "launch_cores": 1,
+    "reference_matches_torch": true,
+    "runtime_mode": "cmodel",
+    "shape": [
+      8,
+      128
+    ],
+    "status": "passed",
+    "variants": {
+      "original": {
+        "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "607b736bb775d7bbea33a9627bea3a1bab017a53af9cc9f10070453fd4f36813",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      },
+      "pipeline": {
+        "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "cc6f7a04beaf3269f3ed7840f39b075dd072cfa5ab2ecd89df91e56b5fda56ee",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      },
+      "serial": {
+        "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "cbb403a2690fd9350d35f67b7ec6f5f39b0431b95a0d7f433a3b9bc9b07b0152",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      }
+    }
+  },
+  "runner_status": "passed",
+  "schema": "bm1690-pcie-smoke-cmodel-evidence-v1",
+  "verification_module_sha256": "ba5018ee9543c0f257c481bc4ccb020f68b4c53652df454d2e5fbedbd7d61c6a",
+  "verified_runner_function_sha256": {
+    "call_host": "ee64719105b1ed8932aa281404d081c7d17b17cb42f703b0eb2e946779013a17",
+    "check_output": "f8e5baf31849513b82d895c98db619508477cd5446d04988139a809ce622b7ac",
+    "test_vectors": "503e4a78950883fee7cc63d4d51106bc301c54872e41e85ae6cf396afbd15795"
+  }
+}

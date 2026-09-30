@@ -303,20 +303,74 @@ dlopen, allocates TPU memory, loads a module or launches a kernel. Existing
 output directories are refused. The full handoff has an outer 180-second
 timeout. No Python dependencies or new TVM build are required for this check.
 
-Actual PPL 1.4 compilation/linking is **pending the user's remote result**.
-On success, proceed to a dedicated bounded device-0 single-core correctness
-entry, then synchronized-call sampling. The generic JIT still refuses arbitrary
-prebuilt TPU libraries: compilation handoff does not authorize bypassing its
-manifest/runtime identity checks. A source-bundle execution entry must first
-validate its source/build/runtime identity and compilation products. Timing,
-the six-family board matrix, and P9 performance reporting remain incomplete.
+The user reports **successful PPL 1.4 compilation/linking** for all three Add
+variants from delivery commit `53f04f868aa51f08f370ae1faa61fbf1d46c47b0`:
+all 18 compiler/linker commands completed, `BUILD_EXIT=0`, and
+`BUILD_ONLY_OK variants=3 board_runtime_loaded=false kernel_launches=0`.
+The builder recorded artifact/SDK hashes in the remote `build/result.json`;
+those actual hash values have not been returned to this development host.
+This establishes Add build compatibility, not successful device execution or
+compatibility of every operation used by the other five families.
 
-The next implementation step is a dedicated BM1690 PCIe entry using the already
-chip-aware `LibraryGenerator.tpu_compile_pcie` and the validated workitem wrapper.
-The existing demo profiler policy should not be relaxed globally: this first
-round needs correctness and synchronous host-call latency, without requiring
-TPUDNN profiling. The installed runtime must be distinguished from the SDK's
-CModel runtime using `PPLLayout.pcie_runtime_lib`.
+### P8.2 bounded original/serial/pipeline correctness entry
+
+`tpu_demo/pipeline/run_add_pcie.py` is a standalone stdlib-only runner for the
+**exact P8.1 build above**. Keep the downloaded `build.py`, `add.json` and
+`build/` in their original location. Before loading a vendor library, it checks
+the pinned builder/bundle hashes, all generated sources, both ELF artifacts
+per variant, the full successful compilation recipe including embedded paths,
+and the current SDK/runtime files against the recorded hashes. Relocated,
+incomplete or changed builds fail. The generic JIT's refusal of arbitrary
+prebuilt TPU artifacts and the existing demo profiler policy are unchanged.
+
+An explicit `--allow-pcie --device-id 0 --expected-pci 0000:01:00.0` is required.
+A fresh worker checks the loaded runtime's actual path, resolves the runtime's
+borrowed fd through sysfs again, and binds the generated host module to that
+same device before calling it. It rejects inherited loader overrides and
+CModel topology settings. No TPUDNN profiling is enabled.
+
+Each invocation executes one variant, one host call, one launch workitem,
+FP16 shape 8x128, with no warmup or extra benchmark calls. Inputs are generated
+by a deterministic integer sequence and converted to binary16; the independent
+reference uses explicit FP32 addition followed by binary16 rounding. Output is
+prefilled with NaNs; host staging buffers have boundary canaries. Results must
+be finite and satisfy the original Add tolerances. Serial requires a passed
+original receipt; pipeline requires a passed serial receipt, with matching
+build/input/device identity and bitwise-equal output. These are host staging
+checks, not proof that device input buffers are unmodified.
+
+The parent monitors a private process group with a 30-second bound and a
+conservative 4-GiB summed RSS bound. The execution worker uses at most two
+allowed CPUs, reduced priority, and disabled core dumps. A separate Linux
+parent-death guard cleans the group even if a vendor call blocks Python signal
+handling. A same-user device-0 lock prevents concurrent runs of this entry.
+Outputs must be new directories; `run.log`, checkpointed `worker.json`, final
+`result.json`, and (on numerical success) `output.f16` are retained. An abnormal
+exit is a failure even if a partial numeric result exists. No automatic retry,
+driver reset, kernel replay or multicore selection is exposed.
+
+Example after hash-verifying the runner, using the existing build location:
+
+```bash
+python3 run_add_pcie.py --build /path/to/build --output /path/to/new/original \
+  --variant original --allow-pcie --device-id 0 --expected-pci 0000:01:00.0
+```
+
+Review the original board result before running serial with
+`--variant serial --previous /path/to/passed/original`, then pipeline with
+`--variant pipeline --previous /path/to/passed/serial`, each with a new output
+directory. A host timeout does not prove firmware recovery; stop and inspect
+any failure before proceeding.
+
+Local evidence: 47 stdlib regressions pass, including 13 new manifest, host-ABI,
+device-mapping and process-guard checks. The exact exported sources and this
+entry's input/reference/staging functions pass all three variants on CModel;
+outputs are bitwise equal and the stdlib reference matches CPU PyTorch. See
+`research/bm1690-pipelines/results/p8-add-pcie-inputs-cmodel.json`. Fake-host
+tests and CModel are explicitly separate from board validation, which is still
+pending. The generated host template prints a single-call time; this entry
+does **not** promote it to an accepted performance result. Synchronized-call
+sampling, the six-family board matrix and P9 reporting remain incomplete.
 
 The timing entry will allocate/upload once, warm up, and record each invocation
 of the wrapper containing launch plus `tpuRtStreamSynchronize` with
