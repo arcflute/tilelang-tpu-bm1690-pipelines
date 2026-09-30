@@ -1,0 +1,95 @@
+{
+  "cleanup_complete": true,
+  "cmodel_sdk_release": "ppl_v1.7.122-g05ebfb36-20260528",
+  "evidence_kind": "local_cmodel_execution",
+  "limits": {
+    "cpus": [
+      0,
+      1
+    ],
+    "max_group_rss_mib": 4096,
+    "timeout_seconds": 120
+  },
+  "native_libraries": {
+    "build-tpu/libtilelang_module.so": "88876fcc5d16be9c12fff294bbf1aecf8de7974fa41b6f85ed1cf66144de57a2",
+    "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+  },
+  "numeric": {
+    "all_variants_bitwise_equal": true,
+    "board_executed": false,
+    "device_performance_measured": false,
+    "dtype": "float16",
+    "hardware_overlap_verified": false,
+    "launch_cores": 1,
+    "runtime_mode": "cmodel",
+    "seed": 0,
+    "shape": [
+      8,
+      128
+    ],
+    "status": "passed",
+    "variants": {
+      "original": {
+        "output_sha256": "d92339b6ea2cb87af1f92ceb355f055584d40de74c2a04a22dd395e98c07889d",
+        "reference": {
+          "atol": 0.005,
+          "element_count": 1024,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "607b736bb775d7bbea33a9627bea3a1bab017a53af9cc9f10070453fd4f36813",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      },
+      "pipeline": {
+        "output_sha256": "d92339b6ea2cb87af1f92ceb355f055584d40de74c2a04a22dd395e98c07889d",
+        "reference": {
+          "atol": 0.005,
+          "element_count": 1024,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "cc6f7a04beaf3269f3ed7840f39b075dd072cfa5ab2ecd89df91e56b5fda56ee",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      },
+      "serial": {
+        "output_sha256": "d92339b6ea2cb87af1f92ceb355f055584d40de74c2a04a22dd395e98c07889d",
+        "reference": {
+          "atol": 0.005,
+          "element_count": 1024,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "cbb403a2690fd9350d35f67b7ec6f5f39b0431b95a0d7f433a3b9bc9b07b0152",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "d843a7e5a618580664304a132f5cfb89780e46b114295c1d3ba49d434eb0895e"
+        }
+      }
+    }
+  },
+  "runner_status": "passed",
+  "schema": "bm1690-source-bundle-cmodel-validation-v1",
+  "source_bundle": "research/bm1690-pipelines/handoff/add-smoke-sources.json",
+  "source_bundle_sha256": "32de4a5ca1a06804534391e00c4075f2d7373ff52ca1b2d1d0b1ac7421e32bac"
+}

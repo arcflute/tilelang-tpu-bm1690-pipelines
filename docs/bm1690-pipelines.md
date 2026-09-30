@@ -207,9 +207,8 @@ string `F`; its meaning has not been established. No hardware serial numbers
 or raw machine logs are published here. Driver persistence and the broken old
 DKMS 1.2.7 entry have not been changed.
 
-This proves driver initialization and management visibility, not runtime
-device-number mapping, new operator correctness, latency, or hardware overlap.
-The next preflight tool is
+The driver evidence establishes initialization and management visibility. The
+subsequent runtime enumeration used
 [`probe_bm1690_runtime.cpp`](../tpu_demo/pipeline/probe_bm1690_runtime.cpp).
 Compile it as a small host executable with the installed board runtime header,
 then run it with the absolute board `libtpuv7_rt.so` path and a device-query
@@ -233,14 +232,84 @@ Use fresh output files, capture the exit status and both output streams, and
 stop after any failed query. The host-tool tests in
 `testing/python/jit/test_bm1690_runtime_probe_unittest.py` use an isolated fake
 runtime to exercise early failures, bounded enumeration and fd ownership;
-they are neither CModel nor board validation. Remote probe results are pending.
+they are neither CModel nor board validation.
+
+The user then compiled and ran the pinned probe from commit
+`b21b279b49a647874ffd403348475a7f530081ea` against the installed runtime 1.9.3.
+Compilation and execution both returned zero. The loaded library resolved to
+the installed board runtime, the property structure size was 56 bytes, and
+every queried API returned success. The actual mapping is:
+
+| Runtime device | Character device | Canonical PCI function |
+| --- | --- | --- |
+| 0 | `/dev/sg-host-drv-0` | `0000:01:00.0` |
+| 1 | `/dev/sg-host-drv-1` | `0000:01:00.1` |
+
+Both report name `MT00` and 111132278776 bytes of global memory. Both raw PCI
+property tuples are `(domain=0, bus=1, device=0)`; they do not distinguish the
+functions. The fd/sysfs mappings above do. Initial operator validation will
+use **device 0, one launch workitem**. Enumeration does not validate kernel
+loading, arithmetic, latency, physical overlap, or persistent driver setup.
 
 The PPL 1.4 paths, helper source, firmware archive, pipeline/workitem declarations
 and board launch/synchronization declarations have been inspected. The existing
-`PPLLayout` still supports PPL 1.7 only: P8 must implement an explicit legacy
-PCIe adapter, with the verified 1.4 compiler macros/includes and board runtime
-identity. Changing only `PPL_PROJECT_ROOT` is insufficient. Keep the existing
-local PPL 1.7 CModel workflow.
+default `PPLLayout` continues to use PPL 1.7. P8 now adds an explicit
+`TILELANG_TPU_PPL_PROFILE=ppl14-bm1690-pcie` profile, implemented in
+`tilelang/jit/adapter/legacy_pcie.py` and selected by `LibraryGenerator`.
+It requires the verified PPL root, absolute `TILELANG_TPU_PCIE_RUNTIME_PATH`
+(the installed runtime's lib directory), and absolute
+`TILELANG_TPU_PCIE_CROSS_GCC` (Linux RISC-V GCC). The legacy profile uses
+`__bm1690__`, PPL 1.4 headers/helper and `libbm1690.a`, without the PPL 1.7
+LTO flags. Its host header and linked runtime come from the same installed
+runtime root. It rejects CModel, RV, SG2260E, and unvalidated legacy profiling.
+No missing PPL 1.7 chip map silently selects the legacy ABI. Existing PCIe
+load/device identity gates remain in force.
+
+### P8.1 source-only compatibility handoff
+
+`tpu_demo/pipeline/export_add_sources.py` exports three single-core FP16 Add
+implementations at shape 8x128: original whole-block, 4x32 tiled serial, and
+the same tiling with two pipeline stages. The bundle at
+`research/bm1690-pipelines/handoff/add-smoke-sources.json` includes all generated
+C/C++/header files, source hashes, native compiler hashes and lowered pipeline
+reports. Its base commit plus dirty-source hashes identify the exact generating
+tree; the containing delivery commit pins the final handoff. It contains no
+vendor headers, SDK binaries or board-produced shared libraries.
+
+The exact generated sources passed the existing PPL 1.7 CModel: all three
+outputs are bitwise equal and match the independent FP32-add/FP16-rounding
+reference. The portable report is
+`research/bm1690-pipelines/results/p8-add-source-bundle-cmodel.json`.
+34 stdlib regression tests pass, including six new legacy-profile/standalone
+failure tests. An additional mocked-command check verifies JIT profile
+selection and runtime identity; it is not a real legacy compilation.
+
+On the remote machine, download the pinned `legacy_pcie.py` and source JSON,
+verify both published SHA256 values, and run the standalone module with the
+already recorded SDK/runtime/compiler environment variables:
+
+```bash
+timeout -k 5s 180s python3 legacy_pcie.py \
+  --bundle add-smoke-sources.json --output /path/to/new/build-directory
+```
+
+This command imports only the Python standard library, limits itself and its
+children to two allowed CPUs, reduces scheduling priority, and limits address
+space to 4 GiB per process. Compilers run sequentially with a 60-second timeout
+per process group. It checks the GCC target triple, validates all source
+hashes, records actual SDK/header/library/compiler hashes, retains per-command
+logs and partial result JSON, and stops at the first failure. It never calls
+dlopen, allocates TPU memory, loads a module or launches a kernel. Existing
+output directories are refused. The full handoff has an outer 180-second
+timeout. No Python dependencies or new TVM build are required for this check.
+
+Actual PPL 1.4 compilation/linking is **pending the user's remote result**.
+On success, proceed to a dedicated bounded device-0 single-core correctness
+entry, then synchronized-call sampling. The generic JIT still refuses arbitrary
+prebuilt TPU libraries: compilation handoff does not authorize bypassing its
+manifest/runtime identity checks. A source-bundle execution entry must first
+validate its source/build/runtime identity and compilation products. Timing,
+the six-family board matrix, and P9 performance reporting remain incomplete.
 
 The next implementation step is a dedicated BM1690 PCIe entry using the already
 chip-aware `LibraryGenerator.tpu_compile_pcie` and the validated workitem wrapper.

@@ -16,6 +16,7 @@ import re
 import weakref
 from tilelang.env import TILELANG_TEMPLATE_PATH, CUTLASS_INCLUDE_DIR
 from tilelang.jit.adapter.ppl_layout import PPLLayout, resolve_ppl_layout
+from tilelang.jit.adapter.legacy_pcie import PPL14BM1690PCIeLayout, legacy_pcie_commands
 from tilelang.engine.tpu_config import (
     TPURuntimeConfig,
     TPUTargetSpec,
@@ -264,7 +265,8 @@ class LibraryGenerator(object):
             ppl_root = os.environ.get("PPL_PROJECT_ROOT")
             if not ppl_root:
                 raise EnvironmentError("PPL_PROJECT_ROOT environment variable is not set.")
-            ppl_layout = resolve_ppl_layout(ppl_root, self.tpu_target.chip)
+            profile = os.environ.get("TILELANG_TPU_PPL_PROFILE", "ppl17")
+            ppl_layout = resolve_ppl_layout(ppl_root, self.tpu_target.chip, profile=profile)
             self._ppl_layout = ppl_layout
             if self.tpu_target.programming_model == "rv":
                 # RV source includes rvt_api.h for both compiler-selected
@@ -451,6 +453,14 @@ class LibraryGenerator(object):
                          pcie_runtime_lib: str,
                          *,
                          profiling: bool = False):
+        if isinstance(layout, PPL14BM1690PCIeLayout):
+            if os.path.realpath(pcie_runtime_lib) != str(layout.pcie_runtime_lib()):
+                raise ValueError("PPL 1.4 compile/runtime identity mismatch")
+            for label, command in legacy_pcie_commands(
+                    layout, self._ensure_tpu_workspace(),
+                    programming_model=self.tpu_target.programming_model, profiling=profiling):
+                self._run_tpu_command(command, label, timeout)
+            return
         cross_gcc = str(layout.pcie_cross_gcc())
 
         src_dir = self._ensure_tpu_workspace()

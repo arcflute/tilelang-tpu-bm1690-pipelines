@@ -1,0 +1,39 @@
+{
+  "schema": "bm1690-runtime-enumeration-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-09-30",
+  "probe_commit": "b21b279b49a647874ffd403348475a7f530081ea",
+  "probe_source_sha256": "23dd6f512bde6e5cd10241daf4689caa65f15ea3f19661f9cbe346810f31d019",
+  "compile_exit": 0,
+  "probe_exit": 0,
+  "runtime_loaded": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+  "properties_size_bytes": 56,
+  "query_limit": 2,
+  "device_count": 2,
+  "all_reported_api_statuses": 0,
+  "devices": [
+    {
+      "candidate_id": 0,
+      "selected_id": 0,
+      "name": "MT00",
+      "total_global_mem_bytes": 111132278776,
+      "character_device": "/dev/sg-host-drv-0",
+      "sysfs_pci_function": "0000:01:00.0",
+      "raw_pci_properties": {"domain": 0, "bus": 1, "device": 0}
+    },
+    {
+      "candidate_id": 1,
+      "selected_id": 1,
+      "name": "MT00",
+      "total_global_mem_bytes": 111132278776,
+      "character_device": "/dev/sg-host-drv-1",
+      "sysfs_pci_function": "0000:01:00.1",
+      "raw_pci_properties": {"domain": 0, "bus": 1, "device": 0}
+    }
+  ],
+  "initial_operator_selection": {"device_id": 0, "launch_cores": 1},
+  "new_operator_board_correctness_verified": false,
+  "new_operator_board_latency_measured": false,
+  "hardware_overlap_verified": false,
+  "driver_persistence_configured": false
+}

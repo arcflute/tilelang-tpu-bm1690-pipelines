@@ -1,6 +1,6 @@
 # Copyright (c) Tile-AI Corporation.
 # Licensed under the MIT License.
-"""Resolve paths in the supported PPL 1.7 SDK release layout."""
+"""Resolve PPL 1.7 by default; opt into the separate legacy BM1690 PCIe profile."""
 
 from dataclasses import dataclass
 import json
@@ -244,15 +244,21 @@ def _require_paths(layout: PPLLayout, requirement_group: str, required: Mapping[
     return layout
 
 
-def resolve_ppl_layout(ppl_root: str, chip: str) -> PPLLayout:
+def resolve_ppl_layout(ppl_root: str, chip: str, *, profile: str = "ppl17",
+                       environment: Optional[Mapping[str, str]] = None):
     """Return the PPL 1.7 toolchain paths for one physical ``chip``.
 
-    TileLang-TPU deliberately supports only the PPL 1.7 ``deps/`` release
-    layout. Keeping one layout avoids silently compiling a kernel with an
-    inconsistent header/library mixture.
+    Legacy PCIe selection must be explicit: a missing chip map never triggers
+    fallback to another SDK ABI. Existing CModel/profiling callers retain the
+    PPL 1.7 default.
     """
     chip_spec = get_tpu_chip_spec(chip)
     chip = chip_spec.name
+    if profile == "ppl14-bm1690-pcie":
+        from .legacy_pcie import resolve_legacy_pcie
+        return resolve_legacy_pcie(ppl_root, chip, environment=environment)
+    if profile != "ppl17":
+        raise ValueError(f"Unknown PPL SDK profile: {profile!r}")
     root = Path(ppl_root).expanduser().resolve()
     chip_map_path = root / "deps/chip/chip_map.json"
     if not chip_map_path.is_file():
