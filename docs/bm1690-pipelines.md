@@ -165,16 +165,16 @@ taskset -c 0,1 nice -n 10 .venv/bin/cmake --build build-tpu --parallel 1
 ## Remote BM1690 handoff (pending)
 
 The local source work and CModel checks above do not complete P8/P9. The remote
-BM1690 is unavailable, its existing ChunkScan SDK/runtime paths are not yet
-recorded. GitHub HTTPS authentication and repository write access are verified.
+BM1690 is now reachable through the user's manual terminal workflow. GitHub
+HTTPS authentication and repository write access are verified.
 The delivery repository is
 [`arcflute/tilelang-tpu-bm1690-pipelines`](https://github.com/arcflute/tilelang-tpu-bm1690-pipelines),
 branch `main`. The local development branch is `feature/bm1690-pipelines`;
 `delivery` is its delivery remote, while `origin` retains the upstream URL.
 No source checkout, installed SDK, or existing environment was overwritten.
 
-After the server returns, activate the known working ChunkScan environment and
-run this **read-only** inventory script (a standalone stdlib Python file):
+For a new environment, the inventory entry is a **read-only** standalone stdlib
+Python file, run with the existing ChunkScan environment:
 
 ```bash
 python /path/to/delivery/tpu_demo/pipeline/collect_environment.py \
@@ -186,6 +186,61 @@ paths via `--sdk` and `--pcie-runtime` when available. The script does not impor
 the vendor runtime, install dependencies, compile, or launch a TPU kernel. It
 records hardware-query utility help and PCI inventory where available; the
 actual BM1690 device id must also be recorded before any PCIe dispatch.
+
+### Remote preflight evidence, 2026-09-30
+
+User-supplied terminal output identifies the existing ChunkScan checkout as
+main commit `f7df97ebb4b3bbb8b6fcd866a137a887e4710583`. Its TVM submodule
+modifications have the same stable patch ID as its own `patches/tvm.patch`;
+they are retained. The remote environment uses PPL
+`v1.4.195-geb2acdd0-20250220`, Python 3.12.3, CPU PyTorch 2.3.1, NumPy
+1.26.4, and installed TPUv7 runtime 1.9.3.
+
+The existing driver 1.9.3 binary was built for kernel 6.17.0-35, while the
+server runs 7.0.0-31. The user rebuilt the existing driver source in a separate
+directory with the matching installed headers and GCC 13, retaining its prior
+source modification. The new module was temporarily loaded: both PCI functions
+bound to `sg-host-drv`, the module became live, and both chips completed AP/TP
+firmware initialization. A single-shot SMI JSON query reports one MT00 card,
+two chips, both Active. Chip1 temperature/voltage fields report the literal
+string `F`; its meaning has not been established. No hardware serial numbers
+or raw machine logs are published here. Driver persistence and the broken old
+DKMS 1.2.7 entry have not been changed.
+
+This proves driver initialization and management visibility, not runtime
+device-number mapping, new operator correctness, latency, or hardware overlap.
+The next preflight tool is
+[`probe_bm1690_runtime.cpp`](../tpu_demo/pipeline/probe_bm1690_runtime.cpp).
+Compile it as a small host executable with the installed board runtime header,
+then run it with the absolute board `libtpuv7_rt.so` path and a device-query
+limit (2 for this observed topology). It initializes the runtime, queries the
+actual device count, and checks candidate IDs through SetDevice/GetDevice,
+properties and the borrowed device fd. It prints the actual loaded library,
+raw PCI fields, and host sysfs paths, without assuming how the SDK encodes a
+PCI function. A missing sysfs mapping remains unresolved. The utility performs
+no TPU memory allocation, module loading, kernel launch, or synchronization.
+
+Example commands, using already verified site paths:
+
+```bash
+c++ -std=c++17 -O0 -I"$BM1690_RUNTIME_ROOT/include" \
+  tpu_demo/pipeline/probe_bm1690_runtime.cpp -ldl -o /path/to/new/probe
+timeout -k 2s 15s taskset -c "$ALLOWED_TWO_CPUS" nice -n 10 \
+  /path/to/new/probe "$BM1690_RUNTIME_ROOT/lib/libtpuv7_rt.so" 2
+```
+
+Use fresh output files, capture the exit status and both output streams, and
+stop after any failed query. The host-tool tests in
+`testing/python/jit/test_bm1690_runtime_probe_unittest.py` use an isolated fake
+runtime to exercise early failures, bounded enumeration and fd ownership;
+they are neither CModel nor board validation. Remote probe results are pending.
+
+The PPL 1.4 paths, helper source, firmware archive, pipeline/workitem declarations
+and board launch/synchronization declarations have been inspected. The existing
+`PPLLayout` still supports PPL 1.7 only: P8 must implement an explicit legacy
+PCIe adapter, with the verified 1.4 compiler macros/includes and board runtime
+identity. Changing only `PPL_PROJECT_ROOT` is insufficient. Keep the existing
+local PPL 1.7 CModel workflow.
 
 The next implementation step is a dedicated BM1690 PCIe entry using the already
 chip-aware `LibraryGenerator.tpu_compile_pcie` and the validated workitem wrapper.
