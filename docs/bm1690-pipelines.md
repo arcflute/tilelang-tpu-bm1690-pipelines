@@ -455,8 +455,8 @@ was exercised with 1 warmup + 2 samples per variant, with unchanged correct
 outputs; CModel timings are not reported as device-performance evidence.
 The original whole-block 1024x1024 version compiled and executed on CModel;
 all three versions also subsequently compiled against the older board SDK as
-recorded below. The original version has now passed 1024x1024 board correctness;
-same-tile serial and pipeline board execution remain pending.
+recorded below. All three versions have now passed 1024x1024 board correctness;
+prewarmed synchronous-call latency remains pending.
 
 `prepare_add_1024.py` downloads and verifies the three pinned source/build/run
 files into a **new** directory and compiles sequentially with the already
@@ -520,10 +520,26 @@ unwarmed launch-plus-sync diagnostic, not an accepted latency measurement or
 comparison with the earlier 8x128 cases. This run does not establish the larger
 serial/pipeline kernels' correctness or hardware overlap.
 
-Next board steps: execute same-tile serial and pipeline once, in that order,
-using new output directories and retaining previous-stage receipts. After
-all three pass, run each once with `--measure --correctness ...` (and the serial/
-pipeline `--previous ...`); compare serial versus pipeline at the identical
+The subsequent user-supplied **1024x1024 serial and pipeline** runs also passed
+on the same mapped BM1690 device with one launch core. Both report finite
+outputs, maximum absolute error 0, no reference mismatches and
+`previous_variant_bitwise_equal=true`; all three input/output hashes agree
+with CModel. Both workers and outer commands exited zero. The combined record
+is `results/p8-add-1024-three-variants-board-user-reported.json`. This completes
+the target-size single-core Add correctness check for these inputs and variants.
+The printed serial/pipeline times, 777/719 us, are single unwarmed diagnostics.
+Retain the original's 219-us diagnostic as well; do not infer a reproducible
+speedup or an overall improvement from these three values. The comparison must
+report both pipeline versus same-tile serial and each tiled version versus
+original whole-block. No physical-overlap trace has been collected.
+
+Next board steps: run each variant with `--measure --correctness ...` (and the
+serial/pipeline `--previous ...` pointing to the retained correctness receipts),
+using new timing output directories, sequentially and stopping on any failure.
+Each invocation uses 5 warmups and 20 measured synchronous calls with resident
+device buffers, and rechecks the final output. Preserve raw samples, median,
+IQR and p95; this is a first bounded latency sample set, not the final repeated
+performance matrix. Compare serial versus pipeline at the identical
 32x128 tiling, dtype, shape and core count. Original whole-block is a separate
 baseline. Every failure stops progression. No speedup or overlap is claimed
 from the current CModel results or the earlier small-shape diagnostic timings.
