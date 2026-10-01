@@ -585,14 +585,26 @@ unchanged. This is a candidate for measurement, not a promised speedup.
 The exact bundle `handoff/add-1024-coarse-sources.json` passed the bounded local
 BM1690 CModel: all three variants and their timing-ABI checks match the same
 reference and output hash with error zero. Evidence is
-`results/p8-add-1024-coarse-cmodel.json`. No board compilation, execution or
-latency has yet been observed for the new serial/pipeline kernels.
+`results/p8-add-1024-coarse-cmodel.json`.
+
+The user subsequently completed the coarse bundle's compilation on the BM1690
+server using the helper and sources pinned to `f7a4658`. The GitHub API downloads
+and hash checks passed, followed by all 18 compiler/linker commands and
+`PREPARE_EXIT=0`. The work directory is
+`/home/bokai/bm1690-coarse-VRCQiY/work`; the supplied terminal output is recorded
+in `results/p8-add-1024-coarse-build-user-reported.json`. The helper reported
+`board_runtime_loaded=false` and `kernel_launches=0`. Full remote receipt JSON
+and ELF hashes have not been copied here. Board correctness and latency for
+this bundle remain pending; successful compilation alone establishes neither.
 
 The updated preparation helper selects this bundle with `--case coarse` and
 continues to support `--transport github-api`. Use a new work directory; case
 mixing on `--resume` is rejected. The new runner adds only the new bundle hash
 to its allowlist and retains the previous builds. After compile-only success,
 validate all three variants once and then collect the same 5+20 latency samples.
+Run original again within the new build: the runner binds previous-variant
+correctness receipts to the same bundle and build identity, even though the
+original kernel sources are unchanged.
 Retain both tile sizes, the whole-block baseline and every negative result.
 Limit this to one controlled tile comparison before continuing the other five
 families and remaining elementwise operations; repeated rounds and broader
