@@ -1,0 +1,117 @@
+{
+  "schema": "bm1690-elementwise-board-correctness-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "runner_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "build_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "bundle_sha256": "6d72d38f8a83b510dc71fab7905e8babf0b7b645cdd2ffa1ecc7a78180430418",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+  "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+  "reference": {
+    "atol": 0.005,
+    "rtol": 0.005,
+    "finite": true,
+    "max_abs_error": 0.0,
+    "mismatched_elements": 0,
+    "bitwise_equal_to_reference": true,
+    "passed": true
+  },
+  "matches_recorded_cmodel_output_sha256": true,
+  "full_result_json_received_at_development_host": false,
+  "hardware_overlap_verified": false,
+  "matches_recorded_cmodel_input_sha256": true,
+  "cmodel_evidence": "p8-sub-1024-pcie-cmodel.json",
+  "build_evidence": "p8-sub-1024-build-user-reported.json",
+  "variants": {
+    "original": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "SUB_PCIE_PASSED",
+      "previous_variant_bitwise_equal": null,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "diagnostic_unwarmed_host_wrapper_us": 226,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/run-original/result.json",
+      "operation": "sub"
+    },
+    "serial": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "SUB_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "diagnostic_unwarmed_host_wrapper_us": 223,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/run-serial/result.json",
+      "operation": "sub"
+    },
+    "pipeline": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "SUB_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "diagnostic_unwarmed_host_wrapper_us": 248,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/run-pipeline/result.json",
+      "operation": "sub"
+    }
+  },
+  "all_variants_bitwise_equal": true,
+  "target_shape_single_core_board_correctness_complete": true,
+  "accepted_performance_measurement": false,
+  "same_tile_serial_and_pipeline_tiling": [
+    128,
+    1024
+  ],
+  "tiling_evidence": "research/bm1690-pipelines/handoff/sub-1024-sources.json",
+  "case": "sub",
+  "serial_pipeline_logical_tiles": 8,
+  "pipeline_depth": 2,
+  "operation": "sub"
+}

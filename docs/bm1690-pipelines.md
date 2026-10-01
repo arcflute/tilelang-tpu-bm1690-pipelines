@@ -696,10 +696,22 @@ commands for original, serial and pipeline. `PREPARE_EXIT=0` and
 `/home/bokai/bm1690-sub-GvDYeE/work`, with receipt `handoff.json`. Evidence is
 `results/p8-sub-1024-build-user-reported.json`, based on the user's terminal
 output; full remote receipts and artifact hashes have not been copied here.
-The helper loaded no board runtime and launched no kernels. Sub board correctness
-and latency remain pending; Mul/Div board compilation also remains pending.
+The helper loaded no board runtime and launched no kernels.
 
-Next validate Sub original/serial/pipeline once before their 5+20 latency samples.
+The user's subsequent Sub original, serial and pipeline runs all passed on
+BM1690 device 0 (`0000:01:00.0`, `/dev/sg-host-drv-0`), FP16 1024x1024 and one
+launch core. Outputs are finite and bitwise equal to the independent reference,
+with zero tolerance mismatches and maximum absolute error 0. All three input
+and output hashes agree with the Sub CModel record; serial and pipeline also
+report `previous_variant_bitwise_equal=true`. Worker and outer exits are all
+zero. Evidence is `results/p8-sub-1024-three-variants-board-user-reported.json`,
+based on user-supplied terminal output; full remote receipts remain on the board
+host. This completes Sub board correctness for the recorded inputs. The printed
+226/223/248 us are single unwarmed diagnostics, not an accepted latency comparison.
+Sub repeated latency sampling and physical-overlap evidence remain pending;
+Mul/Div board compilation remains pending.
+
+Next collect Sub original/serial/pipeline 5+20 synchronous-call latency samples.
 Repeat for Mul and Div without changing the environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not
