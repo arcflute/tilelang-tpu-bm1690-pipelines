@@ -765,6 +765,7 @@ class TLTPUSourceWrapper(object):
         memcpy_s2d_statements = []
         memcpy_d2s_statements = []
         free_statements = []
+        checked_free_statements = []
         kernel_call_args = []
         # TIR BufferStore analysis supplies output_indices for compiler-owned
         # TPU semantic kernels. Raw RVT calls are opaque C ABI operations, so
@@ -808,6 +809,10 @@ class TLTPUSourceWrapper(object):
             free_statements.append(
                 f'  if (dev_{arg_name} != nullptr) {{ tpuRtFree(&dev_{arg_name}, 0); '
                 f'dev_{arg_name} = nullptr; }}')
+            checked_free_statements.append(
+                f'  if (dev_{arg_name} != nullptr) {{ '
+                f'if (tpuRtFree(&dev_{arg_name}, 0) != tpuRtSuccess && status == 0) '
+                f'{{ status = {-500 - i}; }} dev_{arg_name} = nullptr; }}')
             kernel_call_args.append(f'(unsigned long long)dev_{arg_name}')
 
         kernel_call = f'  int rst = {function_name}({", ".join(kernel_call_args)});'
@@ -821,6 +826,7 @@ class TLTPUSourceWrapper(object):
             memcpy_s2d_statements="\n".join(memcpy_s2d_statements),
             memcpy_d2s_statements="\n".join(memcpy_d2s_statements),
             free_statements="\n".join(free_statements),
+            checked_free_statements="\n".join(checked_free_statements),
             kernel_call=kernel_call,
             pure_kernel_call=pure_kernel_call)
 

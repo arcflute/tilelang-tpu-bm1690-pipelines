@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 
-def export():
+def export(*, target_size=False):
     import tilelang
     from tilelang import tvm
     from tilelang.jit.adapter.legacy_pcie import SOURCE_NAMES, validate_source_bundle
@@ -23,10 +23,12 @@ def export():
     identity = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in sorted(set(paths)) if (root / name).is_file() and
                 name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/"))}
+    rows, width = (1024, 1024) if target_size else (8, 128)
+    block_rows, block_width = (32, 128) if target_size else (4, 32)
     bundle = {
-        "schema": "bm1690-add-source-check-v1",
+        "schema": "bm1690-add-source-check-v2" if target_size else "bm1690-add-source-check-v1",
         "target": {"chip": "bm1690", "programming_model": "tpukernel", "launch_cores": 1,
-                   "dtype": "float16", "shape": [8, 128]},
+                   "dtype": "float16", "shape": [rows, width]},
         "generator_base_commit": subprocess.check_output(["git", "rev-parse", "HEAD"],
                                                          cwd=root, text=True).strip(),
         "generator_dirty": bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=root)),
@@ -39,11 +41,10 @@ def export():
         "evidence": {"board_compiled": False, "board_executed": False,
                      "hardware_overlap_verified": False},
     }
-    functions = {
-        "original": build_elementwise("add", rows=8, width=128, dtype="float16"),
-        "serial": build_elementwise_tiled(num_stages=0),
-        "pipeline": build_elementwise_tiled(num_stages=2),
-    }
+    functions = {"original": build_elementwise("add", rows=rows, width=width, dtype="float16")}
+    for name, stages in (("serial", 0), ("pipeline", 2)):
+        functions[name] = build_elementwise_tiled(rows=rows, width=width, block_rows=block_rows,
+                                                 block_width=block_width, num_stages=stages)
     for name, function in functions.items():
         artifact = tilelang.lower(function, target=target, runtime_mode="pcie")
         reports = []
@@ -59,7 +60,7 @@ def export():
             sources = {filename: (Path(directory) / filename).read_text() for filename in SOURCE_NAMES}
         bundle["variants"][name] = {
             "num_stages": 2 if name == "pipeline" else 0,
-            "tiling": None if name == "original" else [4, 32],
+            "tiling": None if name == "original" else [block_rows, block_width],
             "pipeline_reports": reports,
             "sources": sources,
             "sha256": {filename: hashlib.sha256(source.encode()).hexdigest()
@@ -96,7 +97,8 @@ def verify_cmodel(bundle):
     torch.set_num_threads(1)
     target = tvm.target.Target("tpu -mcpu=bm1690 -tpu-programming-model=tpukernel")
     generator = torch.Generator().manual_seed(0)
-    lhs, rhs = [torch.randn((8,128), generator=generator).half() for _ in range(2)]
+    shape = bundle["target"]["shape"]
+    lhs, rhs = [torch.randn(shape, generator=generator).half() for _ in range(2)]
     expected = (lhs.float() + rhs.float()).half()
     outputs, records = [], {}
     for name in ("original", "serial", "pipeline"):
@@ -106,7 +108,7 @@ def verify_cmodel(bundle):
             (Path(build.tpu_workspace_dir) / filename).write_text(source)
         build.compile_lib(timeout=60)
         library = build.load_lib()
-        forward = make_tpu_forward(library, [KernelParam(torch.float16, [8,128]) for _ in range(3)], [2], {})
+        forward = make_tpu_forward(library, [KernelParam(torch.float16, shape) for _ in range(3)], [2], {})
         output = torch.full_like(expected, float("nan"))
         forward(lhs, rhs, output)
         atol, rtol = tolerance("float16", "elementwise")
@@ -116,7 +118,7 @@ def verify_cmodel(bundle):
         outputs.append(output)
     if not all(torch.equal(outputs[0], output) for output in outputs[1:]):
         raise AssertionError("Original, same-tile serial and pipeline Add disagree")
-    return {"status": "passed", "runtime_mode": "cmodel", "shape": [8,128], "dtype": "float16",
+    return {"status": "passed", "runtime_mode": "cmodel", "shape": shape, "dtype": "float16",
             "launch_cores": 1, "seed": 0, "variants": records, "all_variants_bitwise_equal": True,
             "board_executed": False, "hardware_overlap_verified": False,
             "device_performance_measured": False}
@@ -127,12 +129,13 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--output", type=Path)
     mode.add_argument("--verify-cmodel-bundle", type=Path)
+    parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))
         return
-    bundle = export()
+    bundle = export(target_size=args.target_size)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x") as output:
         json.dump(bundle, output, indent=2, sort_keys=True)

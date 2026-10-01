@@ -1,8 +1,8 @@
-"""One supervised BM1690 Add correctness call using the pinned P8.1 build.
+"""Supervised BM1690 Add correctness and resident synchronous-call latency.
 
 Standalone Python standard library only. This is a narrowly scoped source/build
 manifest loader, not a relaxation of the generic JIT's prebuilt-library policy.
-No benchmark, automatic retry, or multicore execution is exposed here.
+Only pinned bundles/builders are accepted. No automatic retry or multicore.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from pathlib import Path
 import resource
 import signal
 import stat
+import statistics
 import struct
 import subprocess
 import sys
@@ -29,6 +30,15 @@ BUNDLE_SHA256 = "32de4a5ca1a06804534391e00c4075f2d7373ff52ca1b2d1d0b1ac7421e32ba
 BUILDER_SHA256 = "51c39e19dfd0d968ccbe17456048236645d3ff279eaec3b996baf000028c0f70"
 VARIANTS = ("original", "serial", "pipeline")
 COUNT = 8 * 128
+# Retain the original handoff, including builds made by the frozen P8.1 helper.
+CURRENT_BUILDER_SHA256 = "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"
+TARGET_BUNDLE_SHA256 = "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"
+BUNDLES = {
+    BUNDLE_SHA256: {"shape": [8, 128], "builders": (BUILDER_SHA256, CURRENT_BUILDER_SHA256),
+                    "timing": False},
+    TARGET_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
+                           "timing": True},
+}
 
 
 def digest(path):
@@ -54,8 +64,10 @@ def validate_build(build):
     """Bind the original source bundle, build recipe, SDK and both ELF files."""
     build = build.resolve(strict=True)
     bundle_path, builder_path = build.parent / "add.json", build.parent / "build.py"
-    check_hash(bundle_path, BUNDLE_SHA256)
-    check_hash(builder_path, BUILDER_SHA256)
+    bundle_hash, builder_hash = digest(bundle_path), digest(builder_path)
+    contract = BUNDLES.get(bundle_hash)
+    if contract is None or builder_hash not in contract["builders"]:
+        raise ValueError("Hash mismatch: unregistered source bundle or builder")
     spec = importlib.util.spec_from_file_location("bm1690_verified_legacy_builder", builder_path)
     builder = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = builder
@@ -65,7 +77,7 @@ def validate_build(build):
     report = json.loads((build / "result.json").read_text())
     if report.get("status") != "compile_only_passed" or report.get("profile") != builder.PROFILE:
         raise ValueError("A successful P8.1 legacy compilation manifest is required")
-    if report.get("bundle_sha256") != BUNDLE_SHA256 or report.get("builder_sha256") != BUILDER_SHA256:
+    if report.get("bundle_sha256") != bundle_hash or report.get("builder_sha256") != builder_hash:
         raise ValueError("Build manifest does not identify the pinned P8.1 sources/builder")
     if report.get("board_runtime_loaded") is not False or report.get("kernel_launches") != 0:
         raise ValueError("Expected the source-only compilation manifest")
@@ -116,27 +128,28 @@ def validate_build(build):
             else:
                 os.environ[key] = old
     return {"build_manifest_sha256": digest(build / "result.json"),
-            "bundle_sha256": BUNDLE_SHA256, "runtime_library": str(required[-2].resolve()),
+            "bundle_sha256": bundle_hash, "shape": contract["shape"], "timing_supported": contract["timing"],
+            "runtime_library": str(required[-2].resolve()),
             "runtime_sha256": report["sdk_inputs"][str(required[-2])],
             "artifacts": report["artifacts"]}
 
 
-def test_vectors():
+def test_vectors(count=COUNT):
     """Deterministic normal-range FP16 inputs; independently rounded FP32 sum."""
     state = 0
     values = []
-    for _ in range(COUNT * 2):
+    for _ in range(count * 2):
         state = (1664525 * state + 1013904223) & 0xffffffff
         values.append(((state >> 8) % 16384 - 8192) / 4096.0)
-    lhs = struct.pack("<" + "e" * COUNT, *values[:COUNT])
-    rhs = struct.pack("<" + "e" * COUNT, *values[COUNT:])
+    lhs = struct.pack("<" + "e" * count, *values[:count])
+    rhs = struct.pack("<" + "e" * count, *values[count:])
     reference = b"".join(struct.pack("<e", struct.unpack("<f", struct.pack("<f", a[0] + b[0]))[0])
                          for a, b in zip(struct.iter_unpack("<e", lhs), struct.iter_unpack("<e", rhs)))
     return lhs, rhs, reference
 
 
-def check_output(actual, expected):
-    if len(actual) != COUNT * 2 or len(expected) != COUNT * 2:
+def check_output(actual, expected, count=COUNT):
+    if len(actual) != count * 2 or len(expected) != count * 2:
         raise ValueError("Unexpected Add output length")
     a = [v[0] for v in struct.iter_unpack("<e", actual)]
     b = [v[0] for v in struct.iter_unpack("<e", expected)]
@@ -152,16 +165,26 @@ def check_output(actual, expected):
     return metrics
 
 
-def call_host(library, lhs, rhs):
-    """One existing void** ABI call, with NaN output and host-buffer canaries."""
+def call_host(library, lhs, rhs, *, timing=None):
+    """One ABI call; optional explicit warmup/sample counts and returned samples."""
+    if len(lhs) != len(rhs) or len(lhs) % 2:
+        raise ValueError("Invalid FP16 input lengths")
     canary = bytes([0xa5]) * 64
-    payloads = [lhs, rhs, b"\x00\x7e" * COUNT]
+    payloads = [lhs, rhs, b"\x00\x7e" * (len(lhs) // 2)]
     buffers = [ctypes.create_string_buffer(canary + value + canary, len(value) + 128) for value in payloads]
     pointers = (ctypes.c_void_p * 3)(*[ctypes.addressof(buffer) + 64 for buffer in buffers])
-    run = library.tilelang_tpu_run
+    run = library.tilelang_tpu_run if timing is None else library.tilelang_tpu_run_timed
     run.argtypes = [ctypes.POINTER(ctypes.c_void_p)]
     run.restype = ctypes.c_int
-    status = run(pointers)
+    if timing is None:
+        status = run(pointers)
+    else:
+        warmups, count = timing["warmups"], timing["samples"]
+        if not 1 <= warmups <= 100 or not 1 <= count <= 1000:
+            raise ValueError("Invalid bounded timing counts")
+        samples = (ctypes.c_double * count)(*[float("nan")] * count)
+        run.argtypes += [ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
+        status = run(pointers, warmups, count, samples)
     if status != 0:
         raise RuntimeError(f"tilelang_tpu_run returned {status}")
     for buffer in buffers:
@@ -170,7 +193,25 @@ def call_host(library, lhs, rhs):
     for buffer, original in zip(buffers[:2], payloads[:2]):
         if buffer.raw[64:-64] != original:
             raise RuntimeError("Host input staging buffer changed")
+    if timing is not None:
+        timing.update(summarize_samples(list(samples)))
     return buffers[2].raw[64:-64]
+
+
+def summarize_samples(values):
+    if not values or any(not math.isfinite(value) or value <= 0 for value in values):
+        raise ValueError("Missing or invalid synchronous-call timing samples")
+    ordered = sorted(values)
+    def percentile(q):
+        index = (len(ordered) - 1) * q
+        low = int(index)
+        return ordered[low] + (ordered[min(low + 1, len(ordered) - 1)] - ordered[low]) * (index - low)
+    return {"raw_us": values, "median_us": statistics.median(values),
+            "iqr_us": percentile(.75) - percentile(.25), "p95_us": percentile(.95),
+            "min_us": min(values), "max_us": max(values), "percentiles": "linear interpolation",
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": ["compilation", "allocation", "module loading", "H2D", "D2H", "reference"],
+            "pure_device_time": False}
 
 
 def loaded_vendor_libraries():
@@ -234,7 +275,7 @@ def check_previous(args, identity, input_hash):
     if report.get("status") != "passed" or numeric.get("variant") != expected_variant:
         raise ValueError("Previous stage did not pass or has the wrong variant")
     expected = {"build_manifest_sha256": identity["build_manifest_sha256"],
-                "bundle_sha256": BUNDLE_SHA256, "input_sha256": input_hash,
+                "bundle_sha256": identity["bundle_sha256"], "input_sha256": input_hash,
                 "device_id": args.device_id, "expected_pci": args.expected_pci}
     if any(numeric.get(key) != value for key,value in expected.items()):
         raise ValueError("Previous stage uses different sources, inputs or hardware")
@@ -254,12 +295,32 @@ def arm_parent_death(parent_pid, death_signal=signal.SIGKILL):
         raise RuntimeError("Could not arm the worker parent-death signal")
 
 
+def check_correctness_receipt(args, identity, input_hash, expected):
+    receipt = json.loads((args.correctness / "result.json").read_text())
+    numeric = receipt.get("numeric") or {}
+    required = {"variant": args.variant, "shape": identity["shape"],
+                "bundle_sha256": identity["bundle_sha256"],
+                "build_manifest_sha256": identity["build_manifest_sha256"],
+                "input_sha256": input_hash, "device_id": args.device_id,
+                "expected_pci": args.expected_pci}
+    if (receipt.get("status") != "passed" or numeric.get("status") != "passed" or
+            not numeric.get("reference", {}).get("passed") or numeric.get("timing") or
+            any(numeric.get(key) != value for key, value in required.items())):
+        raise ValueError("Timing requires a matching passed one-call correctness receipt")
+    check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
+    if (args.correctness / "output.f16").read_bytes() != expected:
+        raise ValueError("Correctness receipt output does not equal the reference")
+    return digest(args.correctness / "result.json")
+
+
 def child_command(args):
     command = [sys.executable, str(Path(__file__).resolve()), "--build", str(args.build),
                "--output", str(args.output), "--variant", args.variant, "--allow-pcie",
                "--device-id", str(args.device_id), "--expected-pci", args.expected_pci]
     if args.previous:
         command += ["--previous", str(args.previous)]
+    if getattr(args, "measure", False):
+        command += ["--measure", "--correctness", str(args.correctness)]
     return command
 
 
@@ -290,8 +351,9 @@ def worker(args):
     cpus = sorted(os.sched_getaffinity(0))[:2]
     os.sched_setaffinity(0, cpus)
     priority = os.nice(10)
-    result = {"status": "running", "variant": args.variant, "dtype": "float16", "shape": [8,128],
+    result = {"status": "running", "variant": args.variant, "dtype": "float16", "shape": None,
               "launch_cores": 1, "requested_host_calls": 1, "dispatch_attempted": False,
+              "requested_kernel_calls": 25 if args.measure else 1,
               "device_performance_measured": False, "hardware_overlap_verified": False,
               "device_id": args.device_id, "expected_pci": args.expected_pci,
               "runner_sha256": digest(__file__), "allowed_cpus": cpus, "nice": priority}
@@ -310,9 +372,17 @@ def worker(args):
             raise ValueError("Fresh PCIe worker already has a vendor runtime mapped")
         identity = validate_build(args.build)
         result.update(identity)
-        lhs, rhs, expected = test_vectors()
+        count = math.prod(identity["shape"])
+        lhs, rhs, expected = test_vectors(count)
         result["input_sha256"] = hashlib.sha256(lhs + rhs).hexdigest()
         previous = check_previous(args, identity, result["input_sha256"])
+        timing = None
+        if args.measure:
+            if not identity["timing_supported"]:
+                raise ValueError("This pinned source bundle has no validated timing ABI")
+            result["correctness_receipt_sha256"] = check_correctness_receipt(
+                args, identity, result["input_sha256"], expected)
+            timing = {"warmups": 5, "samples": 20}
         # These settings are local to this dedicated worker. The generic JIT
         # and demo-profiler authorization/identity checks remain unchanged.
         for key in tuple(os.environ):
@@ -342,17 +412,21 @@ def worker(args):
         if bind(args.device_id) != 0:
             raise RuntimeError("Host module refused the verified device binding")
         result["dispatch_attempted"] = True
-        checkpoint("tilelang_tpu_run_once")
-        actual = call_host(library, lhs, rhs)
+        checkpoint("tilelang_tpu_run_timed" if timing is not None else "tilelang_tpu_run_once")
+        actual = call_host(library, lhs, rhs, timing=timing)
         result["host_call_returned_success"] = True
         checkpoint("compare_reference")
-        result["reference"] = check_output(actual, expected)
+        result["reference"] = check_output(actual, expected, count)
         if previous is not None and actual != previous:
             raise ValueError("Output differs bitwise from the previous variant")
         result["previous_variant_bitwise_equal"] = True if previous is not None else None
         (args.output / "output.f16").write_bytes(actual)
         result["output_sha256"] = hashlib.sha256(actual).hexdigest()
         result["status"] = "passed"
+        if timing is not None:
+            result["timing"] = timing
+            result["synchronous_call_latency_measured"] = True
+            print("ADD_SYNC_LATENCY=" + json.dumps(timing, sort_keys=True), flush=True)
         checkpoint("completed")
         print("ADD_CORRECTNESS=" + json.dumps({key: result[key] for key in (
             "variant", "mapping", "shape", "dtype", "launch_cores", "reference",
@@ -436,6 +510,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--variant", choices=VARIANTS, required=True)
     parser.add_argument("--previous", type=Path)
+    parser.add_argument("--measure", action="store_true", help="5 warmups, 20 resident synchronous calls")
+    parser.add_argument("--correctness", type=Path, help="passed one-call receipt for this variant")
     parser.add_argument("--allow-pcie", action="store_true")
     parser.add_argument("--device-id", type=int, choices=(0,), required=True)
     parser.add_argument("--expected-pci", choices=("0000:01:00.0",), required=True)
@@ -445,6 +521,10 @@ def main():
     args = parser.parse_args()
     if not args.allow_pcie:
         parser.error("--allow-pcie is required for this supervised board execution")
+    if args.measure != (args.correctness is not None):
+        parser.error("--measure and --correctness must be supplied together")
+    if args.correctness:
+        args.correctness = args.correctness.resolve()
     args.build, args.output = args.build.resolve(), args.output.resolve()
     if args.previous:
         args.previous = args.previous.resolve()

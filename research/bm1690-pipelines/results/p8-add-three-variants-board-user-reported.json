@@ -1,0 +1,94 @@
+{
+  "schema": "bm1690-add-board-correctness-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "runner_commit": "2d746196610c08010aa762f749fc4af2839521d1",
+  "runner_sha256": "94b526d33a0d9e4a598b8d0a86982bd1020cddda1f91065da00199035e708583",
+  "build_commit": "53f04f868aa51f08f370ae1faa61fbf1d46c47b0",
+  "bundle_sha256": "32de4a5ca1a06804534391e00c4075f2d7373ff52ca1b2d1d0b1ac7421e32bac",
+  "dtype": "float16",
+  "shape": [
+    8,
+    128
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "da54a02c5b51968628f2547e4117871bfef6a291cb6ce1255779d61aafa6ad04",
+  "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+  "reference": {
+    "atol": 0.005,
+    "rtol": 0.005,
+    "finite": true,
+    "max_abs_error": 0.0,
+    "mismatched_elements": 0,
+    "bitwise_equal_to_reference": true,
+    "passed": true
+  },
+  "matches_recorded_cmodel_output_sha256": true,
+  "full_result_json_received_at_development_host": false,
+  "hardware_overlap_verified": false,
+  "variants": {
+    "original": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": null,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+      "diagnostic_unwarmed_host_wrapper_us": 177,
+      "remote_result": "/home/bokai/bm1690-p8-I9nKFp/run-original/result.json"
+    },
+    "serial": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+      "diagnostic_unwarmed_host_wrapper_us": 179,
+      "remote_result": "/home/bokai/bm1690-p8-I9nKFp/run-serial/result.json"
+    },
+    "pipeline": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "output_sha256": "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f",
+      "diagnostic_unwarmed_host_wrapper_us": 186,
+      "remote_result": "/home/bokai/bm1690-p8-I9nKFp/run-pipeline/result.json"
+    }
+  },
+  "all_variants_bitwise_equal": true,
+  "small_shape_single_core_board_correctness_complete": true,
+  "accepted_performance_measurement": false,
+  "earlier_original_evidence": "p8-add-original-board-user-reported.json"
+}

@@ -31,12 +31,15 @@ def write(path, data=b""):
 
 
 class ManifestTests(unittest.TestCase):
+    bundle_name = "add-smoke-sources.json"
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         shutil.copyfile(ROOT / "tilelang/jit/adapter/legacy_pcie.py", self.root / "build.py")
-        shutil.copyfile(ROOT / "research/bm1690-pipelines/handoff/add-smoke-sources.json", self.root / "add.json")
+        shutil.copyfile(ROOT / "research/bm1690-pipelines/handoff" / self.bundle_name, self.root / "add.json")
+        self.bundle_hash = runner.digest(self.root / "add.json")
         spec = importlib.util.spec_from_file_location("legacy_pcie_test_fixture", self.root / "build.py")
         builder = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = builder
@@ -57,7 +60,7 @@ class ManifestTests(unittest.TestCase):
         self.build.mkdir()
         bundle = json.loads((self.root / "add.json").read_text())
         self.report = {"status": "compile_only_passed", "profile": builder.PROFILE,
-                       "bundle_sha256": runner.BUNDLE_SHA256, "builder_sha256": runner.BUILDER_SHA256,
+                       "bundle_sha256": self.bundle_hash, "builder_sha256": runner.CURRENT_BUILDER_SHA256,
                        "board_runtime_loaded": False, "kernel_launches": 0,
                        "runtime_identity": list(layout.runtime_identity_for("pcie", self.env)),
                        "completed_commands": [], "artifacts": {}}
@@ -86,7 +89,7 @@ class ManifestTests(unittest.TestCase):
     def test_valid_build_identity_requires_no_library_loading(self):
         with patch.object(ctypes, "CDLL", side_effect=AssertionError("must not load")):
             identity = runner.validate_build(self.build)
-        self.assertEqual(identity["bundle_sha256"], runner.BUNDLE_SHA256)
+        self.assertEqual(identity["bundle_sha256"], self.bundle_hash)
         self.assertEqual(identity["runtime_library"], str(self.root / "runtime/lib/libtpuv7_rt.so"))
 
     def test_source_binary_and_runtime_changes_are_rejected(self):
@@ -127,7 +130,7 @@ class ManifestTests(unittest.TestCase):
         identity = runner.validate_build(self.build)
         lhs,rhs,_ = runner.test_vectors()
         input_hash = hashlib.sha256(lhs+rhs).hexdigest()
-        numeric = {"variant":"original","bundle_sha256":runner.BUNDLE_SHA256,
+        numeric = {"variant":"original","bundle_sha256":self.bundle_hash,
                    "build_manifest_sha256":identity["build_manifest_sha256"], "input_sha256":input_hash,
                    "device_id":0,"expected_pci":"0000:01:00.0", "output_sha256":runner.digest(output)}
         args = SimpleNamespace(variant="serial",previous=previous,device_id=0,expected_pci="0000:01:00.0")
@@ -310,6 +313,35 @@ class MappingTests(unittest.TestCase):
                                                     Path("/sys/devices/0000:01:00.0")]):
             with self.assertRaisesRegex(ValueError,"mapping mismatch"):
                 runner.verify_device(runtime,0,"0000:01:00.0",lambda stage:None)
+
+
+class TargetManifestTests(ManifestTests):
+    bundle_name = "add-1024-sources.json"
+
+    def test_timing_receipt_requires_same_variant_build_inputs_and_output(self):
+        output = self.root / "correctness"
+        output.mkdir()
+        payload = b"\x00\x00"
+        (output / "output.f16").write_bytes(payload)
+        identity = runner.validate_build(self.build)
+        numeric = {"status": "passed", "reference": {"passed": True}, "variant": "original",
+                   "shape": [1024,1024], "build_manifest_sha256": identity["build_manifest_sha256"],
+                   "bundle_sha256": self.bundle_hash, "input_sha256": "input",
+                   "device_id": 0, "expected_pci": "0000:01:00.0",
+                   "output_sha256": runner.digest(output / "output.f16")}
+        args = SimpleNamespace(correctness=output,variant="original",device_id=0,expected_pci="0000:01:00.0")
+        def check(value):
+            (output / "result.json").write_text(json.dumps({"status":"passed","numeric":value}))
+            return runner.check_correctness_receipt(args,identity,"input",payload)
+        self.assertTrue(check(numeric))
+        for key,value in (("variant","pipeline"),("build_manifest_sha256","wrong"),
+                          ("input_sha256","wrong"),("timing",{"samples":20}),
+                          ("reference",{"passed":False}),("device_id",1)):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                check({**numeric,key:value})
+        (output / "output.f16").write_bytes(b"xx")
+        with self.assertRaisesRegex(ValueError,"Hash mismatch"):
+            check(numeric)
 
 
 if __name__ == "__main__":

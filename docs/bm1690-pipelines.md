@@ -382,17 +382,23 @@ recorded CModel run. The evidence is preserved in
 `research/bm1690-pipelines/results/p8-add-original-board-user-reported.json`.
 The printed 177-us host-wrapper time is one unwarmed diagnostic sample only.
 The remote full result JSON and binary artifacts have not been copied here.
-Same-tile serial and pipeline board execution remain pending; validate them
-in that order using the retained previous-stage receipts. This original Add
-result does not establish hardware overlap or other shapes/operators.
+The subsequent user-supplied serial and pipeline runs also passed on the same
+BM1690 device and build: reference error is zero, both previous-variant bitwise
+comparisons are true, and all three output hashes agree with CModel. Both
+workers and outer commands exited zero. The combined evidence is
+`research/bm1690-pipelines/results/p8-add-three-variants-board-user-reported.json`.
+The serial/pipeline printed 179/186 us are likewise unwarmed one-call diagnostics,
+not an accepted performance comparison. This completes the 8x128 single-core
+Add correctness smoke; larger shapes, other operators and overlap remain separate.
 
-The timing entry will allocate/upload once, warm up, and record each invocation
-of the wrapper containing launch plus `tpuRtStreamSynchronize` with
-`steady_clock`. Download, allocation, compilation and host reference work stay
-outside the timed interval. Start with one core, 5 warmups and 20 samples for
-correctness/latency smoke; then use configurable 3 rounds of 10 warmups and 100
-samples with a pause between rounds, recording median, IQR, p95 and raw samples.
-These are planned sample counts, not measured results or performance thresholds.
+The new timing ABI allocates/uploads once and records each invocation of the
+wrapper containing launch plus `tpuRtStreamSynchronize` with `steady_clock`.
+Download, allocation, compilation and host reference work stay outside the timed
+interval. The board entry uses one core, 5 warmups and 20 samples, with a required
+matching one-call correctness receipt. The C++ ABI supports bounded counts;
+configurable multi-round board sampling is still a later step (planned: 3 rounds,
+10 warmups and 100 samples with a pause between rounds). Raw samples, median,
+IQR and p95 are recorded. These sample counts are not performance thresholds.
 Keep original demo, same-tile serial, pipeline-only, reuse and multicore variants
 separate. Compare pipeline benefits at identical shape/dtype/tiling/core count;
 compare multicore scaling separately. No prepacking has been introduced.
@@ -404,3 +410,65 @@ matrix for manual inspection; killing a host worker is not proof that a board's
 firmware recovered. Four/eight-core board runs follow only after the lower-core
 checks and remote-desktop responsiveness are confirmed. Hardware overlap claims
 require separate trace/profiler evidence and are outside the first acceptance.
+
+
+### P8.3 1024x1024 Add and resident synchronous-call timing
+
+The pinned `handoff/add-1024-sources.json` (schema v2) contains the original
+whole-block Add, same-tile serial and two-stage pipeline at FP16 1024x1024,
+launch cores 1. Serial and pipeline use 32x128 tiles (256 iterations). The
+lowered schedule is order `[0,1,2,3]`, stage `[0,0,1,1]`; both input tiles
+have two versions, output has one, and stores finish after the parallel region
+before reuse. This is generated schedule evidence, not physical-overlap proof.
+The existing 8x128 v1 bundle and old remote builds remain accepted unchanged.
+
+`main_template.cpp::tilelang_tpu_run_timed` adds an explicit C ABI separate from
+the original one-call function. It rejects invalid counts and profiling before
+initialization, allocates/uploads once, synchronizes before warmup, and times
+only synchronous `main_kernel` calls using a monotonic clock with double-valued
+microseconds. It copies output back once and checks allocation, transfers,
+launch/sync, free, module-unload and stream-destroy failures. A failed call stops
+sampling and its measurements are rejected. This entry is for kernels such as
+Add whose repeated execution uses immutable inputs; do not apply it unchanged
+to an in-place or accumulating ABI. The original environment-driven diagnostic
+benchmark is unchanged and is forced to zero by this runner.
+
+`run_add_pcie.py` registers the exact v1/v2 bundle and builder hashes. Its new
+`--measure --correctness /path/to/same-variant-correctness` mode requires a
+passed receipt with matching build, inputs, shape, variant and mapped device,
+checks the saved output, and verifies the final repeated-run output again.
+Serial/pipeline also retain their `--previous` correctness-chain requirement.
+No timing call runs by default. Same process-group, 2-CPU, nice-10, 4-GiB RSS,
+30-second, device-lock and failure-stop limits apply to both modes.
+
+Validation: 56 stdlib regressions pass, including the compiled fake-runtime
+timing tests (25 calls, single allocation/upload, stop on warmup/sample and
+cleanup failures, invalid-count/profile rejection). The frozen 53f04f8 builder
+and v1 bundle also pass the new loader in a manifest-only fixture. Download
+checks verify hashes before execution and reject altered bytes. These fixture
+checks load no vendor library.
+
+Local result `results/p8-add-1024-cmodel.json`: the exact exported sources pass
+all three variants, all output bytes match the stdlib FP32-add/FP16-rounding
+reference and CPU PyTorch, and maximum absolute error is zero. The timing ABI
+was exercised with 1 warmup + 2 samples per variant, with unchanged correct
+outputs; CModel timings are not reported as device-performance evidence.
+The original whole-block 1024x1024 version compiled and executed on CModel;
+its compatibility with the older board SDK remains to be established.
+
+`prepare_add_1024.py` downloads and verifies the three pinned source/build/run
+files into a **new** directory and compiles sequentially with the already
+inspected bokai PPL 1.4, runtime 1.9.3 and Linux RISC-V GCC paths. It uses only
+stdlib, refuses an existing directory, has no vendor-library loading or kernel
+launch, and preserves download receipts and build logs on failure. Its own file
+must be verified against the delivery SHA before execution. Downloads have a
+45-second socket bound; compile phase has a 180-second group bound. Wrap the
+whole preparation in a 360-second timeout to bound slow downloads as well.
+
+Next board steps: compile v2 first; then execute original, serial, pipeline
+once, using new output directories and retaining previous-stage receipts. After
+all three pass, run each once with `--measure --correctness ...` (and the serial/
+pipeline `--previous ...`); compare serial versus pipeline at the identical
+32x128 tiling, dtype, shape and core count. Original whole-block is a separate
+baseline. Every failure stops progression. No speedup or overlap is claimed
+from the current CModel results or the earlier small-shape diagnostic timings.

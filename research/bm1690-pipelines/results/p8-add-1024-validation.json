@@ -1,0 +1,19 @@
+{
+  "evidence_kind": "local_test_execution",
+  "stdlib_regressions_passed": 56,
+  "changed_runner_timing_tests_rerun_passed": 22,
+  "fake_runtime_loads_vendor_library": false,
+  "frozen_builder_v1_manifest_compatibility": "passed",
+  "download_only_and_tampered_download_checks": "passed",
+  "board_1024_execution": "pending",
+  "hardware_overlap_verified": false,
+  "files_sha256": {
+    "tpu_demo/pipeline/run_add_pcie.py": "8e60b2affb40d5b00ee1062e811f94c66fbc51d51927c1ffb529e4e8676d480a",
+    "tpu_demo/pipeline/prepare_add_1024.py": "ce1e27f2d7b3c81e0e84b78bc2dc5b3fd8f171319aeb3d52a14784b08a1be74f",
+    "src/tl_templates/tpu/main_template.cpp": "ab2f7cfd71c752719c397d8d7027a0dfe1f249ace0f29cd8d93072a118e482e9",
+    "tilelang/jit/adapter/wrapper.py": "dc5d9693d7b40e0e37c3032af3aa429221b2318b055f7458d337a917ff9dd29a",
+    "tilelang/jit/adapter/legacy_pcie.py": "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525",
+    "testing/python/jit/test_bm1690_timing_unittest.py": "a7b8185df405ff3420a2bf1fdb2c4601a4b39b228995d9234265645b7e3e905e",
+    "testing/python/jit/test_bm1690_add_pcie_unittest.py": "f41b0429d6756862e2be5993fea06a40094be70785bd35eb038ac43752b24d2a"
+  }
+}

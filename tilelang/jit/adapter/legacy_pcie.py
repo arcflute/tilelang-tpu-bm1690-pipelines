@@ -190,11 +190,14 @@ def legacy_pcie_commands(layout, directory, *, programming_model="tpukernel", pr
 
 
 def validate_source_bundle(bundle):
-    if bundle.get("schema") != "bm1690-add-source-check-v1":
+    schemas = {"bm1690-add-source-check-v1": [8, 128],
+               "bm1690-add-source-check-v2": [1024, 1024]}
+    if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     if bundle.get("target") != {"chip": "bm1690", "programming_model": "tpukernel",
-                                "launch_cores": 1, "dtype": "float16", "shape": [8, 128]}:
-        raise ValueError("This first compile check requires the bounded single-core FP16 Add smoke")
+                                "launch_cores": 1, "dtype": "float16",
+                                "shape": schemas[bundle["schema"]]}:
+        raise ValueError("Source schema requires its fixed single-core FP16 Add shape")
     variants = bundle.get("variants", {})
     if set(variants) != {"original", "serial", "pipeline"}:
         raise ValueError("Source bundle must preserve original/serial/pipeline variants")

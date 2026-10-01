@@ -357,4 +357,58 @@ extern "C" int tilelang_tpu_run(void** args) {{
 #endif
   return status;
 }}
+// Explicit resident-buffer synchronous-call timing. It has no environment-
+// driven repetition and leaves the existing one-call entry unchanged.
+// Caller must first validate this kernel with tilelang_tpu_run.
+extern "C" int tilelang_tpu_run_timed(
+    void** args, int warmups, int samples, double* samples_us) {{
+  if (args == nullptr || samples_us == nullptr || warmups < 1 || warmups > 100 ||
+      samples < 1 || samples > 1000) {{
+    return -20;
+  }}
+  if (tilelang_tpu_env_is_one("TILELANG_TPU_PROFILE_SESSION") ||
+      tilelang_tpu_env_is_one("BMLIB_ENABLE_ALL_PROFILE")) {{
+    return -21;
+  }}
+#ifdef TILELANG_TPU_PCIE_PROFILING
+  return -21;
+#endif
+  std::fill(samples_us, samples_us + samples, std::numeric_limits<double>::quiet_NaN());
+{arg_declarations}
+  int status = init();
+  if (status != 0) {{ return status; }}
+{device_declarations}
+  do {{
+{malloc_statements}
+{memcpy_s2d_statements}
+    // Complete any pending upload before the warmup loop. Each main_kernel
+    // invocation itself includes launch and tpuRtStreamSynchronize.
+    if (tpuRtStreamSynchronize(stream) != tpuRtSuccess) {{ status = -8; break; }}
+    int rst = 0;
+    for (int i = 0; i < warmups; ++i) {{
+{pure_kernel_call}
+      if (rst != 0) {{ status = rst; break; }}
+    }}
+    if (status != 0) {{ break; }}
+    for (int i = 0; i < samples; ++i) {{
+      const auto start = std::chrono::steady_clock::now();
+{pure_kernel_call}
+      const auto end = std::chrono::steady_clock::now();
+      if (rst != 0) {{ status = rst; break; }}
+      samples_us[i] = std::chrono::duration<double, std::micro>(end - start).count();
+    }}
+    if (status != 0) {{ break; }}
+{memcpy_d2s_statements}
+  }} while (false);
+{checked_free_statements}
+  if (tpu_module != nullptr) {{
+    if (tpuRtKernelUnloadModule(tpu_module, stream) != tpuRtSuccess && status == 0) {{ status = -22; }}
+    tpu_module = nullptr;
+  }}
+  if (stream != nullptr) {{
+    if (tpuRtStreamDestroy(stream) != tpuRtSuccess && status == 0) {{ status = -23; }}
+    stream = nullptr;
+  }}
+  return status;
+}}
 // clang-format on
