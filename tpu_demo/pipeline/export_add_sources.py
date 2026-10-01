@@ -8,7 +8,9 @@ import subprocess
 import tempfile
 
 
-def export(*, target_size=False):
+def export(*, target_size=False, coarse_tiles=False):
+    if coarse_tiles and not target_size:
+        raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
     from tilelang import tvm
     from tilelang.jit.adapter.legacy_pcie import SOURCE_NAMES, validate_source_bundle
@@ -25,6 +27,8 @@ def export(*, target_size=False):
                 name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/"))}
     rows, width = (1024, 1024) if target_size else (8, 128)
     block_rows, block_width = (32, 128) if target_size else (4, 32)
+    if coarse_tiles:
+        block_rows, block_width = 128, 1024
     bundle = {
         "schema": "bm1690-add-source-check-v2" if target_size else "bm1690-add-source-check-v1",
         "target": {"chip": "bm1690", "programming_model": "tpukernel", "launch_cores": 1,
@@ -130,12 +134,13 @@ def main():
     mode.add_argument("--output", type=Path)
     mode.add_argument("--verify-cmodel-bundle", type=Path)
     parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
+    parser.add_argument("--coarse-tiles", action="store_true", help="128x1024 tiles, retaining the original baseline")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))
         return
-    bundle = export(target_size=args.target_size)
+    bundle = export(target_size=args.target_size, coarse_tiles=args.coarse_tiles)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x") as output:
         json.dump(bundle, output, indent=2, sort_keys=True)

@@ -22,10 +22,20 @@ FILES = {
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "8e60b2affb40d5b00ee1062e811f94c66fbc51d51927c1ffb529e4e8676d480a"),
+                   "c8c88de318a4bf79b9b4911584e9daa5693165fc515061376ba7df979108beaf"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
+COARSE_SOURCE = ("research/bm1690-pipelines/handoff/add-1024-coarse-sources.json",
+                 "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2")
+
+
+def source_files(case):
+    if case == "target":
+        return dict(FILES)
+    if case == "coarse":
+        return {**FILES, "add.json": COARSE_SOURCE}
+    raise ValueError("Unsupported Add comparison case")
 
 
 def source_request(path, revision, transport):
@@ -58,17 +68,17 @@ def download_verified(url, expected, *, attempts=3):
     raise ValueError("Download attempts must be positive")
 
 
-def resume_receipt(output, revision):
+def resume_receipt(output, revision, case="target"):
     """Validate a download-only/failed-download directory without changing it."""
     previous = output / "handoff.json"
     receipt = json.loads(previous.read_text())
-    if (receipt.get("revision") != revision or
+    if (receipt.get("revision") != revision or receipt.get("case", "target") != case or
             receipt.get("status") not in ("started", "failed", "download_verified") or
             receipt.get("board_runtime_loaded") is not False or receipt.get("kernel_launches") != 0 or
             "build_exit" in receipt or (output / "build").exists() or (output / "build.log").exists()):
         raise ValueError("Resume requires the same revision and a directory where compilation has not started")
     # Validate every retained file before making any network request.
-    for name, (_, expected) in FILES.items():
+    for name, (_, expected) in source_files(case).items():
         path = output / name
         if path.is_symlink() or (path.exists() and
                 (not path.is_file() or path.stat().st_size > 1024 * 1024 or
@@ -82,6 +92,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
+    parser.add_argument("--case", choices=("target", "coarse"), default="target",
+                        help="32x128 or 128x1024 tiles at the same global 1024x1024 shape")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")
@@ -91,7 +103,7 @@ def main():
     output = args.output.resolve()
     prior = None
     if args.resume:
-        prior = resume_receipt(output, args.revision)
+        prior = resume_receipt(output, args.revision, args.case)
         # Retain the original failed/download-only receipt and every retry's
         # separate journal. Never overwrite build attempts or verified inputs.
         with tempfile.NamedTemporaryFile(prefix="handoff-resume-", suffix=".json", dir=output, delete=False) as marker:
@@ -102,12 +114,12 @@ def main():
     print("HANDOFF_DIR=" + str(output), flush=True)
     receipt = {"status": "started", "revision": args.revision,
                "board_runtime_loaded": False, "kernel_launches": 0, "files": {},
-               "download_transport": args.transport}
+               "download_transport": args.transport, "case": args.case}
     if prior is not None:
         receipt["resumed_from"] = prior
     journal.write_text(json.dumps(receipt, indent=2) + "\n")
     try:
-        for name, (path, expected) in FILES.items():
+        for name, (path, expected) in source_files(args.case).items():
             target = output / name
             if args.resume and target.exists():
                 receipt["files"][name] = expected

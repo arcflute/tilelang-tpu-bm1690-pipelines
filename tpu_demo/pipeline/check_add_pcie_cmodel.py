@@ -21,18 +21,22 @@ def main():
     from tilelang.jit.adapter.libgen import LibraryGenerator
     from tpu_demo.common import configure_runtime
     from tpu_demo.pipeline.run_add_pcie import (test_vectors, check_output, call_host, check_hash,
-                                               BUNDLE_SHA256, TARGET_BUNDLE_SHA256)
+                                               BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
+    parser.add_argument("--coarse-tiles", action="store_true")
     args = parser.parse_args()
+    if args.coarse_tiles and not args.target_size:
+        parser.error("--coarse-tiles requires --target-size")
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     torch.set_num_threads(1)
     root = Path(__file__).resolve().parents[2]
     bundle_path = root / "research/bm1690-pipelines/handoff" / (
+        "add-1024-coarse-sources.json" if args.coarse_tiles else
         "add-1024-sources.json" if args.target_size else "add-smoke-sources.json")
-    bundle_hash = TARGET_BUNDLE_SHA256 if args.target_size else BUNDLE_SHA256
+    bundle_hash = COARSE_BUNDLE_SHA256 if args.coarse_tiles else TARGET_BUNDLE_SHA256 if args.target_size else BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     rows, width = bundle["target"]["shape"]
@@ -67,6 +71,7 @@ def main():
     assert outputs[0] == outputs[1] == outputs[2]
     report = {"status":"passed", "runtime_mode":"cmodel", "launch_cores":1,
               "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
+              "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],
               "input_sha256":hashlib.sha256(lhs+rhs).hexdigest(), "variants":records,
               "reference_matches_torch":True, "all_variants_bitwise_equal":True,
               "device_performance_measured":False,"hardware_overlap_verified":False}

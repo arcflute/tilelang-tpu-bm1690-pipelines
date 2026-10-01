@@ -1,0 +1,136 @@
+{
+  "status": "passed",
+  "reason": null,
+  "returncode": 0,
+  "cleanup_complete": true,
+  "wall_seconds": 9.75204756599851,
+  "peak_group_rss_bytes": 1039196160,
+  "numeric": {
+    "all_variants_bitwise_equal": true,
+    "bundle_sha256": "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2",
+    "device_performance_measured": false,
+    "dtype": "float16",
+    "hardware_overlap_verified": false,
+    "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+    "launch_cores": 1,
+    "reference_matches_torch": true,
+    "runtime_mode": "cmodel",
+    "serial_and_pipeline_tiling": [
+      128,
+      1024
+    ],
+    "shape": [
+      1024,
+      1024
+    ],
+    "status": "passed",
+    "variants": {
+      "original": {
+        "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "cab2e8cd5ec622b0aff44cb263b6ba5310442f1a0086710cd970e0a0706973d5",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "916c083e8c7c0334bfa7cbbce436df5f7e5394f53261eee498f3d3956b6ce953"
+        },
+        "timing_abi_check": {
+          "finite_positive_samples": true,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "same_output": true,
+          "samples": 2,
+          "warmups": 1
+        }
+      },
+      "pipeline": {
+        "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "7e947e5ef235848a98da8147e3566bd4a8cf12338a1ff2715120a63e81bcdffe",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "916c083e8c7c0334bfa7cbbce436df5f7e5394f53261eee498f3d3956b6ce953"
+        },
+        "timing_abi_check": {
+          "finite_positive_samples": true,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "same_output": true,
+          "samples": 2,
+          "warmups": 1
+        }
+      },
+      "serial": {
+        "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "source_sha256": {
+          "kernel.c": "9f66285406251a3e63241d11b07d208195467b8a0442728c8c5b5fd1931b775a",
+          "kernel.cpp": "aeee940ae92b40e46658290b5c2b92de00a423e41a44426c60192a9812c209d6",
+          "kernel.h": "0e46a69b161a824343a01ca5de70a7389bb5cc10042ad40c13200928e471decb",
+          "main.cpp": "916c083e8c7c0334bfa7cbbce436df5f7e5394f53261eee498f3d3956b6ce953"
+        },
+        "timing_abi_check": {
+          "finite_positive_samples": true,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "same_output": true,
+          "samples": 2,
+          "warmups": 1
+        }
+      }
+    }
+  },
+  "artifact_dir": "/home/admin3/tilelang-tpu/research/artifacts/bm1690-pipelines/p8-add-1024-coarse-cmodel-v1",
+  "evidence_kind": "local_supervised_cmodel_execution",
+  "limits": {
+    "cpu_count": 2,
+    "timeout_seconds": 120,
+    "max_group_rss_bytes": 4294967296
+  }
+}

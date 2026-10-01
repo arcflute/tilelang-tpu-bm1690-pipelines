@@ -1,0 +1,112 @@
+{
+  "evidence_kind": "local_validation_checks",
+  "affected_stdlib_tests_passed": 38,
+  "scope": [
+    "pinned Add manifest loading",
+    "download transport and case isolation",
+    "compiled fake runtime timing ABI"
+  ],
+  "cmodel_evidence": "p8-add-1024-coarse-cmodel.json",
+  "old_tiling": [
+    32,
+    128
+  ],
+  "new_tiling": [
+    128,
+    1024
+  ],
+  "old_tile_count": 256,
+  "new_tile_count": 8,
+  "pipeline_stages": 2,
+  "original_baseline_sources_unchanged": true,
+  "input_and_reference_unchanged": true,
+  "board_compilation": "pending",
+  "board_execution": "pending",
+  "speedup_verified": false,
+  "hardware_overlap_verified": false,
+  "runner_sha256": "c8c88de318a4bf79b9b4911584e9daa5693165fc515061376ba7df979108beaf",
+  "prepare_sha256": "eb9db9d84e19d01d46d8d6e217097d575658f0c9472687cef59a1099ca44c63d",
+  "generated_pipeline_report": [
+    {
+      "buffer_versions": {
+        "a": [
+          "a",
+          "a_pipeline_v1"
+        ],
+        "b": [
+          "b",
+          "b_pipeline_v1"
+        ]
+      },
+      "cmodel_parallel_execution": false,
+      "compute_state": "single-version ordered recurrence",
+      "explicit": false,
+      "extent": 8,
+      "fingerprint": "c1d8bfb2e82cb6d547e020df21e4cdc97dd42966883524a610ad7139c91764b5",
+      "loop": "tile",
+      "num_stages": 2,
+      "order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefetch_distance": 1,
+      "stage": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "statements": [
+        {
+          "index": 0,
+          "kind": "load",
+          "reads": [
+            "lhs"
+          ],
+          "tir": "lhs = T.Buffer((1024, 1024), \"float16\")\ntile = T.int32()\na = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(lhs[tile * 128, 0], 1, 128, 1024), T.region(a[0, 0], 2, 128, 1024))",
+          "writes": [
+            "a"
+          ]
+        },
+        {
+          "index": 1,
+          "kind": "load",
+          "reads": [
+            "rhs"
+          ],
+          "tir": "rhs = T.Buffer((1024, 1024), \"float16\")\ntile = T.int32()\nb = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(rhs[tile * 128, 0], 1, 128, 1024), T.region(b[0, 0], 2, 128, 1024))",
+          "writes": [
+            "b"
+          ]
+        },
+        {
+          "index": 2,
+          "kind": "compute",
+          "reads": [
+            "a",
+            "b"
+          ],
+          "tir": "c = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\na = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\nb = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\nT.call_extern(\"handle\", \"tl.tpu.add\", T.region(c[0, 0], 2, 128, 1024), T.region(a[0, 0], 1, 128, 1024), T.region(b[0, 0], 1, 128, 1024))",
+          "writes": [
+            "c"
+          ]
+        },
+        {
+          "index": 3,
+          "kind": "store",
+          "reads": [
+            "c"
+          ],
+          "tir": "c = T.Buffer((128, 1024), \"float16\", scope=\"shared.dyn\")\noutput = T.Buffer((1024, 1024), \"float16\")\ntile = T.int32()\nT.call_extern(\"handle\", \"tl.tpu.copy\", T.region(c[0, 0], 1, 128, 1024), T.region(output[tile * 128, 0], 2, 128, 1024))",
+          "writes": [
+            "output"
+          ]
+        }
+      ],
+      "stores": "after parallel end; completed before output reuse"
+    }
+  ],
+  "native_compiler_hashes_unchanged": true
+}

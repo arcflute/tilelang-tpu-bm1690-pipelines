@@ -344,5 +344,9 @@ class TargetManifestTests(ManifestTests):
             check(numeric)
 
 
+class CoarseManifestTests(TargetManifestTests):
+    bundle_name = "add-1024-coarse-sources.json"
+
+
 if __name__ == "__main__":
     unittest.main()

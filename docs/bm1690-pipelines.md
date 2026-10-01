@@ -455,8 +455,9 @@ was exercised with 1 warmup + 2 samples per variant, with unchanged correct
 outputs; CModel timings are not reported as device-performance evidence.
 The original whole-block 1024x1024 version compiled and executed on CModel;
 all three versions also subsequently compiled against the older board SDK as
-recorded below. All three versions have now passed 1024x1024 board correctness;
-prewarmed synchronous-call latency remains pending.
+recorded below. All three versions have now passed 1024x1024 board correctness
+and their first prewarmed synchronous-call latency sample set. That sample set
+shows no speedup for the current tiled pipeline.
 
 `prepare_add_1024.py` downloads and verifies the three pinned source/build/run
 files into a **new** directory and compiles sequentially with the already
@@ -533,13 +534,66 @@ speedup or an overall improvement from these three values. The comparison must
 report both pipeline versus same-tile serial and each tiled version versus
 original whole-block. No physical-overlap trace has been collected.
 
-Next board steps: run each variant with `--measure --correctness ...` (and the
-serial/pipeline `--previous ...` pointing to the retained correctness receipts),
-using new timing output directories, sequentially and stopping on any failure.
-Each invocation uses 5 warmups and 20 measured synchronous calls with resident
-device buffers, and rechecks the final output. Preserve raw samples, median,
-IQR and p95; this is a first bounded latency sample set, not the final repeated
-performance matrix. Compare serial versus pipeline at the identical
-32x128 tiling, dtype, shape and core count. Original whole-block is a separate
-baseline. Every failure stops progression. No speedup or overlap is claimed
-from the current CModel results or the earlier small-shape diagnostic timings.
+The user subsequently completed `--measure` on original, serial and pipeline,
+in that order. Each invocation used 5 warmups and 20 measured synchronous calls
+with resident device buffers, then verified the output again. All references
+passed with zero error, outputs remained bitwise equal, and all worker and outer
+commands returned zero. The complete raw sample arrays and correctness records
+from the supplied terminal text are preserved in
+`results/p8-add-1024-latency-user-reported.json`. Their statistics were separately
+recomputed from the arrays; the full remote result JSON has not been copied here.
+
+| Variant | Tile | Median (us) | IQR (us) | p95 (us) |
+| --- | --- | ---: | ---: | ---: |
+| Original whole-block | 1024x1024 | 115.302 | 2.141 | 117.628 |
+| Same-tile serial | 32x128 | 632.039 | 8.275 | 643.917 |
+| Pipeline, depth 2 | 32x128 | 654.429 | 17.556 | 678.482 |
+
+This first measured sample set **does not show an optimization win**. Pipeline
+median latency is 3.54% higher than same-tile serial, and 5.68 times the original
+whole-block latency; serial is 5.48 times the original. These are ratios of the
+sample medians, not claims of statistical significance or stable speedups.
+All three variants share shape 1024x1024, FP16, the same inputs and one launch
+core. The metric includes host launch plus stream synchronization, excluding
+compilation, allocation, module loading, H2D, D2H and reference work. It is not
+pure device time and provides no proof of physical DMA/compute overlap. One
+fixed-order round cannot isolate host-load or time-order effects; repeated
+order-varied rounds remain part of the later performance matrix.
+
+The first Add correctness-plus-synchronous-latency acceptance is complete with
+a negative performance result. It does not complete P8 for the other operations
+or P9. Keep the original whole-block implementation as the faster observed
+baseline for this case; no default dispatch is changed based on these samples.
+
+### P8.4 bounded tile-size comparison
+
+The measured baseline's loop iterates over 256 logical 32x128 tiles. Each tile
+loads two inputs, performs an Add and stores an output; the pipeline adds its
+parallel-scope synchronization. The original fits in local storage for this
+case and executes whole-block operations. Extra tile-level work is a plausible
+source of overhead, but timing alone does not establish its exact contribution.
+
+`export_add_sources.py --target-size --coarse-tiles` exports a controlled
+128x1024-tile comparison at the same global shape, dtype and launch count. The
+serial and pipeline loops both have 8 tiles; the latter retains depth 2 and
+stage `[0,0,1,1]`, two versions of each input and a single output. Generated C
+has one initial prefetch, seven steady iterations, and the final drain. All
+four original-baseline source hashes are identical to the previous bundle.
+The compiler, allocation pass, runtime ABI, reference, inputs and timer are
+unchanged. This is a candidate for measurement, not a promised speedup.
+
+The exact bundle `handoff/add-1024-coarse-sources.json` passed the bounded local
+BM1690 CModel: all three variants and their timing-ABI checks match the same
+reference and output hash with error zero. Evidence is
+`results/p8-add-1024-coarse-cmodel.json`. No board compilation, execution or
+latency has yet been observed for the new serial/pipeline kernels.
+
+The updated preparation helper selects this bundle with `--case coarse` and
+continues to support `--transport github-api`. Use a new work directory; case
+mixing on `--resume` is rejected. The new runner adds only the new bundle hash
+to its allowlist and retains the previous builds. After compile-only success,
+validate all three variants once and then collect the same 5+20 latency samples.
+Retain both tile sizes, the whole-block baseline and every negative result.
+Limit this to one controlled tile comparison before continuing the other five
+families and remaining elementwise operations; repeated rounds and broader
+tile/depth/multicore searches belong to the later performance matrix.

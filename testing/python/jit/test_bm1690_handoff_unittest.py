@@ -107,8 +107,33 @@ class HandoffTests(unittest.TestCase):
                     self.assertEqual(network.call_count,1)
 
     def test_delivery_file_pins_still_match(self):
-        for name,(path,expected) in prepare.FILES.items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),expected,name)
+        for case in ("target","coarse"):
+            for name,(path,expected) in prepare.source_files(case).items():
+                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),expected,(case,name))
+
+    def test_coarse_case_cannot_resume_a_fine_case_directory(self):
+        with patch.object(prepare.urllib.request,"urlopen",side_effect=AssertionError("wrong case must stop before download")):
+            with self.assertRaises(ValueError):
+                self.run_resume("--case","coarse")
+
+    def test_coarse_case_selects_its_own_bundle_and_preserves_original_sources(self):
+        self.receipt["case"]="coarse"
+        self.save_receipt()
+        seen=[]
+        def download(url, timeout):
+            path=url.split("/"+REVISION+"/")[1]
+            seen.append(path)
+            return io.BytesIO((ROOT/path).read_bytes())
+        with patch.object(prepare.urllib.request,"urlopen",side_effect=download), \
+             patch.object(prepare.subprocess,"run",side_effect=AssertionError("must not compile")):
+            self.assertEqual(self.run_resume("--case","coarse"),0)
+        self.assertEqual(seen[0],prepare.COARSE_SOURCE[0])
+        coarse=json.loads((self.output/'add.json').read_text())
+        fine=json.loads((ROOT/prepare.FILES['add.json'][0]).read_text())
+        self.assertEqual(coarse['variants']['original']['sha256'],fine['variants']['original']['sha256'])
+        self.assertEqual(coarse['variants']['serial']['tiling'],[128,1024])
+        self.assertEqual(coarse['variants']['pipeline']['tiling'],[128,1024])
+        self.assertEqual(coarse['variants']['pipeline']['pipeline_reports'][0]['extent'],8)
 
     def test_compile_failure_is_attempted_once_and_cannot_resume(self):
         for name,(path,_) in prepare.FILES.items():

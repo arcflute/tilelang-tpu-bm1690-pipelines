@@ -33,10 +33,13 @@ COUNT = 8 * 128
 # Retain the original handoff, including builds made by the frozen P8.1 helper.
 CURRENT_BUILDER_SHA256 = "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"
 TARGET_BUNDLE_SHA256 = "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"
+COARSE_BUNDLE_SHA256 = "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2"
 BUNDLES = {
     BUNDLE_SHA256: {"shape": [8, 128], "builders": (BUILDER_SHA256, CURRENT_BUILDER_SHA256),
                     "timing": False},
     TARGET_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
+                           "timing": True},
+    COARSE_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
                            "timing": True},
 }
 
