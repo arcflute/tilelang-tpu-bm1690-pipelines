@@ -462,8 +462,24 @@ inspected bokai PPL 1.4, runtime 1.9.3 and Linux RISC-V GCC paths. It uses only
 stdlib, refuses an existing directory, has no vendor-library loading or kernel
 launch, and preserves download receipts and build logs on failure. Its own file
 must be verified against the delivery SHA before execution. Downloads have a
-45-second socket bound; compile phase has a 180-second group bound. Wrap the
-whole preparation in a 360-second timeout to bound slow downloads as well.
+45-second socket bound and up to three attempts for transient network errors;
+hash/size failures and non-transient HTTP failures stop immediately. The compile
+phase has a 180-second group bound and is never automatically retried. Wrap the
+whole preparation in a 600-second timeout to bound slow downloads as well.
+
+The first remote 1024 handoff at delivery `7c0efb8` stopped with a read timeout
+while downloading `add.json`, after verifying `build.py`. The reported output
+contains no compile commands; source ordering confirms compilation had not
+started. This is a download failure, with large-shape board compatibility still
+pending. The next delivery adds `--resume` for that existing download directory:
+it requires the same pinned source revision, verifies every retained file before
+network access, fetches only missing files and saves a separate
+`handoff-resume-*.json` receipt. The original `handoff.json` is preserved. A
+directory containing `build/` or `build.log`, or a receipt recording a compile
+attempt, cannot be resumed through this option. Resume does not change any
+kernel, source bundle, builder or runtime entry. Six stdlib tests cover bounded
+timeout recovery, retained-file integrity, preservation of the failure receipt,
+download pins and refusal to repeat compilation.
 
 Next board steps: compile v2 first; then execute original, serial, pipeline
 once, using new output directories and retaining previous-stage receipts. After

@@ -12,6 +12,8 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
+import urllib.error
 import urllib.request
 
 FILES = {
@@ -25,30 +27,83 @@ FILES = {
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 
 
+def download_verified(url, expected, *, attempts=3):
+    """Retry transient reads only; never retry an integrity failure or a build."""
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(url, timeout=45) as response:
+                data = response.read(1024 * 1024 + 1)
+        except (TimeoutError, urllib.error.URLError) as exc:
+            if isinstance(exc, urllib.error.HTTPError) and exc.code not in (408, 429, 500, 502, 503, 504):
+                raise
+            print(f"DOWNLOAD_RETRY {attempt}/{attempts} {type(exc).__name__}: {exc}", flush=True)
+            if attempt == attempts:
+                raise
+            continue
+        if len(data) > 1024 * 1024 or hashlib.sha256(data).hexdigest() != expected:
+            raise ValueError("Download size/hash mismatch")
+        return data
+    raise ValueError("Download attempts must be positive")
+
+
+def resume_receipt(output, revision):
+    """Validate a download-only/failed-download directory without changing it."""
+    previous = output / "handoff.json"
+    receipt = json.loads(previous.read_text())
+    if (receipt.get("revision") != revision or
+            receipt.get("status") not in ("started", "failed", "download_verified") or
+            receipt.get("board_runtime_loaded") is not False or receipt.get("kernel_launches") != 0 or
+            "build_exit" in receipt or (output / "build").exists() or (output / "build.log").exists()):
+        raise ValueError("Resume requires the same revision and a directory where compilation has not started")
+    # Validate every retained file before making any network request.
+    for name, (_, expected) in FILES.items():
+        path = output / name
+        if path.is_symlink() or (path.exists() and
+                (not path.is_file() or path.stat().st_size > 1024 * 1024 or
+                 hashlib.sha256(path.read_bytes()).hexdigest() != expected)):
+            raise ValueError(f"Existing file size/hash/type mismatch: {name}")
+    return {"path": str(previous), "sha256": hashlib.sha256(previous.read_bytes()).hexdigest()}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
+    parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     args = parser.parse_args()
     if not re.fullmatch("[0-9a-f]{40}", args.revision):
         parser.error("--revision must be a full commit ID")
     output = args.output.resolve()
-    output.mkdir(parents=True, exist_ok=False)
+    prior = None
+    if args.resume:
+        prior = resume_receipt(output, args.revision)
+        # Retain the original failed/download-only receipt and every retry's
+        # separate journal. Never overwrite build attempts or verified inputs.
+        with tempfile.NamedTemporaryFile(prefix="handoff-resume-", suffix=".json", dir=output, delete=False) as marker:
+            journal = Path(marker.name)
+    else:
+        output.mkdir(parents=True, exist_ok=False)
+        journal = output / "handoff.json"
     print("HANDOFF_DIR=" + str(output), flush=True)
     receipt = {"status": "started", "revision": args.revision,
                "board_runtime_loaded": False, "kernel_launches": 0, "files": {}}
+    if prior is not None:
+        receipt["resumed_from"] = prior
+    journal.write_text(json.dumps(receipt, indent=2) + "\n")
     try:
         for name, (path, expected) in FILES.items():
+            target = output / name
+            if args.resume and target.exists():
+                receipt["files"][name] = expected
+                print("REUSED_VERIFIED " + name, flush=True)
+                continue
             url = f"{BASE}/{args.revision}/{path}"
             print("DOWNLOAD " + name, flush=True)
-            with urllib.request.urlopen(url, timeout=45) as response:
-                data = response.read(1024 * 1024 + 1)
-            actual = hashlib.sha256(data).hexdigest()
-            if len(data) > 1024 * 1024 or actual != expected:
-                raise ValueError(f"Download size/hash mismatch: {name}")
-            (output / name).write_bytes(data)
-            receipt["files"][name] = actual
+            data = download_verified(url, expected)
+            with target.open("xb") as destination:
+                destination.write(data)
+            receipt["files"][name] = expected
             print("VERIFIED " + name, flush=True)
         if args.download_only:
             receipt["status"] = "download_verified"
@@ -73,7 +128,8 @@ def main():
         receipt.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         print("STOP " + receipt["error"], flush=True)
     finally:
-        (output / "handoff.json").write_text(json.dumps(receipt, indent=2) + "\n")
+        journal.write_text(json.dumps(receipt, indent=2) + "\n")
+        print("HANDOFF_RECEIPT=" + str(journal), flush=True)
     return 0 if receipt["status"] in ("compile_only_passed", "download_verified") else 1
 
 
