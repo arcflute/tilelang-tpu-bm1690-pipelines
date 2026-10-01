@@ -733,10 +733,20 @@ One fixed-order round does not establish repeatability, pure device time or
 physical overlap. Retain every variant and the negative result. Sub's first
 correctness-plus-synchronous-latency acceptance is complete for this case.
 
-Mul/Div board compilation remains pending. Next compile Mul in a fresh work
-directory using the already verified helper from `0a49d91` with `--case mul`;
-the frozen helper can be reused without another bootstrap download. Validate
-all three variants once, then collect their 5+20 latency samples. Repeat for Div
+The user subsequently compiled Mul original, serial and pipeline on the BM1690
+server, reusing the hash-verified helper from the Sub handoff with `--case mul`
+and source revision `0a49d91`. All three GitHub API downloads and hash checks
+passed, followed by all 18 compiler/linker commands. The helper reported
+`PREPARE_EXIT=0`, `board_runtime_loaded=false` and
+`MUL1024_BUILD_ONLY_OK kernel_launches=0`. The work directory is
+`/home/bokai/bm1690-mul-LNbaFw/work`, with receipt `handoff.json`. Evidence is
+`results/p8-mul-1024-build-user-reported.json`, based on user terminal output;
+full remote receipts and ELF hashes have not been copied here. This establishes
+compilation, not Mul board correctness or latency. Div board compilation remains
+pending.
+
+Next validate Mul original/serial/pipeline once, then collect their 5+20
+synchronous-call latency samples. Repeat for Div
 without changing the environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not
