@@ -455,7 +455,8 @@ was exercised with 1 warmup + 2 samples per variant, with unchanged correct
 outputs; CModel timings are not reported as device-performance evidence.
 The original whole-block 1024x1024 version compiled and executed on CModel;
 all three versions also subsequently compiled against the older board SDK as
-recorded below. Their 1024x1024 board execution remains pending.
+recorded below. The original version has now passed 1024x1024 board correctness;
+same-tile serial and pipeline board execution remain pending.
 
 `prepare_add_1024.py` downloads and verifies the three pinned source/build/run
 files into a **new** directory and compiles sequentially with the already
@@ -505,11 +506,22 @@ all 18 compiler/linker commands for original, serial and pipeline. It reported
 directory is `/home/bokai/bm1690-add1024-TPL9kW/work`; portable evidence is
 `results/p8-add-1024-build-user-reported.json`. Full remote result JSON and ELF
 artifacts have not been copied here. This confirms source/build compatibility
-with the inspected old SDK, including compilation of the timing ABI; large-shape
-device execution and latency measurement still await their own results.
+with the inspected old SDK, including compilation of the timing ABI. That build
+receipt alone provides no large-shape execution or latency evidence.
 
-Next board steps: compile v2 first; then execute original, serial, pipeline
-once, using new output directories and retaining previous-stage receipts. After
+The user then executed the **1024x1024 original Add** once on mapped device 0
+(`0000:01:00.0`, `/dev/sg-host-drv-0`), FP16, launch cores 1. Every runner stage
+completed, the worker and outer command returned zero, and the output is finite
+with zero reference mismatches and maximum absolute error 0. Input and output
+hashes match the retained CModel evidence. The portable record is
+`results/p8-add-1024-original-board-user-reported.json`; full remote result JSON
+has not been copied to this development host. The reported 219 us is one
+unwarmed launch-plus-sync diagnostic, not an accepted latency measurement or
+comparison with the earlier 8x128 cases. This run does not establish the larger
+serial/pipeline kernels' correctness or hardware overlap.
+
+Next board steps: execute same-tile serial and pipeline once, in that order,
+using new output directories and retaining previous-stage receipts. After
 all three pass, run each once with `--measure --correctness ...` (and the serial/
 pipeline `--previous ...`); compare serial versus pipeline at the identical
 32x128 tiling, dtype, shape and core count. Original whole-block is a separate
