@@ -708,11 +708,36 @@ zero. Evidence is `results/p8-sub-1024-three-variants-board-user-reported.json`,
 based on user-supplied terminal output; full remote receipts remain on the board
 host. This completes Sub board correctness for the recorded inputs. The printed
 226/223/248 us are single unwarmed diagnostics, not an accepted latency comparison.
-Sub repeated latency sampling and physical-overlap evidence remain pending;
-Mul/Div board compilation remains pending.
+That correctness-only run does not establish latency or physical overlap.
 
-Next collect Sub original/serial/pipeline 5+20 synchronous-call latency samples.
-Repeat for Mul and Div without changing the environment, then continue Matmul,
+The user then completed a single original/serial/pipeline timing round with
+5 warmups and 20 resident synchronous calls per variant. All post-timing outputs
+remain finite, bitwise equal to the reference and to each other, with zero error;
+all worker and outer exits are zero. The 60 raw samples, correctness records and
+independently recomputed statistics are retained in
+`results/p8-sub-1024-latency-user-reported.json`, based on terminal output. Full
+remote result JSON has not been copied to this development host.
+
+| Variant | Tile | Median (us) | IQR (us) | p95 (us) |
+| --- | --- | ---: | ---: | ---: |
+| Original whole-block | 1024x1024 | 113.564 | 4.599 | 117.195 |
+| Same-tile serial | 128x1024 | 117.722 | 4.804 | 123.620 |
+| Pipeline, depth 2 | 128x1024 | 119.352 | 4.862 | 141.784 |
+
+The pipeline median is 1.38% higher than same-tile serial and 5.10% above the
+original whole-block median. This round shows no pipeline speedup; its p95 is
+also higher. Do not attribute the variation to a particular host or device cause
+without further evidence. These are host launch-plus-stream-sync measurements,
+excluding compilation, allocation, module loading, H2D, D2H and reference work.
+One fixed-order round does not establish repeatability, pure device time or
+physical overlap. Retain every variant and the negative result. Sub's first
+correctness-plus-synchronous-latency acceptance is complete for this case.
+
+Mul/Div board compilation remains pending. Next compile Mul in a fresh work
+directory using the already verified helper from `0a49d91` with `--case mul`;
+the frozen helper can be reused without another bootstrap download. Validate
+all three variants once, then collect their 5+20 latency samples. Repeat for Div
+without changing the environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not
 rebuild native dependencies or retry failed board kernels automatically.

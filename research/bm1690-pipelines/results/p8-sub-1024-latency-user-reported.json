@@ -1,0 +1,282 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "runner_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "build_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "bundle_sha256": "6d72d38f8a83b510dc71fab7905e8babf0b7b645cdd2ffa1ecc7a78180430418",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+  "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+  "schema": "bm1690-elementwise-board-latency-evidence-v1",
+  "evidence_text_sha256": "649b3c83a74d85208fd518bf78f510748f44579bb5525bfe335908e9282d126c",
+  "status": "passed",
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "rounds": 1,
+  "variants": {
+    "original": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.59875000000001,
+        "max_us": 118.196,
+        "median_us": 113.5635,
+        "min_us": 109.066,
+        "p95_us": 117.1947,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          115.915,
+          112.676,
+          115.287,
+          114.585,
+          113.923,
+          117.142,
+          110.8,
+          118.196,
+          115.504,
+          113.705,
+          114.865,
+          112.49,
+          109.066,
+          109.393,
+          110.57,
+          115.539,
+          109.878,
+          113.422,
+          109.548,
+          113.084
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "sub",
+        "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "worker_exit": 0,
+      "run_exit": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/timing-original/result.json",
+      "tiling": null
+    },
+    "serial": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.803999999999988,
+        "max_us": 123.855,
+        "median_us": 117.72200000000001,
+        "min_us": 115.367,
+        "p95_us": 123.62035,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          123.608,
+          122.021,
+          122.041,
+          120.048,
+          117.579,
+          115.367,
+          117.761,
+          121.917,
+          117.683,
+          119.064,
+          117.278,
+          117.434,
+          116.722,
+          116.375,
+          117.412,
+          116.589,
+          116.633,
+          123.855,
+          121.658,
+          122.764
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "sub",
+        "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "worker_exit": 0,
+      "run_exit": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/timing-serial/result.json",
+      "tiling": [
+        128,
+        1024
+      ]
+    },
+    "pipeline": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.861500000000007,
+        "max_us": 144.016,
+        "median_us": 119.352,
+        "min_us": 115.186,
+        "p95_us": 141.78445,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          141.667,
+          117.436,
+          122.037,
+          119.275,
+          120.62,
+          120.918,
+          116.652,
+          116.055,
+          144.016,
+          117.152,
+          121.95,
+          116.808,
+          119.429,
+          116.882,
+          122.285,
+          115.186,
+          117.928,
+          121.65,
+          120.589,
+          115.581
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "sub",
+        "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "worker_exit": 0,
+      "run_exit": 0,
+      "remote_result": "/home/bokai/bm1690-sub-GvDYeE/work/timing-pipeline/result.json",
+      "tiling": [
+        128,
+        1024
+      ]
+    }
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "accepted_as_first_bounded_latency_measurement": true,
+  "full_result_json_received_at_development_host": false,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": 1.384617998335047,
+    "serial_over_original_latency_ratio": 1.0366182796409058,
+    "pipeline_over_original_latency_ratio": 1.0509714829148449,
+    "conclusion": "No pipeline speedup in this single fixed-order round: pipeline median and p95 exceed same-tile serial, and original whole-block remains faster. Repeated order-varied rounds are still needed to establish reproducibility; physical overlap is unverified."
+  },
+  "case": "sub",
+  "operation": "sub",
+  "correctness_evidence": "p8-sub-1024-three-variants-board-user-reported.json",
+  "build_evidence": "p8-sub-1024-build-user-reported.json"
+}
