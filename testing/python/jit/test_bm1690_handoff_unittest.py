@@ -36,8 +36,9 @@ class HandoffTests(unittest.TestCase):
     def save_receipt(self):
         (self.output / "handoff.json").write_text(json.dumps(self.receipt))
 
-    def run_resume(self):
+    def run_resume(self, *extra):
         argv = ["prepare", "--revision", REVISION, "--output", str(self.output), "--resume", "--download-only"]
+        argv.extend(extra)
         with patch.object(sys,"argv",argv), contextlib.redirect_stdout(io.StringIO()):
             return prepare.main()
 
@@ -121,6 +122,33 @@ class HandoffTests(unittest.TestCase):
             self.assertEqual(compile_call.call_count,1)
         with self.assertRaisesRegex(ValueError,"compilation has not started"):
             self.run_resume()
+
+    def test_api_transport_fetches_pinned_contents_without_using_raw_download_url(self):
+        seen = []
+        def download(request, timeout):
+            self.assertTrue(request.full_url.startswith(prepare.API_BASE + "/"))
+            self.assertTrue(request.full_url.endswith("?ref=" + REVISION))
+            self.assertEqual(request.get_header("Accept"),"application/vnd.github.raw+json")
+            self.assertIsNone(request.get_header("Authorization"))
+            self.assertEqual(timeout,45)
+            relative = request.full_url[len(prepare.API_BASE)+1:].split("?")[0]
+            seen.append(relative)
+            return io.BytesIO((ROOT / relative).read_bytes())
+        with patch.object(prepare.urllib.request,"urlopen",side_effect=download), \
+             patch.object(prepare.subprocess,"run",side_effect=AssertionError("must not compile")):
+            self.assertEqual(self.run_resume("--transport","github-api"),0)
+        self.assertEqual(seen,[prepare.FILES[name][0] for name in ("add.json","run_add.py")])
+        report=json.loads(next(self.output.glob("handoff-resume-*.json")).read_text())
+        self.assertEqual(report["download_transport"],"github-api")
+        for name,(_,expected) in prepare.FILES.items():
+            self.assertEqual(hashlib.sha256((self.output/name).read_bytes()).hexdigest(),expected)
+
+    def test_api_json_metadata_is_rejected_instead_of_following_download_url(self):
+        metadata=b'{"download_url":"https://raw.githubusercontent.com/anything"}'
+        with patch.object(prepare.urllib.request,"urlopen",return_value=io.BytesIO(metadata)) as network:
+            self.assertEqual(self.run_resume("--transport","github-api"),1)
+            self.assertEqual(network.call_count,1)
+        self.assertFalse((self.output/"add.json").exists())
 
 
 if __name__ == "__main__":

@@ -25,6 +25,18 @@ FILES = {
                    "8e60b2affb40d5b00ee1062e811f94c66fbc51d51927c1ffb529e4e8676d480a"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
+API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
+
+
+def source_request(path, revision, transport):
+    if transport == "github-api":
+        # Contents API returns bytes directly with this media type. Using the
+        # JSON download_url instead would send us back to the raw domain.
+        return urllib.request.Request(f"{API_BASE}/{path}?ref={revision}", headers={
+            "Accept": "application/vnd.github.raw+json", "User-Agent": "bm1690-handoff"})
+    if transport == "raw":
+        return f"{BASE}/{revision}/{path}"
+    raise ValueError("Unsupported download transport")
 
 
 def download_verified(url, expected, *, attempts=3):
@@ -71,6 +83,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
+    parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
+                        help="official GitHub endpoint; source SHA256 pins are identical")
     args = parser.parse_args()
     if not re.fullmatch("[0-9a-f]{40}", args.revision):
         parser.error("--revision must be a full commit ID")
@@ -87,7 +101,8 @@ def main():
         journal = output / "handoff.json"
     print("HANDOFF_DIR=" + str(output), flush=True)
     receipt = {"status": "started", "revision": args.revision,
-               "board_runtime_loaded": False, "kernel_launches": 0, "files": {}}
+               "board_runtime_loaded": False, "kernel_launches": 0, "files": {},
+               "download_transport": args.transport}
     if prior is not None:
         receipt["resumed_from"] = prior
     journal.write_text(json.dumps(receipt, indent=2) + "\n")
@@ -98,9 +113,9 @@ def main():
                 receipt["files"][name] = expected
                 print("REUSED_VERIFIED " + name, flush=True)
                 continue
-            url = f"{BASE}/{args.revision}/{path}"
-            print("DOWNLOAD " + name, flush=True)
-            data = download_verified(url, expected)
+            request = source_request(path, args.revision, args.transport)
+            print(f"DOWNLOAD {name} transport={args.transport}", flush=True)
+            data = download_verified(request, expected)
             with target.open("xb") as destination:
                 destination.write(data)
             receipt["files"][name] = expected

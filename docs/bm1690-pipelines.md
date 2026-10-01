@@ -481,6 +481,20 @@ kernel, source bundle, builder or runtime entry. Six stdlib tests cover bounded
 timeout recovery, retained-file integrity, preservation of the failure receipt,
 download pins and refusal to repeat compilation.
 
+The remote bootstrap download itself subsequently timed out before receiving
+an HTTP status line, even with a 90-second socket timeout. No resume script was
+written or executed. The cause (server, proxy, network path, etc.) is not yet
+established. `--transport github-api` now selects the official Contents API
+with `Accept: application/vnd.github.raw+json`, pinned by the same commit and
+SHA256 values. It requests the bytes directly instead of following the JSON
+`download_url` back to `raw.githubusercontent.com`. The ordinary github.com raw
+URL also redirects back to that raw domain, so it is not a distinct transport.
+See [GitHub's Contents API documentation](https://docs.github.com/en/rest/repos/contents#get-repository-content).
+Development-host API retrieval is verified; reachability from the board host
+remains to be tested. No proxy/TLS settings or credentials are changed. Two
+additional stdlib regressions check the API request, identical file hashes and
+rejection of JSON metadata instead of blindly following its download URL.
+
 Next board steps: compile v2 first; then execute original, serial, pipeline
 once, using new output directories and retaining previous-stage receipts. After
 all three pass, run each once with `--measure --correctness ...` (and the serial/
