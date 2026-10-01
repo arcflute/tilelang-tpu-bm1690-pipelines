@@ -608,8 +608,31 @@ zero. Evidence is
 terminal output; full remote result JSON has not been received here. This
 completes coarse-bundle board correctness for the recorded inputs. The printed
 217/250/242 us are single unwarmed diagnostics, not an accepted performance
-comparison. Warmed latency sampling and physical-overlap evidence remain
-unavailable for this bundle.
+comparison. That correctness-only run does not establish performance or overlap.
+
+The user then completed one original/serial/pipeline timing round, with 5 warmups
+and 20 resident synchronous calls per variant. All post-timing correctness
+checks remained finite, bitwise equal and error-free; all exits were zero. Raw
+arrays and independently recomputed statistics are retained in
+`results/p8-add-1024-coarse-latency-user-reported.json` (user terminal evidence).
+
+| Variant | Tile | Median (us) | IQR (us) | p95 (us) |
+| --- | --- | ---: | ---: | ---: |
+| Original whole-block | 1024x1024 | 114.588 | 3.694 | 122.458 |
+| Same-tile serial | 128x1024 | 120.709 | 2.595 | 124.312 |
+| Pipeline, depth 2 | 128x1024 | 120.596 | 8.674 | 136.146 |
+
+The pipeline median is only 0.094% lower than serial, with larger IQR and p95;
+this is no evidence of a stable pipeline speedup. It remains 5.24% above the
+original whole-block median. Both coarse-tiled variants are much faster in this
+round than their earlier fine-tiled measurements, consistent with tile overhead
+being worth investigating; separate fixed-order rounds cannot establish a
+causal breakdown or eliminate host-load effects. These remain launch-plus-sync
+host timings, excluding compilation, allocation, module loading, H2D, D2H and
+reference work. Physical overlap and pure device time are unverified. Retain
+the faster observed original baseline and both tiled implementations. The
+bounded Add tile comparison is complete; continue the other operations before
+broader tuning or repeated/order-varied performance rounds.
 
 The updated preparation helper selects this bundle with `--case coarse` and
 continues to support `--transport github-api`. Use a new work directory; case
