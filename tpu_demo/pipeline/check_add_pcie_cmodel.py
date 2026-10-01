@@ -21,14 +21,18 @@ def main():
     from tilelang.jit.adapter.libgen import LibraryGenerator
     from tpu_demo.common import configure_runtime
     from tpu_demo.pipeline.run_add_pcie import (test_vectors, check_output, call_host, check_hash,
-                                               BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256)
+                                               BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
+                                               ELEMENTWISE_BUNDLES)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div"), default="add")
     args = parser.parse_args()
     if args.coarse_tiles and not args.target_size:
         parser.error("--coarse-tiles requires --target-size")
+    if args.operation != "add" and not (args.target_size and args.coarse_tiles):
+        parser.error("Sub/Mul/Div require --target-size --coarse-tiles")
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     torch.set_num_threads(1)
@@ -37,14 +41,19 @@ def main():
         "add-1024-coarse-sources.json" if args.coarse_tiles else
         "add-1024-sources.json" if args.target_size else "add-smoke-sources.json")
     bundle_hash = COARSE_BUNDLE_SHA256 if args.coarse_tiles else TARGET_BUNDLE_SHA256 if args.target_size else BUNDLE_SHA256
+    if args.operation != "add":
+        bundle_path = bundle_path.with_name(args.operation + "-1024-sources.json")
+        bundle_hash = ELEMENTWISE_BUNDLES[args.operation]
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
+    assert bundle["target"].get("operation", "add") == args.operation
     rows, width = bundle["target"]["shape"]
     count = rows * width
-    lhs, rhs, expected = test_vectors(count)
-    # Independent check of the stdlib FP32-add/FP16-rounding reference.
+    lhs, rhs, expected = test_vectors(count, args.operation)
+    # Independent check of the stdlib FP32-arithmetic/FP16-rounding reference.
     a,b = [torch.frombuffer(bytearray(value),dtype=torch.float16) for value in (lhs,rhs)]
-    assert (a.float()+b.float()).half().numpy().tobytes() == expected
+    calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[args.operation]
+    assert calculate(a.float(), b.float()).half().numpy().tobytes() == expected
     target = tvm.target.Target("tpu -mcpu=bm1690 -tpu-programming-model=tpukernel")
     records, outputs, owners = {}, [], []
     for variant in ("original", "serial", "pipeline"):
@@ -56,7 +65,7 @@ def main():
         library = build.load_lib()
         owners.append((build,library))
         output = call_host(library, lhs, rhs)
-        records[variant] = {"reference":check_output(output,expected,count),
+        records[variant] = {"reference":check_output(output,expected,count,args.operation),
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
@@ -67,9 +76,10 @@ def main():
             # Emulator wall times are never emitted as device latency evidence.
             records[variant]["timing_abi_check"] = {
                 "warmups": 1, "samples": 2, "finite_positive_samples": True,
-                "reference": check_output(repeated, expected, count), "same_output": True}
+                "reference": check_output(repeated, expected, count, args.operation), "same_output": True}
     assert outputs[0] == outputs[1] == outputs[2]
     report = {"status":"passed", "runtime_mode":"cmodel", "launch_cores":1,
+              "operation":args.operation,
               "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
               "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],
               "input_sha256":hashlib.sha256(lhs+rhs).hexdigest(), "variants":records,

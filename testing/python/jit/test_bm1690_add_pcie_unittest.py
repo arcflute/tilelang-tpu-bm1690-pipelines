@@ -348,5 +348,70 @@ class CoarseManifestTests(TargetManifestTests):
     bundle_name = "add-1024-coarse-sources.json"
 
 
+class SubManifestTests(TargetManifestTests):
+    bundle_name = "sub-1024-sources.json"
+    operation = "sub"
+
+    def test_operation_is_bound_to_registered_bundle(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["operation"], self.operation)
+        self.assertEqual(identity["bundle_sha256"], runner.ELEMENTWISE_BUNDLES[self.operation])
+        bundle = json.loads((self.root / "add.json").read_text())
+        bundle["target"]["operation"] = "add"
+        (self.root / "add.json").write_text(json.dumps(bundle))
+        with self.assertRaisesRegex(ValueError, "Hash mismatch"):
+            runner.validate_build(self.build)
+
+
+class MulManifestTests(SubManifestTests):
+    bundle_name = "mul-1024-sources.json"
+    operation = "mul"
+
+
+class DivManifestTests(SubManifestTests):
+    bundle_name = "div-1024-sources.json"
+    operation = "div"
+
+    def test_division_timing_receipt_accepts_tolerance_but_rejects_wrong_output(self):
+        directory = self.root / "div-correctness"
+        directory.mkdir()
+        identity = runner.validate_build(self.build)
+        expected = struct.pack("<e", 1.0)
+        args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
+                               expected_pci="0000:01:00.0")
+        def check(value):
+            (directory / "output.f16").write_bytes(struct.pack("<e", value))
+            numeric = {"status":"passed", "reference":{"passed":True}, "variant":"original",
+                       "shape":[1024,1024], "bundle_sha256":self.bundle_hash,
+                       "build_manifest_sha256":identity["build_manifest_sha256"], "input_sha256":"input",
+                       "device_id":0, "expected_pci":"0000:01:00.0",
+                       "output_sha256":runner.digest(directory / "output.f16")}
+            (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+            return runner.check_correctness_receipt(args, identity, "input", expected)
+        self.assertTrue(check(1.0009765625))
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            check(2.0)
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            check(float("nan"))
+
+
+class ElementwiseContractTests(unittest.TestCase):
+    def test_historical_add_inputs_and_output_are_preserved(self):
+        a,b,expected = runner.test_vectors()
+        self.assertEqual(hashlib.sha256(a+b).hexdigest(),
+                         "da54a02c5b51968628f2547e4117871bfef6a291cb6ce1255779d61aafa6ad04")
+        self.assertEqual(hashlib.sha256(expected).hexdigest(),
+                         "fee0544267cdc5cd353a903b9fbac82fdcb80100c8bce9deac58cae10f99226f")
+
+    def test_division_domain_and_existing_demo_tolerances(self):
+        _,rhs,expected = runner.test_vectors(operation="div")
+        self.assertTrue(all(0.5 <= x[0] <= 2.0 for x in struct.iter_unpack("<e", rhs)))
+        for op,tol in (("add",0.005),("sub",0.005),("mul",0.005),("div",0.01)):
+            metrics = runner.check_output(expected,expected,operation=op)
+            self.assertEqual((metrics["atol"],metrics["rtol"]),(tol,tol))
+        with self.assertRaises(ValueError): runner.test_vectors(operation="unknown")
+        with self.assertRaises(ValueError): runner.check_output(expected,expected,operation="unknown")
+
+
 if __name__ == "__main__":
     unittest.main()

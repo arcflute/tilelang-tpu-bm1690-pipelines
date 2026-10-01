@@ -1,4 +1,4 @@
-"""Download hash-pinned Add sources and compile with the observed BM1690 SDK.
+"""Download hash-pinned elementwise sources and compile with the observed BM1690 SDK.
 
 Standard library only; never loads a vendor library or launches a kernel.
 The default paths are the paths inspected on the user's bokai board host.
@@ -18,16 +18,31 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"),
+                 "8b91f40d4f983ce6d91dd0f26b5ae04cea6e01efd6fa0b89a1c1d322c002cfce"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "c8c88de318a4bf79b9b4911584e9daa5693165fc515061376ba7df979108beaf"),
+                   "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
 COARSE_SOURCE = ("research/bm1690-pipelines/handoff/add-1024-coarse-sources.json",
                  "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2")
+
+ELEMENTWISE_SOURCES = {
+    "sub": [
+        "research/bm1690-pipelines/handoff/sub-1024-sources.json",
+        "6d72d38f8a83b510dc71fab7905e8babf0b7b645cdd2ffa1ecc7a78180430418"
+    ],
+    "mul": [
+        "research/bm1690-pipelines/handoff/mul-1024-sources.json",
+        "704340e5fecb142001b3b362cb50516cd818b848b4987dfc39dd36b5c0a0c1aa"
+    ],
+    "div": [
+        "research/bm1690-pipelines/handoff/div-1024-sources.json",
+        "97238d2cb47b8921a14d1d82b0f63ca0eee6efdc98b0ed3d9baf2306689aab17"
+    ]
+}
 
 
 def source_files(case):
@@ -35,7 +50,9 @@ def source_files(case):
         return dict(FILES)
     if case == "coarse":
         return {**FILES, "add.json": COARSE_SOURCE}
-    raise ValueError("Unsupported Add comparison case")
+    if case in ELEMENTWISE_SOURCES:
+        return {**FILES, "add.json": ELEMENTWISE_SOURCES[case]}
+    raise ValueError("Unsupported elementwise comparison case")
 
 
 def source_request(path, revision, transport):
@@ -92,8 +109,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse"), default="target",
-                        help="32x128 or 128x1024 tiles at the same global 1024x1024 shape")
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div"), default="target",
+                        help="Add fine/coarse or Sub/Mul/Div coarse tiles; all shapes 1024x1024")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")
@@ -150,7 +167,8 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            print("ADD1024_BUILD_ONLY_OK kernel_launches=0", flush=True)
+            prefix = args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD"
+            print(prefix + "1024_BUILD_ONLY_OK kernel_launches=0", flush=True)
     except Exception as exc:
         receipt.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         print("STOP " + receipt["error"], flush=True)

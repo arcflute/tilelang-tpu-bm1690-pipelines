@@ -646,3 +646,52 @@ Retain both tile sizes, the whole-block baseline and every negative result.
 Limit this to one controlled tile comparison before continuing the other five
 families and remaining elementwise operations; repeated rounds and broader
 tile/depth/multicore searches belong to the later performance matrix.
+
+### P8.5 Sub/Mul/Div handoff
+
+The existing original `build_elementwise` and `build_elementwise_tiled` now have
+pinned PCIe source bundles for Sub, Mul and Div at FP16 1024x1024, one launch
+core. Each preserves original whole-block, serial 128x1024 tiles and depth-2
+pipeline 128x1024 tiles. Generated reports independently show eight iterations,
+stage `[0,0,1,1]`, two versions each of inputs `a`/`b` and a single output `c`.
+Generated C retains fill, steady loop, drain and parallel-scope synchronization;
+the Div compute calls `tpu_bdc_fp_div(..., DT_FP16)`. No compiler pass, native
+library, numerical kernel implementation or device launch ABI was changed.
+
+The standalone legacy builder accepts a new operation-tagged schema. The
+supervised runner obtains the operation from its hash-pinned bundle contract;
+the caller cannot select a different reference for an existing binary. Original
+Add bundle/build identities remain accepted. The historical script names
+`export_add_sources.py`, `check_add_pcie_cmodel.py`, `prepare_add_1024.py` and
+`run_add_pcie.py` are retained for existing handoffs; remote `add.json` and
+`run_add.py` likewise remain wire filenames, with operation recorded in the
+bundle and result. Select a new handoff using `--case sub`, `mul` or `div` and
+a new work directory. Cross-case resume is rejected before download or compile.
+
+The input generator uses deterministic FP16 inputs and a stdlib FP32-rounded
+arithmetic reference, independently checked against Torch on the development
+host. Div uses positive FP16 denominators in [0.5,2], following the demo's test
+domain, and retains its `atol=rtol=1e-2`; Add/Sub/Mul retain 5e-3. Division timing
+requires a matching passed correctness receipt whose output is checked again
+under that same contract. Serial/pipeline outputs must still be bitwise equal
+to the preceding variant. This does not cover division by zero, non-finite
+inputs, arbitrary shapes or dtypes.
+
+The exact three Sub/Mul/Div bundles and their timing ABIs passed bounded local
+BM1690 CModel runs (one operation per process, two host CPUs, 120-second/4-GiB
+limits). Sub and Mul match the reference bitwise with zero error. Div has maximum
+absolute error 0.00390625, zero tolerance mismatches, and all three variants are
+bitwise equal to each other. Each variant also passed one warmup plus two timing
+ABI samples, whose CModel times are deliberately not used as board performance.
+Records are `results/p8-{sub,mul,div}-1024-pcie-cmodel.json`; independent reference
+checks and generated source hashes are included. Manifest, download, supervisor,
+host ABI and timer tests passed. Validation details are in
+`results/p8-elementwise-pcie-validation.json`.
+
+Board compilation, correctness and latency for these new operations remain
+pending. Start with Sub compilation against the already inspected PPL 1.4 SDK;
+then validate original/serial/pipeline once before their 5+20 latency samples.
+Repeat for Mul and Div without changing the environment, then continue Matmul,
+RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
+failure retains the immutable source bundle, logs and prior Add results. Do not
+rebuild native dependencies or retry failed board kernels automatically.

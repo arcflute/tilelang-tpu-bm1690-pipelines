@@ -1,4 +1,4 @@
-"""Supervised BM1690 Add correctness and resident synchronous-call latency.
+"""Supervised BM1690 elementwise correctness and resident synchronous-call latency.
 
 Standalone Python standard library only. This is a narrowly scoped source/build
 manifest loader, not a relaxation of the generic JIT's prebuilt-library policy.
@@ -31,17 +31,27 @@ BUILDER_SHA256 = "51c39e19dfd0d968ccbe17456048236645d3ff279eaec3b996baf000028c0f
 VARIANTS = ("original", "serial", "pipeline")
 COUNT = 8 * 128
 # Retain the original handoff, including builds made by the frozen P8.1 helper.
-CURRENT_BUILDER_SHA256 = "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"
+PREVIOUS_BUILDER_SHA256 = "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"
+CURRENT_BUILDER_SHA256 = "8b91f40d4f983ce6d91dd0f26b5ae04cea6e01efd6fa0b89a1c1d322c002cfce"
 TARGET_BUNDLE_SHA256 = "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"
 COARSE_BUNDLE_SHA256 = "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2"
 BUNDLES = {
-    BUNDLE_SHA256: {"shape": [8, 128], "builders": (BUILDER_SHA256, CURRENT_BUILDER_SHA256),
+    BUNDLE_SHA256: {"shape": [8, 128], "builders": (BUILDER_SHA256, PREVIOUS_BUILDER_SHA256, CURRENT_BUILDER_SHA256),
                     "timing": False},
-    TARGET_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
+    TARGET_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (PREVIOUS_BUILDER_SHA256, CURRENT_BUILDER_SHA256),
                            "timing": True},
-    COARSE_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
+    COARSE_BUNDLE_SHA256: {"shape": [1024, 1024], "builders": (PREVIOUS_BUILDER_SHA256, CURRENT_BUILDER_SHA256),
                            "timing": True},
 }
+
+ELEMENTWISE_BUNDLES = {
+    "sub": "6d72d38f8a83b510dc71fab7905e8babf0b7b645cdd2ffa1ecc7a78180430418",
+    "mul": "704340e5fecb142001b3b362cb50516cd818b848b4987dfc39dd36b5c0a0c1aa",
+    "div": "97238d2cb47b8921a14d1d82b0f63ca0eee6efdc98b0ed3d9baf2306689aab17"
+}
+for _operation, _bundle in ELEMENTWISE_BUNDLES.items():
+    BUNDLES[_bundle] = {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
+                       "timing": True, "operation": _operation}
 
 
 def digest(path):
@@ -130,41 +140,56 @@ def validate_build(build):
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = old
-    return {"build_manifest_sha256": digest(build / "result.json"),
+    operation = contract.get("operation", "add")
+    if bundle["target"].get("operation", "add") != operation or bundle["target"]["shape"] != contract["shape"]:
+        raise ValueError("Pinned operation/shape differs from bundle")
+    return {"build_manifest_sha256": digest(build / "result.json"), "operation": operation,
             "bundle_sha256": bundle_hash, "shape": contract["shape"], "timing_supported": contract["timing"],
             "runtime_library": str(required[-2].resolve()),
             "runtime_sha256": report["sdk_inputs"][str(required[-2])],
             "artifacts": report["artifacts"]}
 
 
-def test_vectors(count=COUNT):
-    """Deterministic normal-range FP16 inputs; independently rounded FP32 sum."""
+def test_vectors(count=COUNT, operation="add"):
+    """FP16 inputs and independently FP32-rounded arithmetic, then FP16 output.
+
+    Division retains the demo's positive [0.5, 2] denominator domain. Add's
+    historical stream and hashes are preserved exactly.
+    """
+    if operation not in ("add", "sub", "mul", "div"):
+        raise ValueError("Unsupported elementwise reference operation")
     state = 0
     values = []
     for _ in range(count * 2):
         state = (1664525 * state + 1013904223) & 0xffffffff
         values.append(((state >> 8) % 16384 - 8192) / 4096.0)
     lhs = struct.pack("<" + "e" * count, *values[:count])
-    rhs = struct.pack("<" + "e" * count, *values[count:])
-    reference = b"".join(struct.pack("<e", struct.unpack("<f", struct.pack("<f", a[0] + b[0]))[0])
+    rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
+    rhs = struct.pack("<" + "e" * count, *rhs_values)
+    calculate = {"add": lambda a,b: a+b, "sub": lambda a,b: a-b,
+                 "mul": lambda a,b: a*b, "div": lambda a,b: a/b}[operation]
+    reference = b"".join(struct.pack("<e", struct.unpack("<f", struct.pack("<f", calculate(a[0], b[0])))[0])
                          for a, b in zip(struct.iter_unpack("<e", lhs), struct.iter_unpack("<e", rhs)))
     return lhs, rhs, reference
 
 
-def check_output(actual, expected, count=COUNT):
+def check_output(actual, expected, count=COUNT, operation="add"):
+    if operation not in ("add", "sub", "mul", "div"):
+        raise ValueError("Unsupported elementwise reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
-        raise ValueError("Unexpected Add output length")
+        raise ValueError("Unexpected elementwise output length")
     a = [v[0] for v in struct.iter_unpack("<e", actual)]
     b = [v[0] for v in struct.iter_unpack("<e", expected)]
     finite = all(math.isfinite(v) for v in a + b)
     errors = [abs(x-y) for x,y in zip(a,b)]
-    mismatches = sum(not math.isfinite(x) or abs(x-y) > 0.005 + 0.005*abs(y) for x,y in zip(a,b))
+    atol = rtol = 0.01 if operation == "div" else 0.005
+    mismatches = sum(not math.isfinite(x) or abs(x-y) > atol + rtol*abs(y) for x,y in zip(a,b))
     metrics = {"passed": finite and mismatches == 0, "finite": finite,
-               "atol": 0.005, "rtol": 0.005, "mismatched_elements": mismatches,
+               "atol": atol, "rtol": rtol, "mismatched_elements": mismatches,
                "max_abs_error": max(errors) if finite else None,
                "bitwise_equal_to_reference": actual == expected}
     if not metrics["passed"]:
-        raise ValueError("Add numerical mismatch: " + json.dumps(metrics))
+        raise ValueError("Elementwise numerical mismatch: " + json.dumps(metrics))
     return metrics
 
 
@@ -268,7 +293,7 @@ def verify_device(runtime, device_id, expected_pci, checkpoint):
 def check_previous(args, identity, input_hash):
     if args.variant == "original":
         if args.previous:
-            raise ValueError("Original Add does not take a previous result")
+            raise ValueError("Original variant does not take a previous result")
         return None
     expected_variant = "original" if args.variant == "serial" else "serial"
     if not args.previous:
@@ -311,7 +336,12 @@ def check_correctness_receipt(args, identity, input_hash, expected):
             any(numeric.get(key) != value for key, value in required.items())):
         raise ValueError("Timing requires a matching passed one-call correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
-    if (args.correctness / "output.f16").read_bytes() != expected:
+    actual = (args.correctness / "output.f16").read_bytes()
+    if identity.get("operation", "add") == "div":
+        # The TPU division primitive has the demo's existing tolerance;
+        # it need not be bitwise equal to independently rounded FP32 division.
+        check_output(actual, expected, len(expected) // 2, "div")
+    elif actual != expected:
         raise ValueError("Correctness receipt output does not equal the reference")
     return digest(args.correctness / "result.json")
 
@@ -376,7 +406,8 @@ def worker(args):
         identity = validate_build(args.build)
         result.update(identity)
         count = math.prod(identity["shape"])
-        lhs, rhs, expected = test_vectors(count)
+        operation = identity["operation"]
+        lhs, rhs, expected = test_vectors(count, operation)
         result["input_sha256"] = hashlib.sha256(lhs + rhs).hexdigest()
         previous = check_previous(args, identity, result["input_sha256"])
         timing = None
@@ -419,7 +450,7 @@ def worker(args):
         actual = call_host(library, lhs, rhs, timing=timing)
         result["host_call_returned_success"] = True
         checkpoint("compare_reference")
-        result["reference"] = check_output(actual, expected, count)
+        result["reference"] = check_output(actual, expected, count, operation)
         if previous is not None and actual != previous:
             raise ValueError("Output differs bitwise from the previous variant")
         result["previous_variant_bitwise_equal"] = True if previous is not None else None
@@ -429,10 +460,10 @@ def worker(args):
         if timing is not None:
             result["timing"] = timing
             result["synchronous_call_latency_measured"] = True
-            print("ADD_SYNC_LATENCY=" + json.dumps(timing, sort_keys=True), flush=True)
+            print(operation.upper() + "_SYNC_LATENCY=" + json.dumps(timing, sort_keys=True), flush=True)
         checkpoint("completed")
-        print("ADD_CORRECTNESS=" + json.dumps({key: result[key] for key in (
-            "variant", "mapping", "shape", "dtype", "launch_cores", "reference",
+        print(operation.upper() + "_CORRECTNESS=" + json.dumps({key: result[key] for key in (
+            "operation", "variant", "mapping", "shape", "dtype", "launch_cores", "reference",
             "input_sha256", "output_sha256", "previous_variant_bitwise_equal")}, sort_keys=True), flush=True)
         # Keep both vendor handles alive through process exit; no dlclose of a
         # runtime that may still own background threads.
@@ -442,7 +473,7 @@ def worker(args):
         result["status"] = "failed"
         result["error"] = f"{type(exc).__name__}: {exc}"
         save(args.output / "worker.json", result)
-        print("ADD_PCIE_FAILED " + result["error"], flush=True)
+        print(result.get("operation", "elementwise").upper() + "_PCIE_FAILED " + result["error"], flush=True)
         return 1
 
 
@@ -503,7 +534,8 @@ def supervise(command, output, *, timeout_s=30, max_rss=4096*1024**2, lock_fd=No
               "numeric": numeric}
     save(output / "result.json", report)
     print((output / "run.log").read_text(errors="replace"), end="")
-    print("ADD_PCIE_" + ("PASSED" if passed else "FAILED") + " RESULT=" + str(output / "result.json"), flush=True)
+    prefix = (numeric or {}).get("operation", "elementwise").upper()
+    print(prefix + "_PCIE_" + ("PASSED" if passed else "FAILED") + " RESULT=" + str(output / "result.json"), flush=True)
     return 0 if passed else 1
 
 

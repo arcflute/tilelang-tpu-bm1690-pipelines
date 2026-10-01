@@ -8,7 +8,11 @@ import subprocess
 import tempfile
 
 
-def export(*, target_size=False, coarse_tiles=False):
+def export(*, target_size=False, coarse_tiles=False, operation="add"):
+    if operation not in ("add", "sub", "mul", "div"):
+        raise ValueError("Unsupported elementwise operation")
+    if operation != "add" and not (target_size and coarse_tiles):
+        raise ValueError("Sub/Mul/Div handoffs require the 1024x1024, 128x1024-tile case")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -45,9 +49,12 @@ def export(*, target_size=False, coarse_tiles=False):
         "evidence": {"board_compiled": False, "board_executed": False,
                      "hardware_overlap_verified": False},
     }
-    functions = {"original": build_elementwise("add", rows=rows, width=width, dtype="float16")}
+    if operation != "add":
+        bundle["schema"] = "bm1690-elementwise-source-check-v1"
+        bundle["target"]["operation"] = operation
+    functions = {"original": build_elementwise(operation, rows=rows, width=width, dtype="float16")}
     for name, stages in (("serial", 0), ("pipeline", 2)):
-        functions[name] = build_elementwise_tiled(rows=rows, width=width, block_rows=block_rows,
+        functions[name] = build_elementwise_tiled(operation, rows=rows, width=width, block_rows=block_rows,
                                                  block_width=block_width, num_stages=stages)
     for name, function in functions.items():
         artifact = tilelang.lower(function, target=target, runtime_mode="pcie")
@@ -103,7 +110,11 @@ def verify_cmodel(bundle):
     generator = torch.Generator().manual_seed(0)
     shape = bundle["target"]["shape"]
     lhs, rhs = [torch.randn(shape, generator=generator).half() for _ in range(2)]
-    expected = (lhs.float() + rhs.float()).half()
+    operation = bundle["target"].get("operation", "add")
+    if operation == "div":
+        rhs = (torch.rand(shape, generator=generator) * 1.5 + 0.5).half()
+    calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[operation]
+    expected = calculate(lhs.float(), rhs.float()).half()
     outputs, records = [], {}
     for name in ("original", "serial", "pipeline"):
         build = LibraryGenerator(target, tpu_target=TPUTargetSpec("bm1690", "tpukernel"),
@@ -115,13 +126,13 @@ def verify_cmodel(bundle):
         forward = make_tpu_forward(library, [KernelParam(torch.float16, shape) for _ in range(3)], [2], {})
         output = torch.full_like(expected, float("nan"))
         forward(lhs, rhs, output)
-        atol, rtol = tolerance("float16", "elementwise")
+        atol, rtol = tolerance("float16", "elementwise-div" if operation == "div" else "elementwise")
         records[name] = {"reference": comparison(output, expected, atol=atol, rtol=rtol),
                          "source_sha256": bundle["variants"][name]["sha256"],
                          "output_sha256": hashlib.sha256(output.numpy().tobytes()).hexdigest()}
         outputs.append(output)
     if not all(torch.equal(outputs[0], output) for output in outputs[1:]):
-        raise AssertionError("Original, same-tile serial and pipeline Add disagree")
+        raise AssertionError("Original, same-tile serial and pipeline outputs disagree")
     return {"status": "passed", "runtime_mode": "cmodel", "shape": shape, "dtype": "float16",
             "launch_cores": 1, "seed": 0, "variants": records, "all_variants_bitwise_equal": True,
             "board_executed": False, "hardware_overlap_verified": False,
@@ -135,12 +146,13 @@ def main():
     mode.add_argument("--verify-cmodel-bundle", type=Path)
     parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
     parser.add_argument("--coarse-tiles", action="store_true", help="128x1024 tiles, retaining the original baseline")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div"), default="add")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))
         return
-    bundle = export(target_size=args.target_size, coarse_tiles=args.coarse_tiles)
+    bundle = export(target_size=args.target_size, coarse_tiles=args.coarse_tiles, operation=args.operation)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x") as output:
         json.dump(bundle, output, indent=2, sort_keys=True)

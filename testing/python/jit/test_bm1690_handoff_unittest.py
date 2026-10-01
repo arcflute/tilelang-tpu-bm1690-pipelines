@@ -107,7 +107,7 @@ class HandoffTests(unittest.TestCase):
                     self.assertEqual(network.call_count,1)
 
     def test_delivery_file_pins_still_match(self):
-        for case in ("target","coarse"):
+        for case in ("target","coarse","sub","mul","div"):
             for name,(path,expected) in prepare.source_files(case).items():
                 self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),expected,(case,name))
 
@@ -115,6 +115,25 @@ class HandoffTests(unittest.TestCase):
         with patch.object(prepare.urllib.request,"urlopen",side_effect=AssertionError("wrong case must stop before download")):
             with self.assertRaises(ValueError):
                 self.run_resume("--case","coarse")
+
+    def test_operation_cases_reject_cross_operation_resume_before_network(self):
+        self.receipt["case"]="sub"
+        self.save_receipt()
+        with patch.object(prepare.urllib.request,"urlopen",side_effect=AssertionError("wrong operation")):
+            for op in ("target","coarse","mul","div"):
+                with self.subTest(op=op), self.assertRaises(ValueError):
+                    self.run_resume("--case",op)
+
+    def test_operation_cases_select_verified_separate_bundles(self):
+        for op in ("sub","mul","div"):
+            path,digest = prepare.source_files(op)["add.json"]
+            bundle=json.loads((ROOT/path).read_text())
+            self.assertEqual(bundle["target"]["operation"],op)
+            self.assertEqual(hashlib.sha256((ROOT/path).read_bytes()).hexdigest(),digest)
+            baseline=json.loads((ROOT/prepare.COARSE_SOURCE[0]).read_text())
+            for name in ("original","serial","pipeline"):
+                self.assertEqual(bundle["variants"][name]["sha256"]["main.cpp"],
+                                 baseline["variants"][name]["sha256"]["main.cpp"])
 
     def test_coarse_case_selects_its_own_bundle_and_preserves_original_sources(self):
         self.receipt["case"]="coarse"
