@@ -741,12 +741,24 @@ passed, followed by all 18 compiler/linker commands. The helper reported
 `MUL1024_BUILD_ONLY_OK kernel_launches=0`. The work directory is
 `/home/bokai/bm1690-mul-LNbaFw/work`, with receipt `handoff.json`. Evidence is
 `results/p8-mul-1024-build-user-reported.json`, based on user terminal output;
-full remote receipts and ELF hashes have not been copied here. This establishes
-compilation, not Mul board correctness or latency. Div board compilation remains
-pending.
+full remote receipts and ELF hashes have not been copied here. That build-only
+receipt establishes compilation, not board correctness or latency.
 
-Next validate Mul original/serial/pipeline once, then collect their 5+20
-synchronous-call latency samples. Repeat for Div
+The user's subsequent Mul original, serial and pipeline runs all passed on
+BM1690 device 0 (`0000:01:00.0`, `/dev/sg-host-drv-0`), FP16 1024x1024 and one
+launch core. All outputs are finite and bitwise equal to the independent
+reference, with zero tolerance mismatches and maximum absolute error 0. Their
+input and output hashes match the recorded Mul CModel results; serial and
+pipeline also report `previous_variant_bitwise_equal=true`. All worker and
+outer exit codes are zero. Evidence is
+`results/p8-mul-1024-three-variants-board-user-reported.json`, based on the user
+terminal output; full remote result JSON remains on the board host. Mul board
+correctness is complete for these recorded inputs. The reported 219/243/229 us
+are single unwarmed diagnostics, not an accepted latency comparison. Repeated
+Mul latency sampling and physical-overlap evidence remain pending; Div board
+compilation remains pending.
+
+Next collect Mul original/serial/pipeline 5+20 synchronous-call latency samples. Repeat for Div
 without changing the environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not
