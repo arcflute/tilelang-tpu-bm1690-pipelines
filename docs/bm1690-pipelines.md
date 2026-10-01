@@ -688,9 +688,18 @@ checks and generated source hashes are included. Manifest, download, supervisor,
 host ABI and timer tests passed. Validation details are in
 `results/p8-elementwise-pcie-validation.json`.
 
-Board compilation, correctness and latency for these new operations remain
-pending. Start with Sub compilation against the already inspected PPL 1.4 SDK;
-then validate original/serial/pipeline once before their 5+20 latency samples.
+The user subsequently completed Sub compilation against the inspected PPL 1.4
+SDK on the BM1690 server. The helper and source files were pinned to `0a49d91`;
+all GitHub API downloads and hash checks passed, followed by all 18 compiler/linker
+commands for original, serial and pipeline. `PREPARE_EXIT=0` and
+`SUB1024_BUILD_ONLY_OK kernel_launches=0` were reported. The work directory is
+`/home/bokai/bm1690-sub-GvDYeE/work`, with receipt `handoff.json`. Evidence is
+`results/p8-sub-1024-build-user-reported.json`, based on the user's terminal
+output; full remote receipts and artifact hashes have not been copied here.
+The helper loaded no board runtime and launched no kernels. Sub board correctness
+and latency remain pending; Mul/Div board compilation also remains pending.
+
+Next validate Sub original/serial/pipeline once before their 5+20 latency samples.
 Repeat for Mul and Div without changing the environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not

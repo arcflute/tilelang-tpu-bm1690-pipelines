@@ -1,0 +1,54 @@
+{
+  "schema": "bm1690-legacy-build-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "source_delivery_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "prepare_delivery_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "prepare_sha256": "b8d08e200d564054244409ee6cac6fa6a3188bfec01de8a6b27bbc0e23fcd958",
+  "builder_sha256": "8b91f40d4f983ce6d91dd0f26b5ae04cea6e01efd6fa0b89a1c1d322c002cfce",
+  "bundle_sha256": "6d72d38f8a83b510dc71fab7905e8babf0b7b645cdd2ffa1ecc7a78180430418",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "case": "sub",
+  "download_transport": "github-api",
+  "download_and_hash_checks_passed": true,
+  "reused_verified_files": [],
+  "downloaded_verified_files": [
+    "build.py",
+    "add.json",
+    "run_add.py"
+  ],
+  "profile": "ppl14-bm1690-pcie",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "serial_pipeline_tile": [
+    128,
+    1024
+  ],
+  "serial_pipeline_logical_tiles": 8,
+  "pipeline_depth": 2,
+  "variants": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "successful_commands_per_variant": 6,
+  "prepare_exit": 0,
+  "reported_markers": [
+    "BUILD_ONLY_OK variants=3 board_runtime_loaded=false kernel_launches=0",
+    "SUB1024_BUILD_ONLY_OK kernel_launches=0"
+  ],
+  "remote_work_directory": "/home/bokai/bm1690-sub-GvDYeE/work",
+  "remote_handoff_receipt": "/home/bokai/bm1690-sub-GvDYeE/work/handoff.json",
+  "artifact_hash_location": "remote work/build/result.json",
+  "artifact_hashes_received_at_development_host": false,
+  "full_result_json_received_at_development_host": false,
+  "board_runtime_loaded": false,
+  "kernel_launches": 0,
+  "device_correctness_verified": false,
+  "device_performance_measured": false,
+  "hardware_overlap_verified": false,
+  "operation": "sub"
+}
