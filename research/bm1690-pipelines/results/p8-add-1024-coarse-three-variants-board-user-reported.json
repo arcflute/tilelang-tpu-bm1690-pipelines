@@ -1,0 +1,113 @@
+{
+  "schema": "bm1690-add-board-correctness-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "runner_commit": "f7a46589e3abea014025dff673afbae0d351a1b7",
+  "runner_sha256": "c8c88de318a4bf79b9b4911584e9daa5693165fc515061376ba7df979108beaf",
+  "build_commit": "f7a46589e3abea014025dff673afbae0d351a1b7",
+  "bundle_sha256": "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+  "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+  "reference": {
+    "atol": 0.005,
+    "rtol": 0.005,
+    "finite": true,
+    "max_abs_error": 0.0,
+    "mismatched_elements": 0,
+    "bitwise_equal_to_reference": true,
+    "passed": true
+  },
+  "matches_recorded_cmodel_output_sha256": true,
+  "full_result_json_received_at_development_host": false,
+  "hardware_overlap_verified": false,
+  "matches_recorded_cmodel_input_sha256": true,
+  "cmodel_evidence": "p8-add-1024-coarse-cmodel.json",
+  "build_evidence": "p8-add-1024-coarse-build-user-reported.json",
+  "variants": {
+    "original": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": null,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+      "diagnostic_unwarmed_host_wrapper_us": 217,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-coarse-VRCQiY/work/run-original/result.json"
+    },
+    "serial": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+      "diagnostic_unwarmed_host_wrapper_us": 250,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-coarse-VRCQiY/work/run-serial/result.json"
+    },
+    "pipeline": {
+      "worker_exit": 0,
+      "run_exit": 0,
+      "marker": "ADD_PCIE_PASSED",
+      "previous_variant_bitwise_equal": true,
+      "reference": {
+        "atol": 0.005,
+        "rtol": 0.005,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "bitwise_equal_to_reference": true,
+        "passed": true
+      },
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "output_sha256": "014b884c7bac8e0ca6d6da60329da9bdf043cfecb4f709b301fe60b64a0f16e0",
+      "diagnostic_unwarmed_host_wrapper_us": 242,
+      "diagnostic_samples": 1,
+      "warmups": 0,
+      "remote_result": "/home/bokai/bm1690-coarse-VRCQiY/work/run-pipeline/result.json"
+    }
+  },
+  "all_variants_bitwise_equal": true,
+  "target_shape_single_core_board_correctness_complete": true,
+  "accepted_performance_measurement": false,
+  "same_tile_serial_and_pipeline_tiling": [
+    128,
+    1024
+  ],
+  "tiling_evidence": "research/bm1690-pipelines/handoff/add-1024-coarse-sources.json",
+  "case": "coarse",
+  "serial_pipeline_logical_tiles": 8,
+  "pipeline_depth": 2
+}

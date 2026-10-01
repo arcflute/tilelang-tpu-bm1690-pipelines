@@ -594,8 +594,22 @@ and hash checks passed, followed by all 18 compiler/linker commands and
 `/home/bokai/bm1690-coarse-VRCQiY/work`; the supplied terminal output is recorded
 in `results/p8-add-1024-coarse-build-user-reported.json`. The helper reported
 `board_runtime_loaded=false` and `kernel_launches=0`. Full remote receipt JSON
-and ELF hashes have not been copied here. Board correctness and latency for
-this bundle remain pending; successful compilation alone establishes neither.
+and ELF hashes have not been copied here. That compile-only receipt establishes
+neither board correctness nor latency.
+
+The subsequent user-supplied original, serial and pipeline runs all passed on
+BM1690 device 0 (`0000:01:00.0`, `/dev/sg-host-drv-0`) with FP16, shape 1024x1024
+and one launch core. All outputs are finite and bitwise equal to the reference,
+with zero mismatches and maximum absolute error 0. Serial and pipeline also
+report `previous_variant_bitwise_equal=true`; input and output hashes match
+each other and the coarse CModel record. All worker and outer exit codes are
+zero. Evidence is
+`results/p8-add-1024-coarse-three-variants-board-user-reported.json`, based on
+terminal output; full remote result JSON has not been received here. This
+completes coarse-bundle board correctness for the recorded inputs. The printed
+217/250/242 us are single unwarmed diagnostics, not an accepted performance
+comparison. Warmed latency sampling and physical-overlap evidence remain
+unavailable for this bundle.
 
 The updated preparation helper selects this bundle with `--case coarse` and
 continues to support `--transport github-api`. Use a new work directory; case
