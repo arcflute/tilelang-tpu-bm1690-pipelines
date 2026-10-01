@@ -454,7 +454,8 @@ reference and CPU PyTorch, and maximum absolute error is zero. The timing ABI
 was exercised with 1 warmup + 2 samples per variant, with unchanged correct
 outputs; CModel timings are not reported as device-performance evidence.
 The original whole-block 1024x1024 version compiled and executed on CModel;
-its compatibility with the older board SDK remains to be established.
+all three versions also subsequently compiled against the older board SDK as
+recorded below. Their 1024x1024 board execution remains pending.
 
 `prepare_add_1024.py` downloads and verifies the three pinned source/build/run
 files into a **new** directory and compiles sequentially with the already
@@ -470,8 +471,8 @@ whole preparation in a 600-second timeout to bound slow downloads as well.
 The first remote 1024 handoff at delivery `7c0efb8` stopped with a read timeout
 while downloading `add.json`, after verifying `build.py`. The reported output
 contains no compile commands; source ordering confirms compilation had not
-started. This is a download failure, with large-shape board compatibility still
-pending. The next delivery adds `--resume` for that existing download directory:
+started. At that point, large-shape board build compatibility was still pending.
+The next delivery added `--resume` for that existing download directory:
 it requires the same pinned source revision, verifies every retained file before
 network access, fetches only missing files and saves a separate
 `handoff-resume-*.json` receipt. The original `handoff.json` is preserved. A
@@ -491,9 +492,21 @@ SHA256 values. It requests the bytes directly instead of following the JSON
 URL also redirects back to that raw domain, so it is not a distinct transport.
 See [GitHub's Contents API documentation](https://docs.github.com/en/rest/repos/contents#get-repository-content).
 Development-host API retrieval is verified; reachability from the board host
-remains to be tested. No proxy/TLS settings or credentials are changed. Two
+was pending at that delivery and is confirmed by the subsequent handoff below.
+No proxy/TLS settings or credentials are changed. Two
 additional stdlib regressions check the API request, identical file hashes and
 rejection of JSON metadata instead of blindly following its download URL.
+
+The user subsequently completed the resumed **1024x1024 compilation** on the
+BM1690 server. The helper from `f73c2c9` downloaded the pinned `7c0efb8` bundle
+and runner through the GitHub API, reused the verified builder, and completed
+all 18 compiler/linker commands for original, serial and pipeline. It reported
+`RESUME_EXIT=0`, `board_runtime_loaded=false` and `kernel_launches=0`. The work
+directory is `/home/bokai/bm1690-add1024-TPL9kW/work`; portable evidence is
+`results/p8-add-1024-build-user-reported.json`. Full remote result JSON and ELF
+artifacts have not been copied here. This confirms source/build compatibility
+with the inspected old SDK, including compilation of the timing ABI; large-shape
+device execution and latency measurement still await their own results.
 
 Next board steps: compile v2 first; then execute original, serial, pipeline
 once, using new output directories and retaining previous-stage receipts. After
