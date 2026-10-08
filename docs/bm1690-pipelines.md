@@ -10,6 +10,18 @@ The source owner reports that ChunkScan stages other than P10 have completed
 validation. This project migrates those mechanisms; it does not restart that
 project's environment bring-up. P10 is not complete performance evidence.
 
+## Current test handoff (2026-10-08)
+
+The user has not executed the most recently supplied Mul warmup/latency commands
+and has deferred further testing. On the next request to resume tests, first
+remind the user that Mul's original/serial/pipeline correctness checks passed,
+but its 5-warmup/20-sample synchronous-call latency runs remain unexecuted.
+Resume in `/home/bokai/bm1690-mul-LNbaFw/work`, preserving the passed `run-*`
+receipts and using new `timing-*` outputs. The pinned runner SHA256 is
+`f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3`.
+After reviewing those results, continue Div and the other five operator families.
+No new tests were launched to prepare the progress report on 2026-10-08.
+
 ## Execution and evidence
 
 Use the existing Python environment and PPL 1.7 SDK. No dependency installation
