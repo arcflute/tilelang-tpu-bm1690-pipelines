@@ -15,7 +15,7 @@ project's environment bring-up. P10 is not complete performance evidence.
 The user resumed from a new terminal. Read-only preflight now reports kernel
 `7.0.0-34-generic`, whereas the previously working temporary sgcard module was
 built for `7.0.0-31-generic`. The sgcard initstate file, device-0 character node
-and PCI function 0's driver link are absent. Follow-up output confirms that PCI
+and PCI function 0's driver link were initially absent. Follow-up output confirms that PCI
 functions `0000:01:00.0` and `0000:01:00.1` still enumerate as `1f1c:1690`.
 The current kernel's Makefile, configuration, Module.symvers and generated
 autoconf header exist; the configuration names GCC 13.3.0 and the GCC 13 binary
@@ -32,10 +32,13 @@ module reports name `sgcard`, version `1.9.3` and vermagic
 The original installed module and firmware-loading source both passed their
 pre/post-build checksums. The build log reports disabled optional RDMA support
 and skipped BTF generation; it does not establish runtime readiness.
-The next action is one bounded temporary load of the verified new module,
-followed by kernel-log, initstate, device-node and PCI-binding inspection.
-No new-module load, board kernel or latency test has yet been reported during
-this recovery. Do not force-load either older-kernel module.
+The temporary load of the verified new module has now completed with
+`INSMOD_EXIT=0`. The module is `live`; `/dev/sg-host-drv-0` and `-1` exist;
+both PCI functions bind to `sg-host-drv`. Kernel log excerpts report both chips
+initialized and `All 2 devices probed successfully`. Recovery logs are in
+`/home/bokai/sgcard-load-7.0.0-34-l8BCyP`. This establishes driver initialization;
+runtime calls and operator execution after recovery still need validation.
+No board kernel or latency test has yet been reported during this recovery.
 
 Mul's runner hash still matches, all three saved correctness receipts report
 `passed`, and no `timing-*` directories exist in
@@ -43,10 +46,18 @@ Mul's runner hash still matches, all three saved correctness receipts report
 commands remain unexecuted. Preserve the existing builds and `run-*` receipts.
 The pinned runner SHA256 is
 `f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3`.
-Evidence is `results/p8-resume-kernel-change-user-reported.json`. After driver
-recovery, recheck runtime/device mapping and correctness in the restored
-environment before measuring Mul. Record the changed kernel/driver identity;
-do not silently mix measurements across the old and restored environments.
+Evidence is `results/p8-resume-kernel-change-user-reported.json`. Proceed with
+the existing hash-verified Mul runner and compiled binaries. Its `verify_device`
+checks runtime initialization, the observed device count, selected device and
+fd-to-PCI mapping before dispatch; an additional standalone runtime probe is
+not needed for this handoff. Use a new `resume-k34-*` result directory under the
+existing Mul work directory and record the running kernel there. Execute the
+original, serial and pipeline variants sequentially, each with a fresh one-call
+correctness receipt followed by its 5-warmup/20-sample latency run. Serial and
+pipeline also compare with the previous variant's fresh correctness output.
+Stop on the first failed process; preserve all receipts. These next runs are
+pending, not completed. Record the changed kernel/driver identity; do not
+silently mix measurements across the old and restored environments.
 Continue Div and the other five operator families afterward.
 
 ## Execution and evidence
