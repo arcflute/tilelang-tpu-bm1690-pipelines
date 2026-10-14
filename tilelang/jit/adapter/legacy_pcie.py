@@ -195,7 +195,8 @@ def validate_source_bundle(bundle):
                "bm1690-elementwise-source-check-v1": [1024, 1024],
                "bm1690-matmul-source-check-v1": [128, 128],
                "bm1690-matmul-source-check-v2": [1024, 1024],
-               "bm1690-rmsnorm-source-check-v1": [16, 128]}
+               "bm1690-rmsnorm-source-check-v1": [16, 128],
+               "bm1690-rmsnorm-source-check-v2": [1024, 1024]}
     if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     target = {"chip": "bm1690", "programming_model": "tpukernel",
@@ -208,11 +209,11 @@ def validate_source_bundle(bundle):
     if bundle["schema"].startswith("bm1690-matmul-"):
         target.update(operation="matmul", matrix_dimensions=[target["shape"][0]] * 3,
                       layout="row-major")
-    if bundle["schema"] == "bm1690-rmsnorm-source-check-v1":
+    if bundle["schema"].startswith("bm1690-rmsnorm-"):
         operation = bundle.get("target", {}).get("operation")
         if operation not in ("rmsnorm", "rmsnorm-splitk"):
             raise ValueError("RMSNorm schema requires ordinary or Split-K RMSNorm")
-        target.update(operation=operation, weight_shape=[16, 128], epsilon=1e-12,
+        target.update(operation=operation, weight_shape=target["shape"], epsilon=1e-12,
                       layout="row-major", normalization_rounding="fp16-before-weight-multiply")
     if bundle.get("target") != target:
         raise ValueError("Source schema requires its fixed single-core FP16 contract")
@@ -225,11 +226,13 @@ def validate_source_bundle(bundle):
             if (variant.get("tiling") != [block] * 3 or
                     variant.get("num_stages") != (2 if name == "pipeline" else 0)):
                 raise ValueError("Matmul requires original 16 and serial/pipeline 32 tiles")
-        if bundle["schema"] == "bm1690-rmsnorm-source-check-v1":
-            width = 32 if operation == "rmsnorm-splitk" else 128
-            if (variant.get("tiling") != [4, width] or
+        if bundle["schema"].startswith("bm1690-rmsnorm-"):
+            target_size = bundle["schema"] == "bm1690-rmsnorm-source-check-v2"
+            rows = 32 if target_size and name != "original" else 4
+            width = (128 if target_size and name != "original" else 32) if operation == "rmsnorm-splitk" else target["shape"][1]
+            if (variant.get("tiling") != [rows, width] or
                     variant.get("num_stages") != (2 if name == "pipeline" else 0)):
-                raise ValueError("RMSNorm smoke requires fixed 4-row tiles and depth 0/0/2")
+                raise ValueError("RMSNorm requires its fixed original/candidate tiles and depth 0/0/2")
         if set(variant["sources"]) != set(SOURCE_NAMES):
             raise ValueError(f"Unexpected source names for {name}")
         if set(variant["sha256"]) != set(SOURCE_NAMES):

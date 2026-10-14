@@ -452,12 +452,14 @@ class MatmulTargetManifestTests(MatmulManifestTests):
 class RMSNormManifestTests(ManifestTests):
     bundle_name = "rmsnorm-smoke-sources.json"
     operation = "rmsnorm"
+    shape = [16, 128]
 
     def test_rmsnorm_receipt_rechecks_tolerance_before_timing(self):
         identity = runner.validate_build(self.build)
         self.assertEqual(identity["operation"], self.operation)
-        self.assertEqual(identity["shape"], [16, 128])
-        self.assertEqual(identity["bundle_sha256"], runner.RMSNORM_BUNDLES[self.operation])
+        self.assertEqual(identity["shape"], self.shape)
+        bundles = runner.RMSNORM_BUNDLES if self.shape == [16, 128] else runner.RMSNORM_TARGET_BUNDLES
+        self.assertEqual(identity["bundle_sha256"], bundles[self.operation])
         directory = self.root / "correctness"
         directory.mkdir()
         args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
@@ -480,6 +482,16 @@ class RMSNormManifestTests(ManifestTests):
 
 class RMSNormSplitKManifestTests(RMSNormManifestTests):
     bundle_name = "rmsnorm-splitk-smoke-sources.json"
+    operation = "rmsnorm-splitk"
+
+
+class RMSNormTargetManifestTests(RMSNormManifestTests):
+    bundle_name = "rmsnorm-1024-sources.json"
+    shape = [1024, 1024]
+
+
+class RMSNormSplitKTargetManifestTests(RMSNormTargetManifestTests):
+    bundle_name = "rmsnorm-splitk-1024-sources.json"
     operation = "rmsnorm-splitk"
 
 
@@ -511,7 +523,41 @@ class RMSNormReferenceTests(unittest.TestCase):
                 runner.check_previous_output(struct.pack("<e", 1.0009765625), struct.pack("<e", 1.0),
                                              1, operation, "pipeline")
         with self.assertRaisesRegex(ValueError, "bounded"):
-            runner.test_vectors(1024**2, "rmsnorm")
+            runner.test_vectors(256**2, "rmsnorm")
+
+    def test_target_reference_rows_boundary_weights_and_corruption(self):
+        lhs, rhs, expected = runner.test_vectors(1024**2, "rmsnorm")
+        self.assertEqual(expected[:2048], bytes(2048))
+        self.assertLess(max(abs(x[0]) for x in struct.iter_unpack("<e", lhs[2048:4096])), 0.003)
+        # High-precision scalar sums independently check early/middle/final rows.
+        for row in (1, 31, 511, 1023):
+            a = struct.unpack_from("<1024e", lhs, row*2048)
+            w = struct.unpack_from("<1024e", rhs, row*2048)
+            inverse = 1 / math.sqrt(math.fsum(x*x for x in a)/1024 + 1e-12)
+            for col in (0, 17, 1023):
+                normalized = struct.unpack("<e", struct.pack("<e", a[col]*inverse))[0]
+                reference = struct.unpack("<e", struct.pack("<e", normalized*w[col]))[0]
+                actual = struct.unpack_from("<e", expected, 2*(row*1024+col))[0]
+                self.assertAlmostEqual(actual, reference, delta=0.004)
+        damaged = struct.pack("<e", float("nan")) + expected[2:]
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            runner.check_output(damaged, expected, 1024**2, "rmsnorm")
+        with self.assertRaisesRegex(ValueError, "two 1024x1024"):
+            runner.rmsnorm_reference(lhs, rhs[:2048], shape=(1024, 1024))
+        with self.assertRaisesRegex(ValueError, "bounded"):
+            runner.rmsnorm_reference(lhs, rhs, shape=(1024, 128))
+
+    def test_target_splitk_only_original_serial_allows_changed_k_grouping(self):
+        a = struct.pack("<e", 1.0) * 1024**2
+        b = struct.pack("<e", 1.0009765625) + a[2:]
+        self.assertTrue(runner.check_previous_output(b, a, 1024**2, "rmsnorm-splitk", "serial")["passed"])
+        for operation, variant in (("rmsnorm-splitk", "pipeline"), ("rmsnorm", "serial")):
+            with self.assertRaisesRegex(ValueError, "bitwise"):
+                runner.check_previous_output(b, a, 1024**2, operation, variant)
+        with self.assertRaisesRegex(ValueError, "bitwise"):
+            runner.check_previous_output(b[:4096], a[:4096], 2048, "rmsnorm-splitk", "serial")
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            runner.check_previous_output(struct.pack("<e", 2.0) + a[2:], a, 1024**2, "rmsnorm-splitk", "serial")
 
 
 class MatmulContractTests(unittest.TestCase):

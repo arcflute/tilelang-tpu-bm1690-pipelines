@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "rmsnorm-splitk",
-  "pending_test": "Compile and validate RMSNorm Split-K 16x128 smoke; then extend ordinary and Split-K board handoffs to 1024x1024 target cases",
+  "pending_operation": "rmsnorm",
+  "pending_test": "Compile and validate ordinary RMSNorm 1024x1024 target, then Split-K 1024x1024 target; both exact-source CModel checks passed",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -144,10 +144,10 @@
     "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "operation": "rmsnorm-splitk",
-    "case": "rmsnorm-splitk-smoke",
+    "operation": "rmsnorm",
+    "case": "rmsnorm-target",
     "reuse_existing_sdk_and_runtime": true,
-    "new_pinned_prepare_helper_required": false,
+    "new_pinned_prepare_helper_required": true,
     "variant_order": [
       "original",
       "serial",
@@ -158,11 +158,10 @@
       "5 warmups and 20 synchronous-call latency samples"
     ],
     "stop_on_first_failure": true,
-    "status": "ordinary RMSNorm board smoke passed; Split-K exact-source CModel passed, board compilation/execution pending",
+    "status": "both RMSNorm board smokes passed; both targets passed CModel, target board compilation/execution pending",
     "python": "python3",
-    "prepare_helper": "/home/bokai/bm1690-rmsnorm-AHShF4/prepare.py",
-    "prepare_helper_sha256": "36899c9da33cb757ad544f3d9794333f09dd9d2c609549f45854d9d31eee94d9",
-    "source_revision": "78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e",
+    "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
+    "prepare_helper_sha256": "903671bb85932aedc8baeddf8ea23fd8ab1b58e527a87d48319157e3731e92b5",
     "numpy_required": false
   },
   "cause_of_kernel_change": "not established",
@@ -220,6 +219,17 @@
     "all_six_test_processes_passed": true,
     "all_variants_bitwise_equal": true,
     "pipeline_vs_serial_median_latency_change_percent": -3.093375065206061,
+    "stable_pipeline_speedup_established": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_rmsnorm_splitk_smoke_validation": {
+    "build_evidence": "p8-rmsnorm-splitk-smoke-build-user-reported.json",
+    "correctness_evidence": "p8-rmsnorm-splitk-smoke-three-variants-board-user-reported.json",
+    "latency_evidence": "p8-rmsnorm-splitk-smoke-latency-user-reported.json",
+    "remote_work_directory": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work",
+    "all_six_test_processes_passed": true,
+    "all_variants_bitwise_equal": true,
+    "pipeline_vs_serial_median_latency_change_percent": -1.8244326390518428,
     "stable_pipeline_speedup_established": false,
     "hardware_overlap_verified": false
   }

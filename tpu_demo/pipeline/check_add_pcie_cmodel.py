@@ -23,26 +23,29 @@ def main():
     from tpu_demo.pipeline.run_add_pcie import (test_vectors, check_output, call_host, check_hash,
                                                BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
                                                ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
-                                               MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES)
+                                               MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES,
+                                               RMSNORM_TARGET_BUNDLES)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
-                        help="required for target Matmul: a separate bounded worker per variant")
+                        help="required for target Matmul/RMSNorm: one bounded worker per variant")
     args = parser.parse_args()
     if args.coarse_tiles and not args.target_size:
         parser.error("--coarse-tiles requires --target-size")
     if args.operation in ("sub", "mul", "div") and not (args.target_size and args.coarse_tiles):
         parser.error("Sub/Mul/Div require --target-size --coarse-tiles")
     matmul_target = args.operation == "matmul" and args.target_size
+    rmsnorm_target = args.operation.startswith("rmsnorm") and args.target_size
+    target_worker = matmul_target or rmsnorm_target
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
-    if args.operation.startswith("rmsnorm") and (args.target_size or args.coarse_tiles):
-        parser.error("RMSNorm currently uses the 16x128 smoke")
-    if bool(args.variant) != matmul_target:
-        parser.error("--variant is required only for target Matmul; compare the three worker outputs afterward")
+    if args.operation.startswith("rmsnorm") and args.coarse_tiles:
+        parser.error("RMSNorm does not use elementwise --coarse-tiles")
+    if bool(args.variant) != target_worker:
+        parser.error("--variant is required only for target Matmul/RMSNorm; compare worker outputs afterward")
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     torch.set_num_threads(1)
@@ -58,8 +61,8 @@ def main():
         bundle_path = bundle_path.with_name("matmul-1024-sources.json" if matmul_target else "matmul-smoke-sources.json")
         bundle_hash = MATMUL_TARGET_BUNDLE_SHA256 if matmul_target else MATMUL_BUNDLE_SHA256
     if args.operation.startswith("rmsnorm"):
-        bundle_path = bundle_path.with_name(args.operation + "-smoke-sources.json")
-        bundle_hash = RMSNORM_BUNDLES[args.operation]
+        bundle_path = bundle_path.with_name(args.operation + ("-1024-sources.json" if rmsnorm_target else "-smoke-sources.json"))
+        bundle_hash = (RMSNORM_TARGET_BUNDLES if rmsnorm_target else RMSNORM_BUNDLES)[args.operation]
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
@@ -96,7 +99,7 @@ def main():
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
         if args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk"):
-            timing = {"warmups": 1, "samples": 1 if matmul_target else 2}
+            timing = {"warmups": 1, "samples": 1 if target_worker else 2}
             repeated = call_host(library, lhs, rhs, timing=timing)
             assert repeated == output
             # Emulator wall times are never emitted as device latency evidence.
@@ -126,6 +129,10 @@ def main():
         import numpy as np
         report.update(selected_variant=args.variant, matrix_dimensions=[rows] * 3,
                       reference_backend={"name":"numpy.matmul", "version":np.__version__, "dtype":"float32"})
+    if rmsnorm_target:
+        report.update(selected_variant=args.variant, epsilon=1e-12, weight_shape=[rows,width],
+                      normalization_rounding="fp16-before-weight-multiply",
+                      reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
     print("BM1690_PIPELINE_RESULT=" + json.dumps(report,sort_keys=True))
 
 

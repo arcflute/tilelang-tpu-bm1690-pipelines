@@ -1,6 +1,6 @@
 """Supervised BM1690 elementwise/Matmul correctness and synchronous-call latency.
 
-Elementwise and Matmul smoke use only the Python standard library; Matmul 1024
+Elementwise, RMSNorm and Matmul smoke use the Python standard library; Matmul 1024
 uses the existing NumPy installation for its independent CPU reference.
 This is a narrowly scoped source/build
 manifest loader, not a relaxation of the generic JIT's prebuilt-library policy.
@@ -74,6 +74,15 @@ for _contract in BUNDLES.values():
     _contract["builders"] += (RMSNORM_BUILDER_SHA256,)
 for _operation, _bundle in RMSNORM_BUNDLES.items():
     BUNDLES[_bundle] = {"shape": [16, 128], "builders": (RMSNORM_BUILDER_SHA256,),
+                       "timing": True, "operation": _operation}
+
+
+RMSNORM_TARGET_BUILDER_SHA256 = '3003fcdbd6321aba571c2e0615d667b001f7db7436b8f718ed9b5958ab587b7e'
+RMSNORM_TARGET_BUNDLES = {'rmsnorm': '2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb', 'rmsnorm-splitk': '80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a'}
+for _contract in BUNDLES.values():
+    _contract["builders"] += (RMSNORM_TARGET_BUILDER_SHA256,)
+for _operation, _bundle in RMSNORM_TARGET_BUNDLES.items():
+    BUNDLES[_bundle] = {"shape": [1024, 1024], "builders": (RMSNORM_TARGET_BUILDER_SHA256,),
                        "timing": True, "operation": _operation}
 
 
@@ -191,24 +200,27 @@ def numpy_matmul_reference(lhs, rhs, dimension):
     return (a @ b).astype("<f2").tobytes(order="C")
 
 
-def rmsnorm_reference(lhs, rhs):
+def rmsnorm_reference(lhs, rhs, *, shape=(16, 128)):
     """Independent scalar FP32 RMSNorm, including the demo's FP16 boundary."""
-    if len(lhs) != 16 * 128 * 2 or len(rhs) != len(lhs):
-        raise ValueError("RMSNorm smoke reference requires two 16x128 FP16 matrices")
+    if shape not in ((16, 128), (1024, 1024)):
+        raise ValueError("RMSNorm reference is bounded to 16x128 or 1024x1024")
+    rows, width = shape
+    if len(lhs) != rows * width * 2 or len(rhs) != len(lhs):
+        raise ValueError(f"RMSNorm reference requires two {rows}x{width} FP16 matrices")
     a, weights = [[x[0] for x in struct.iter_unpack("<e", data)] for data in (lhs, rhs)]
     def f32(value):
         return struct.unpack("<f", struct.pack("<f", value))[0]
     output = []
-    for row in range(16):
-        values = a[row*128:(row+1)*128]
+    for row in range(rows):
+        values = a[row*width:(row+1)*width]
         total = 0.0
         for value in values:
             total = f32(total + f32(value * value))
-        variance = f32(f32(total / 128) + f32(1e-12))
+        variance = f32(f32(total / width) + f32(1e-12))
         inverse = f32(1.0 / math.sqrt(variance))
         for column, value in enumerate(values):
             normalized = struct.unpack("<e", struct.pack("<e", f32(value * inverse)))[0]
-            output.append(f32(normalized * weights[row*128+column]))
+            output.append(f32(normalized * weights[row*width+column]))
     return struct.pack("<" + "e" * len(output), *output)
 
 
@@ -222,8 +234,8 @@ def test_vectors(count=COUNT, operation="add"):
         raise ValueError("Unsupported reference operation")
     if operation == "matmul" and count not in (128 * 128, 1024 * 1024):
         raise ValueError("Matmul reference is bounded to 128-cubed or 1024-cubed")
-    if operation.startswith("rmsnorm") and count != 16 * 128:
-        raise ValueError("RMSNorm reference is bounded to the 16x128 smoke")
+    if operation.startswith("rmsnorm") and count not in (16 * 128, 1024 * 1024):
+        raise ValueError("RMSNorm reference is bounded to 16x128 or 1024x1024")
     state = 0
     values = []
     for _ in range(count * 2):
@@ -233,14 +245,16 @@ def test_vectors(count=COUNT, operation="add"):
         # Dense signed bounded inputs; every output depends on all K blocks.
         values = [value * 0.125 for value in values]
     if operation.startswith("rmsnorm"):
-        values[:128] = [0.0] * 128
-        values[128:256] = [value * 0.001 for value in values[128:256]]
+        shape = (16, 128) if count == 16 * 128 else (1024, 1024)
+        width = shape[1]
+        values[:width] = [0.0] * width
+        values[width:2*width] = [value * 0.001 for value in values[width:2*width]]
         values[count:] = [1.0 + value * 0.25 for value in values[count:]]
     lhs = struct.pack("<" + "e" * count, *values[:count])
     rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
     rhs = struct.pack("<" + "e" * count, *rhs_values)
     if operation.startswith("rmsnorm"):
-        return lhs, rhs, rmsnorm_reference(lhs, rhs)
+        return lhs, rhs, rmsnorm_reference(lhs, rhs, shape=shape)
     if operation == "matmul":
         if count == 1024 * 1024:
             return lhs, rhs, numpy_matmul_reference(lhs, rhs, 1024)
@@ -440,9 +454,11 @@ def check_previous_output(actual, previous, count, operation, variant):
     if previous is None:
         return None
     if actual != previous:
-        if operation == "matmul" and variant == "serial":
+        if variant == "serial" and (operation == "matmul" or
+                                     (operation == "rmsnorm-splitk" and count == 1024 * 1024)):
             # Original uses 16-cubed tiles, serial 32-cubed: reduction grouping
-            # can differ. Pipeline retains serial's exact accumulation order.
+            # can differ. Target Split-K similarly changes K tiles 32 -> 128.
+            # Pipeline retains serial's exact accumulation order.
             return check_output(actual, previous, count, operation)
         raise ValueError("Output differs bitwise from the previous variant")
     return {"passed": True, "bitwise_equal_to_reference": True}

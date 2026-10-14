@@ -1,0 +1,58 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "0ad6d14ece682ef0092b92a77906580c535e1bc8e63ec6c3070e5e24324ee0b7",
+  "operation": "rmsnorm-splitk",
+  "dtype": "float16",
+  "shape": [
+    16,
+    128
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "weight_shape": [
+    16,
+    128
+  ],
+  "epsilon": 1e-12,
+  "normalization_rounding": "fp16-before-weight-multiply",
+  "source_revision": "78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e",
+  "bundle_sha256": "cf249e148951244053b61af7e18be68edeaef6caa79a5522d2387bc2b08c9ec7",
+  "runner_sha256": "64b6aff4cfc061339c846daeb12f79e3f74c6d97527035fc24f3ee5b6396697b",
+  "builder_sha256": "b3243ed15eb4bfe52de3dff817ecdca355f2620dcec06162e0b801e5a235073a",
+  "prepare_helper_sha256": "36899c9da33cb757ad544f3d9794333f09dd9d2c609549f45854d9d31eee94d9",
+  "remote_work_directory": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rmsnorm-board-build-evidence-v1",
+  "status": "compile_only_passed",
+  "prepare_exit_code": 0,
+  "download_transport": "github-api",
+  "verified_files": [
+    "build.py",
+    "add.json",
+    "run_add.py"
+  ],
+  "completed_build_labels": [
+    "BUILD original: Compile TPU kernel",
+    "BUILD original: Compile PPL helper",
+    "BUILD original: Link PCIe libkernel.so",
+    "BUILD original: Compile PCIe kernel.cpp",
+    "BUILD original: Compile PCIe main.cpp",
+    "BUILD original: Link PCIe main.so",
+    "BUILD serial: Compile TPU kernel",
+    "BUILD serial: Compile PPL helper",
+    "BUILD serial: Link PCIe libkernel.so",
+    "BUILD serial: Compile PCIe kernel.cpp",
+    "BUILD serial: Compile PCIe main.cpp",
+    "BUILD serial: Link PCIe main.so",
+    "BUILD pipeline: Compile TPU kernel",
+    "BUILD pipeline: Compile PPL helper",
+    "BUILD pipeline: Link PCIe libkernel.so",
+    "BUILD pipeline: Compile PCIe kernel.cpp",
+    "BUILD pipeline: Compile PCIe main.cpp",
+    "BUILD pipeline: Link PCIe main.so"
+  ],
+  "board_runtime_loaded_during_build": false,
+  "kernel_launches_during_build": 0,
+  "compiled_artifacts_received_at_development_host": false
+}

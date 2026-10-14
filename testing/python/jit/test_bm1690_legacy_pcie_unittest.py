@@ -165,6 +165,22 @@ class LegacyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 legacy.validate_source_bundle(bad)
 
+    def test_rmsnorm_target_preserves_shape_and_original_candidate_tiles(self):
+        for operation in ("rmsnorm", "rmsnorm-splitk"):
+            bundle = json.loads((ROOT / f"research/bm1690-pipelines/handoff/{operation}-1024-sources.json").read_text())
+            legacy.validate_source_bundle(bundle)
+            for key, value in (("shape", [16, 128]), ("weight_shape", [1024]),
+                               ("dtype", "float32"), ("epsilon", 1e-5)):
+                bad = copy.deepcopy(bundle)
+                bad["target"][key] = value
+                with self.subTest(operation=operation, key=key), self.assertRaises(ValueError):
+                    legacy.validate_source_bundle(bad)
+            for name in ("original", "serial", "pipeline"):
+                bad = copy.deepcopy(bundle)
+                bad["variants"][name]["tiling"] = [8, 128]
+                with self.subTest(operation=operation, variant=name), self.assertRaises(ValueError):
+                    legacy.validate_source_bundle(bad)
+
     def test_standalone_compile_failure_preserves_diagnostics_and_stops(self):
         bundle = write(self.root / "bundle.json", json.dumps(self.bundle()))
         output = self.root / "build"

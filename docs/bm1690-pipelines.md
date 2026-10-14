@@ -64,27 +64,44 @@ of 115.657 us. The median difference is smaller than the observed IQRs; stable
 speedup and target-size performance remain unverified. Evidence and all 60 raw
 samples are in `results/p8-rmsnorm-smoke-{build,three-variants-board,latency}-user-reported.json`.
 
-Next is Split-K RMSNorm smoke. Both 16x128 FP16 RMSNorm handoffs have already
-passed exact-source CModel correctness and timed-ABI checks.
+Split-K RMSNorm has also completed board smoke acceptance at FP16 16x128,
+with all 18 build commands and six test processes passed in
+`/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work`. Outputs match the reference and
+each other bitwise, maximum error zero. Median synchronous-call latencies are
+172.5465 / 176.8495 / 173.623 us for original / serial / pipeline. Pipeline is
+1.824% below serial in this one fixed-order round, but original and serial have
+identical kernel sources at this smoke tiling. The original 1043.515 us and
+pipeline 939.563 us maxima remain in the record; their causes are unverified.
+This is correctness and timing acceptance, not an established stable speedup.
+Evidence is `results/p8-rmsnorm-splitk-smoke-{build,three-variants-board,latency}-user-reported.json`.
+
+Both 16x128 FP16 RMSNorm handoffs previously passed exact-source CModel checks.
 All three variants in each case match the scalar reference and CPU PyTorch
 bitwise, with zero absolute error. The input includes zero and small-magnitude
 rows and nonuniform per-element weights. The original demo requires weights
 with the same shape as the input, epsilon 1e-12, and FP16 rounding of the
 normalized value before weight multiplication; these contracts are retained.
 Evidence is `results/p8-rmsnorm-smoke-timing-abi-cmodel.json` and
-`results/p8-rmsnorm-splitk-smoke-timing-abi-cmodel.json`. All 103 relevant manifest,
-reference, ABI, supervisor and handoff regression checks passed.
+`results/p8-rmsnorm-splitk-smoke-timing-abi-cmodel.json`.
 
-Reuse `/home/bokai/bm1690-rmsnorm-AHShF4/prepare.py` from revision
-`78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e`, verify its SHA256
-`36899c9da33cb757ad544f3d9794333f09dd9d2c609549f45854d9d31eee94d9`, and use
-`--case rmsnorm-splitk-smoke` in a new directory. The preparation and these
-RMSNorm runners need only standard Python. Split-K board build and execution
-remain pending; its implementation and CModel checks are complete in this scope.
+Next are the 1024x1024 RMSNorm board cases, ordinary first, then Split-K.
+Both target handoffs have now passed exact-source CModel checks in six separately
+supervised workers, plus all 118 relevant regression checks. Each candidate
+pipeline is bitwise equal to its same-tile serial baseline. All outputs pass the
+independent reference with maximum absolute error 0.0009765625. Ordinary's three
+outputs are bitwise equal; Split-K original/candidate outputs differ within
+tolerance because the K tile changes from 32 to 128. Evidence is
+`results/p8-rmsnorm-1024-timing-abi-cmodel.json` and
+`results/p8-rmsnorm-splitk-1024-timing-abi-cmodel.json`.
+
+Download the new pinned `prepare_add_1024.py` and use `--case rmsnorm-target`,
+then `--case rmsnorm-splitk-target`, in separate new directories. The old smoke
+helper does not accept target cases. Preparation and both RMSNorm references
+still use only standard Python. Target board compilation/execution remain pending.
 After each build, perform one-call correctness before five warmups and 20
 resident synchronous-call samples per variant, stopping on the first failure.
-Expand both RMSNorm cases to 1024x1024 after the smoke checks, then continue
-RoPE, SwiGLU and FlashAttention. All six families remain in scope; repeated
+After the two target cases, continue RoPE, SwiGLU and FlashAttention.
+All six families remain in scope; repeated
 varied-order rounds and multicore board acceptance remain later work.
 
 ## Execution and evidence
@@ -1054,4 +1071,66 @@ serial and 0.967% below original in this round, but its 115.657 us maximum is
 retained and the median differences are smaller than the observed IQRs. This
 small smoke establishes first-round correctness and synchronous-call timing,
 not stable speedup, target-size performance, pure device time or physical overlap.
-Split-K board smoke and both 1024x1024 RMSNorm board handoffs remain pending.
+The user subsequently completed Split-K smoke with `SPLITK_EXIT=0`, all 18 build
+commands and six correctness/timing processes passed. All variants match each
+other, the scalar reference and CModel output hashes bitwise, maximum error zero.
+
+| Split-K RMSNorm FP16 16x128, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original 4x32 tiles | 172.5465 | 9.56625 | 229.18830 |
+| same-tile serial 4x32 | 176.8495 | 7.60875 | 185.06785 |
+| pipeline 4x32, depth 2 | 173.6230 | 9.39800 | 231.49855 |
+
+Five warmups and 20 resident samples per variant use the same host-call timing
+boundary described above. All 60 raw samples and recomputed statistics are in
+`results/p8-rmsnorm-splitk-smoke-latency-user-reported.json`. Pipeline median is
+1.824% below serial and 0.624% above original; identical original/serial sources
+also produce different measured medians. Preserve the original 1043.515 us and
+pipeline 939.563 us maxima without guessing their cause. This one fixed-order
+round establishes no stable performance improvement or physical overlap.
+
+## P8.9 RMSNorm 1024 target handoffs
+
+Both target bundles preserve the original mathematical and FP16 rounding
+contracts, epsilon 1e-12, 1024x1024 per-element weights and one TPU launch core.
+Their candidate tiling reuses the existing P4 CModel target configuration:
+
+| Operation | Original tiles | Serial/pipeline tiles | Pipelined loop |
+| --- | --- | --- | --- |
+| Ordinary RMSNorm | 4x1024 | 32x1024 | 32 independent output-row tiles |
+| Split-K RMSNorm | 4x32 | 32x128 | two separately pipelined K passes, each extent 8 |
+
+The ordinary depth-2 schedule has 12 lowered statements, two input versions and
+two weight versions. Split-K's first pass has five statements and two input
+versions; its second has seven statements and two input/weight versions. The
+generated first-pass drain/final sum precedes reciprocal square root and the
+reverse-K output pass. All versions retain single ordered reduction state and
+stores after the parallel scope before output-buffer reuse. The exported source
+contains distinct local buffer addresses and explicit parallel start/end calls;
+CModel serializes those calls, so hardware overlap remains unverified.
+
+The board runner extends its bounded standard-library FP32 scalar reference to
+1024x1024. Inputs include a full zero row, a small-magnitude row and nonuniform
+weights; all reference evaluation remains outside the measured interval. CPU
+PyTorch independently checks the precision contract in CModel, and regression
+tests sample target rows using high-precision scalar sums. The FP16 boundary
+before weight multiplication remains unchanged.
+
+Each target CModel variant ran in a fresh worker, limited to two host CPUs,
+4096 MiB group RSS and 120 seconds, first once and then one warmup/one timed
+sample to validate the host ABI. All six passed with maximum absolute error
+0.0009765625 and no tolerance mismatches; repeated outputs are unchanged.
+Each pipeline is bitwise equal to its same-tile serial. Ordinary original is
+also bitwise equal; Split-K original differs within 0.01 tolerance due to its
+different reduction grouping. Only target Split-K original-to-serial permits
+that difference; smoke and every serial-to-pipeline comparison remain strict.
+The scalar-reference/PyTorch comparison passes tolerance without requiring
+bitwise equality. Emulator durations are not device performance measurements.
+
+All 118 manifest, precision-reference, ABI, supervisor and download-handoff
+checks passed. Existing source bundles and their historical builder hashes remain
+accepted. No kernel arithmetic, compiler passes, native libraries or installed
+dependencies changed. On the board, run ordinary then Split-K, each with fresh
+one-call correctness followed by five warmups/20 resident synchronous calls per
+variant. Compare pipeline against its same-tile serial; original-to-candidate
+ratios also include tiling changes. Target board results remain pending.

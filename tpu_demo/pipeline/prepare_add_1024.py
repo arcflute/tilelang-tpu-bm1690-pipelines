@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "b3243ed15eb4bfe52de3dff817ecdca355f2620dcec06162e0b801e5a235073a"),
+                 "3003fcdbd6321aba571c2e0615d667b001f7db7436b8f718ed9b5958ab587b7e"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "64b6aff4cfc061339c846daeb12f79e3f74c6d97527035fc24f3ee5b6396697b"),
+                   "924e351377112dd634b5961fcb6b4a38e4b15f4f35d26cbf81a2aec8e81d3db7"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -53,6 +53,7 @@ MATMUL_TARGET_SOURCE = ('research/bm1690-pipelines/handoff/matmul-1024-sources.j
 
 RMSNORM_SOURCES = {'rmsnorm-smoke': ('research/bm1690-pipelines/handoff/rmsnorm-smoke-sources.json', '3d4f53f0280dc7931f2db158ffe1f28f81e9f808c6d533190342cd45fcbb2680'), 'rmsnorm-splitk-smoke': ('research/bm1690-pipelines/handoff/rmsnorm-splitk-smoke-sources.json', 'cf249e148951244053b61af7e18be68edeaef6caa79a5522d2387bc2b08c9ec7')}
 
+RMSNORM_SOURCES.update({'rmsnorm-target': ('research/bm1690-pipelines/handoff/rmsnorm-1024-sources.json', '2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb'), 'rmsnorm-splitk-target': ('research/bm1690-pipelines/handoff/rmsnorm-splitk-1024-sources.json', '80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a')})
 
 def source_files(case):
     if case in RMSNORM_SOURCES:
@@ -124,8 +125,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke"), default="target",
-                        help="Elementwise, Matmul or RMSNorm ordinary/Split-K smoke")
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target"), default="target",
+                        help="Elementwise, Matmul or RMSNorm ordinary/Split-K smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")

@@ -1,0 +1,283 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "0ad6d14ece682ef0092b92a77906580c535e1bc8e63ec6c3070e5e24324ee0b7",
+  "operation": "rmsnorm-splitk",
+  "dtype": "float16",
+  "shape": [
+    16,
+    128
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "weight_shape": [
+    16,
+    128
+  ],
+  "epsilon": 1e-12,
+  "normalization_rounding": "fp16-before-weight-multiply",
+  "source_revision": "78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e",
+  "bundle_sha256": "cf249e148951244053b61af7e18be68edeaef6caa79a5522d2387bc2b08c9ec7",
+  "runner_sha256": "64b6aff4cfc061339c846daeb12f79e3f74c6d97527035fc24f3ee5b6396697b",
+  "builder_sha256": "b3243ed15eb4bfe52de3dff817ecdca355f2620dcec06162e0b801e5a235073a",
+  "prepare_helper_sha256": "36899c9da33cb757ad544f3d9794333f09dd9d2c609549f45854d9d31eee94d9",
+  "remote_work_directory": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rmsnorm-board-latency-evidence-v1",
+  "status": "passed",
+  "sequence_exit_code": 0,
+  "rounds": 1,
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "e9194a0b4db1fba536d66ad9a17c50593a3559804e03d2fdd98d30a92928e407",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "20e9ac5c5ee008412a3e111dfd05c418db149f0c18d1a8b370047f173d6267a8",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          16,
+          128
+        ],
+        "variant": "original"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 9.566249999999968,
+        "max_us": 1043.515,
+        "median_us": 172.54649999999998,
+        "min_us": 167.314,
+        "p95_us": 229.18830000000062,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          173.578,
+          170.915,
+          175.193,
+          178.546,
+          175.167,
+          173.285,
+          179.496,
+          186.329,
+          1043.515,
+          177.415,
+          167.783,
+          171.808,
+          168.143,
+          171.359,
+          184.446,
+          167.974,
+          168.097,
+          167.614,
+          167.314,
+          168.849
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/run-original/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/timing-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "e9194a0b4db1fba536d66ad9a17c50593a3559804e03d2fdd98d30a92928e407",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "20e9ac5c5ee008412a3e111dfd05c418db149f0c18d1a8b370047f173d6267a8",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          16,
+          128
+        ],
+        "variant": "serial"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 7.608749999999986,
+        "max_us": 198.973,
+        "median_us": 176.84949999999998,
+        "min_us": 169.724,
+        "p95_us": 185.06785000000002,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          172.919,
+          181.523,
+          174.827,
+          172.832,
+          176.462,
+          182.783,
+          180.772,
+          178.089,
+          179.585,
+          179.506,
+          184.336,
+          177.237,
+          173.495,
+          171.939,
+          169.724,
+          174.56,
+          198.973,
+          174.081,
+          184.189,
+          171.851
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/run-serial/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/timing-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "e9194a0b4db1fba536d66ad9a17c50593a3559804e03d2fdd98d30a92928e407",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "20e9ac5c5ee008412a3e111dfd05c418db149f0c18d1a8b370047f173d6267a8",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          16,
+          128
+        ],
+        "variant": "pipeline"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 9.397999999999996,
+        "max_us": 939.563,
+        "median_us": 173.623,
+        "min_us": 166.476,
+        "p95_us": 231.49855000000053,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          179.042,
+          168.709,
+          171.711,
+          184.889,
+          939.563,
+          194.232,
+          173.073,
+          175.408,
+          173.617,
+          168.69,
+          180.328,
+          170.078,
+          178.893,
+          190.075,
+          173.629,
+          169.628,
+          178.333,
+          172.907,
+          168.196,
+          166.476
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/run-pipeline/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm-splitk-zr1ONP/work/timing-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": -1.8244326390518428,
+    "serial_over_pipeline_median_ratio": 1.0185833674109996,
+    "pipeline_vs_original_latency_change_percent": 0.623889792027077,
+    "conclusion": "Pipeline median is slightly below serial and slightly above original in this one fixed-order smoke round. Original and serial have identical kernel sources. Retain the original 1043.515 us and pipeline 939.563 us maxima; their causes are not established. Stable speedup, target-size performance and physical overlap remain unverified."
+  },
+  "environment_file_contents_received": false,
+  "driver_environment_provenance": "same ongoing session after ordinary RMSNorm smoke; each runtime/PCI mapping check passed, environment.txt contents were not pasted"
+}

@@ -1,0 +1,176 @@
+{
+  "schema": "bm1690-rmsnorm-target-validation-v1",
+  "recorded_date": "2026-10-14",
+  "status": "passed",
+  "tests": [
+    {
+      "command": ".risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*pcie_unittest.py'",
+      "count": 105,
+      "returncode": 0
+    },
+    {
+      "command": ".risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_handoff_unittest.py'",
+      "count": 13,
+      "returncode": 0
+    }
+  ],
+  "board_executed": false,
+  "hardware_overlap_verified": false,
+  "operations": {
+    "rmsnorm": {
+      "bundle_sha256": "2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb",
+      "pipeline_reports": [
+        {
+          "loop": "output_tile",
+          "extent": 32,
+          "num_stages": 2,
+          "stage": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1
+          ],
+          "order": [
+            0,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            1,
+            9,
+            10,
+            11
+          ],
+          "fingerprint": "0ed3446dc29203cc7adcea278eb3b7e43a7366d35ba765b818861a9ef287d02c",
+          "buffer_versions": {
+            "input_local": [
+              "input_local",
+              "input_local_pipeline_v1"
+            ],
+            "weight_local": [
+              "weight_local",
+              "weight_local_pipeline_v1"
+            ]
+          },
+          "stores": "after parallel end; completed before output reuse",
+          "physical_buffer_addresses": {
+            "input_local": {
+              "input_local": 14336,
+              "input_local_pipeline_v1": 20608
+            },
+            "weight_local": {
+              "weight_local": 16384,
+              "weight_local_pipeline_v1": 18432
+            }
+          },
+          "lowered_statement_count": 12
+        }
+      ],
+      "balanced_parallel_scopes": true,
+      "parallel_calls_disabled_in_cmodel": true,
+      "cmodel_evidence": "p8-rmsnorm-1024-timing-abi-cmodel.json"
+    },
+    "rmsnorm-splitk": {
+      "bundle_sha256": "80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a",
+      "pipeline_reports": [
+        {
+          "loop": "ko",
+          "extent": 8,
+          "num_stages": 2,
+          "stage": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "order": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "fingerprint": "8d7a7d086b590a919b610024bb98bed0ce37ce9758776d5cc9dd098600a84231",
+          "buffer_versions": {
+            "input_local": [
+              "input_local",
+              "input_local_pipeline_v1"
+            ]
+          },
+          "stores": "after parallel end; completed before output reuse",
+          "physical_buffer_addresses": {
+            "input_local": {
+              "input_local": 1536,
+              "input_local_pipeline_v1": 1792
+            }
+          },
+          "lowered_statement_count": 5
+        },
+        {
+          "loop": "ko",
+          "extent": 8,
+          "num_stages": 2,
+          "stage": [
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1
+          ],
+          "order": [
+            0,
+            2,
+            3,
+            1,
+            4,
+            5,
+            6
+          ],
+          "fingerprint": "e3c26f6e4dedc5f9ebe23a5c5c485d0400f65562f520a90caa028ccc7a159a01",
+          "buffer_versions": {
+            "input_local": [
+              "input_local",
+              "input_local_pipeline_v1"
+            ],
+            "weight_local": [
+              "weight_local",
+              "weight_local_pipeline_v1"
+            ]
+          },
+          "stores": "after parallel end; completed before output reuse",
+          "physical_buffer_addresses": {
+            "input_local": {
+              "input_local": 1536,
+              "input_local_pipeline_v1": 1792
+            },
+            "weight_local": {
+              "weight_local": 16384,
+              "weight_local_pipeline_v1": 16640
+            }
+          },
+          "lowered_statement_count": 7
+        }
+      ],
+      "balanced_parallel_scopes": true,
+      "parallel_calls_disabled_in_cmodel": true,
+      "cmodel_evidence": "p8-rmsnorm-splitk-1024-timing-abi-cmodel.json",
+      "first_pass_last_sum_line": 222,
+      "inverse_rms_line": 231,
+      "second_pass_loop_line": 238
+    }
+  }
+}
