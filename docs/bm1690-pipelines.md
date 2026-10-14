@@ -142,8 +142,13 @@ device users before further board dispatch. The original-only host-call
 diagnostic is prepared and CModel-validated, but has not run on the board.
 Follow-up source inspection confirms a 60-second exit-response wait. `fuser`
 reports PID 2737445 (`pt_main_thread`) holding device 0, and sgcard's reference
-count is 4. Identify that process before attempting cleanup or driver recovery;
-its relationship to the failed worker is not established.
+count is 4. Process inspection subsequently identified a separate ChunkScan P10
+run, started at 18:04:44 with core counts 1,2,4,8 and now waiting in
+`rt_task_done_response_sync`. The user confirms simultaneous TPU testing.
+The user chose to keep P10 and defer migration board testing. Preserve that
+task and the prepared diagnostic; perform no process termination, driver unload
+or reset. Resume after other TPU work ends and device availability/health is
+checked. This does not establish concurrency as the sole RoPE timeout cause.
 The runner/reference use standard Python. Keep one-call correctness before five
 warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
 limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
@@ -1442,3 +1447,34 @@ or firmware work. Do not attribute the holder to a leaked runner without its
 command line, parent/group/session, start time and thread-state evidence.
 Board dispatch and driver unload remain held while collecting those facts.
 Evidence is `results/p8-rope-1024-driver-exit-and-holder-user-reported.json`.
+
+Further process inspection identifies the holder as a separate ChunkScan P10
+invocation in `/home/bokai/ChunkScan-bm1690-test-86add2f`, using
+`test_chunk_scan_multicore_benchmark_p10.py --stages s1,s3,p6 --shapes r3
+--core-counts 1,2,4,8 --quick`. It started at 18:04:44, before the RoPE target
+attempt, and has PPID/PGID 2737430. Its only reported thread waits in
+`rt_task_done_response_sync`. The user explicitly confirms running other TPU
+operator tests concurrently. The wrapper's requested host affinity of CPUs 2,4
+does not establish TPU resource separation from the RoPE worker on CPUs 0,1.
+
+The supplied driver source at lines 2407-2425 waits for `TASK_DONE_RESPONSE`
+using `wait_event_interruptible` and emits the force-exit message when its
+result is negative. This wait call has no timeout argument. The source and
+process identity narrow the investigation, but do not prove concurrent physical
+kernel execution or that P10 caused the original RoPE failure. In particular,
+the failed run lacks a verified exclusive-device baseline. Preserve prior
+results and correlate their timestamps before deciding which measurements need
+repetition; do not discard all earlier acceptance evidence indiscriminately.
+The existing runner lock coordinates participating invocations of that runner,
+not arbitrary other TPU tests. Obtain the user's test-priority choice and the
+P10 launcher/log location before stopping the separate task. No task was stopped
+and no driver reset or board retry was performed in this follow-up.
+The parent is a `timeout -k 10s 7200s` launcher with
+`CHUNKSCAN_BENCH_MAX_RUNS=1000`. Stdout/stderr both target `pipe:[46552045]`;
+the final log file is not identified. The user explicitly chose to keep P10
+running and defer pipeline-migration board testing. Honor that choice without
+further board dispatch, task termination or driver recovery actions. Retain the
+prepared diagnostic for use after other TPU testing ends and device availability
+and health have been checked. Overlapping measurements from either project must
+not be presented as verified exclusive-device performance.
+Evidence is `results/p8-rope-1024-concurrent-p10-user-reported.json`.

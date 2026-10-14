@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Identify device-0 holder PID 2737445 and task-wait error path before any process cleanup, driver unload or board dispatch",
+  "pending_test": "User chose to keep ChunkScan P10 and defer migration board tests; resume after other TPU work ends and device availability/health is checked",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -155,7 +155,7 @@
       "original single diagnostic call only after device recovery assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "FORCE_QUIT wait confirmed as 60 seconds; device 0 still held by PID 2737445 and module refcount 4; holder identity and recovery pending",
+    "status": "Deferred by user while P10 runs; retain original-only host diagnostic and failed RoPE evidence; no device reset or process termination",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
@@ -285,6 +285,13 @@
     "supervisor_cleanup_complete": true,
     "driver_followup_evidence": "p8-rope-1024-force-quit-user-reported.json",
     "driver_force_quit_timeout_reported": true,
-    "driver_source_and_holder_evidence": "p8-rope-1024-driver-exit-and-holder-user-reported.json"
+    "driver_source_and_holder_evidence": "p8-rope-1024-driver-exit-and-holder-user-reported.json",
+    "concurrent_workload_evidence": "p8-rope-1024-concurrent-p10-user-reported.json"
+  },
+  "board_testing_user_directive": {
+    "instruction": "保留 P10，暂缓流水线迁移的真机测试",
+    "status": "deferred_by_user",
+    "scope": "pipeline migration BM1690 board testing",
+    "evidence": "p8-rope-1024-concurrent-p10-user-reported.json"
   }
 }
