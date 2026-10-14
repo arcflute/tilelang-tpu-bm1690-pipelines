@@ -1,0 +1,144 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "9966172dcc1224f3c13d26be154034c1815e5afa0f0259fbd12b72e0b1d4c64f",
+  "operation": "matmul",
+  "dtype": "float16",
+  "matrix_dimensions": [
+    1024,
+    1024,
+    1024
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "source_revision": "6c83e0b79bb578d9eec0a85eca142aef2f37afc3",
+  "bundle_sha256": "fb97f8b800a47bbe91fe393885b785cd6323043231660c202bc510f271c1f643",
+  "runner_sha256": "06c2af318a8b0f379b2a6e082ac31a31c83c768dccf6c1b8ba1333f7de444d90",
+  "remote_work_directory": "/home/bokai/bm1690-matmul1024-yckfLu/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-matmul-board-correctness-evidence-v1",
+  "status": "passed",
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "157dbd6afdce6475f0f1aa3b6b193a53112dce9d428da339165e613561f0f2ad",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+        "previous_variant_bitwise_equal": false,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "serial_pipeline_bitwise_equal": true,
+  "original_serial_bitwise_equal": false,
+  "matches_recorded_cmodel_output_sha256": true,
+  "cmodel_evidence": "p8-matmul-1024-timing-abi-cmodel.json",
+  "original_tiling": [
+    16,
+    16,
+    16
+  ],
+  "serial_pipeline_tiling": [
+    32,
+    32,
+    32
+  ],
+  "pipeline_depth": 2,
+  "hardware_overlap_verified": false
+}

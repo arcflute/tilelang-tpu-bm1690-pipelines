@@ -68,6 +68,13 @@ for _contract in BUNDLES.values():
 BUNDLES[MATMUL_TARGET_BUNDLE_SHA256] = {
     "shape": [1024, 1024], "builders": (MATMUL_TARGET_BUILDER_SHA256,),
     "timing": True, "operation": "matmul"}
+RMSNORM_BUILDER_SHA256 = "b3243ed15eb4bfe52de3dff817ecdca355f2620dcec06162e0b801e5a235073a"
+RMSNORM_BUNDLES = {"rmsnorm": "3d4f53f0280dc7931f2db158ffe1f28f81e9f808c6d533190342cd45fcbb2680", "rmsnorm-splitk": "cf249e148951244053b61af7e18be68edeaef6caa79a5522d2387bc2b08c9ec7"}
+for _contract in BUNDLES.values():
+    _contract["builders"] += (RMSNORM_BUILDER_SHA256,)
+for _operation, _bundle in RMSNORM_BUNDLES.items():
+    BUNDLES[_bundle] = {"shape": [16, 128], "builders": (RMSNORM_BUILDER_SHA256,),
+                       "timing": True, "operation": _operation}
 
 
 def digest(path):
@@ -184,16 +191,39 @@ def numpy_matmul_reference(lhs, rhs, dimension):
     return (a @ b).astype("<f2").tobytes(order="C")
 
 
+def rmsnorm_reference(lhs, rhs):
+    """Independent scalar FP32 RMSNorm, including the demo's FP16 boundary."""
+    if len(lhs) != 16 * 128 * 2 or len(rhs) != len(lhs):
+        raise ValueError("RMSNorm smoke reference requires two 16x128 FP16 matrices")
+    a, weights = [[x[0] for x in struct.iter_unpack("<e", data)] for data in (lhs, rhs)]
+    def f32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+    output = []
+    for row in range(16):
+        values = a[row*128:(row+1)*128]
+        total = 0.0
+        for value in values:
+            total = f32(total + f32(value * value))
+        variance = f32(f32(total / 128) + f32(1e-12))
+        inverse = f32(1.0 / math.sqrt(variance))
+        for column, value in enumerate(values):
+            normalized = struct.unpack("<e", struct.pack("<e", f32(value * inverse)))[0]
+            output.append(f32(normalized * weights[row*128+column]))
+    return struct.pack("<" + "e" * len(output), *output)
+
+
 def test_vectors(count=COUNT, operation="add"):
     """FP16 inputs and independently FP32-rounded arithmetic, then FP16 output.
 
     Division retains the demo's positive [0.5, 2] denominator domain. Add's
     historical stream and hashes are preserved exactly.
     """
-    if operation not in ("add", "sub", "mul", "div", "matmul"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"):
         raise ValueError("Unsupported reference operation")
     if operation == "matmul" and count not in (128 * 128, 1024 * 1024):
         raise ValueError("Matmul reference is bounded to 128-cubed or 1024-cubed")
+    if operation.startswith("rmsnorm") and count != 16 * 128:
+        raise ValueError("RMSNorm reference is bounded to the 16x128 smoke")
     state = 0
     values = []
     for _ in range(count * 2):
@@ -202,9 +232,15 @@ def test_vectors(count=COUNT, operation="add"):
     if operation == "matmul":
         # Dense signed bounded inputs; every output depends on all K blocks.
         values = [value * 0.125 for value in values]
+    if operation.startswith("rmsnorm"):
+        values[:128] = [0.0] * 128
+        values[128:256] = [value * 0.001 for value in values[128:256]]
+        values[count:] = [1.0 + value * 0.25 for value in values[count:]]
     lhs = struct.pack("<" + "e" * count, *values[:count])
     rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
     rhs = struct.pack("<" + "e" * count, *rhs_values)
+    if operation.startswith("rmsnorm"):
+        return lhs, rhs, rmsnorm_reference(lhs, rhs)
     if operation == "matmul":
         if count == 1024 * 1024:
             return lhs, rhs, numpy_matmul_reference(lhs, rhs, 1024)
@@ -229,7 +265,7 @@ def test_vectors(count=COUNT, operation="add"):
 
 
 def check_output(actual, expected, count=COUNT, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"):
         raise ValueError("Unsupported reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
         raise ValueError("Unexpected output length")
@@ -237,7 +273,7 @@ def check_output(actual, expected, count=COUNT, operation="add"):
     b = [v[0] for v in struct.iter_unpack("<e", expected)]
     finite = all(math.isfinite(v) for v in a + b)
     errors = [abs(x-y) for x,y in zip(a,b)]
-    atol = rtol = 0.01 if operation in ("div", "matmul") else 0.005
+    atol = rtol = 0.01 if operation in ("div", "matmul", "rmsnorm", "rmsnorm-splitk") else 0.005
     mismatches = sum(not math.isfinite(x) or abs(x-y) > atol + rtol*abs(y) for x,y in zip(a,b))
     metrics = {"passed": finite and mismatches == 0, "finite": finite,
                "atol": atol, "rtol": rtol, "mismatched_elements": mismatches,
@@ -392,7 +428,7 @@ def check_correctness_receipt(args, identity, input_hash, expected):
         raise ValueError("Timing requires a matching passed one-call correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
-    if identity.get("operation", "add") in ("div", "matmul"):
+    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk"):
         # Retain each demo's tolerance rather than requiring exact reference bits.
         check_output(actual, expected, len(expected) // 2, identity["operation"])
     elif actual != expected:
@@ -484,6 +520,10 @@ def worker(args):
                                                     module_path=np.__file__, requested_blas_threads=1)
             else:
                 result["reference_backend"]["name"] = "stdlib scalar FP32 accumulation"
+        elif operation.startswith("rmsnorm"):
+            result.update(epsilon=1e-12, weight_shape=identity["shape"], layout="row-major",
+                          normalization_rounding="fp16-before-weight-multiply",
+                          reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
         result["input_sha256"] = hashlib.sha256(lhs + rhs).hexdigest()
         previous = check_previous(args, identity, result["input_sha256"])
         timing = None

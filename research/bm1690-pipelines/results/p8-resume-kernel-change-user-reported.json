@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "matmul",
-  "pending_test": "Compile Matmul FP16 M=N=K=1024 variants, then fresh correctness and 5+20 synchronous-call latency per variant using the inspected NumPy-enabled environment",
+  "pending_operation": "rmsnorm",
+  "pending_test": "Compile and validate ordinary RMSNorm 16x128 smoke; then Split-K smoke, followed by 1024x1024 target cases",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -144,8 +144,8 @@
     "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "operation": "matmul",
-    "case": "matmul-target",
+    "operation": "rmsnorm",
+    "case": "rmsnorm-smoke",
     "reuse_existing_sdk_and_runtime": true,
     "new_pinned_prepare_helper_required": true,
     "variant_order": [
@@ -158,7 +158,7 @@
       "5 warmups and 20 synchronous-call latency samples"
     ],
     "stop_on_first_failure": true,
-    "status": "exact-source target CModel validation and existing remote NumPy import check passed; remote compilation/execution pending",
+    "status": "ordinary and Split-K exact-source CModel checks passed; board smoke compilation/execution pending",
     "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python",
     "numpy_version": "1.26.4"
   },
@@ -197,6 +197,16 @@
     "remote_work_directory": "/home/bokai/bm1690-matmul-eHJxZ9/work",
     "all_six_test_processes_passed": true,
     "serial_pipeline_bitwise_equal": true,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_matmul_target_validation": {
+    "build_evidence": "p8-matmul-1024-build-user-reported.json",
+    "correctness_evidence": "p8-matmul-1024-three-variants-board-user-reported.json",
+    "latency_evidence": "p8-matmul-1024-latency-user-reported.json",
+    "remote_work_directory": "/home/bokai/bm1690-matmul1024-yckfLu/work",
+    "all_six_test_processes_passed": true,
+    "serial_pipeline_bitwise_equal": true,
+    "pipeline_vs_serial_median_latency_change_percent": -7.5313185573040675,
     "hardware_overlap_verified": false
   }
 }

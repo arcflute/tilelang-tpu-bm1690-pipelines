@@ -150,6 +150,21 @@ class LegacyTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 legacy.validate_source_bundle(bad)
 
+    def test_rmsnorm_schema_preserves_weights_epsilon_and_rounding_boundary(self):
+        for operation in ("rmsnorm", "rmsnorm-splitk"):
+            bundle = json.loads((ROOT / f"research/bm1690-pipelines/handoff/{operation}-smoke-sources.json").read_text())
+            legacy.validate_source_bundle(bundle)
+            for key, value in (("epsilon", 1e-5), ("weight_shape", [128]),
+                               ("normalization_rounding", "fp32-until-output"), ("operation", "add")):
+                bad = copy.deepcopy(bundle)
+                bad["target"][key] = value
+                with self.subTest(operation=operation, key=key), self.assertRaises(ValueError):
+                    legacy.validate_source_bundle(bad)
+            bad = copy.deepcopy(bundle)
+            bad["variants"]["pipeline"]["tiling"] = [8, 128]
+            with self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+
     def test_standalone_compile_failure_preserves_diagnostics_and_stops(self):
         bundle = write(self.root / "bundle.json", json.dumps(self.bundle()))
         output = self.root / "build"

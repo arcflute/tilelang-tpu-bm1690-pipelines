@@ -23,12 +23,12 @@ def main():
     from tpu_demo.pipeline.run_add_pcie import (test_vectors, check_output, call_host, check_hash,
                                                BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
                                                ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
-                                               MATMUL_TARGET_BUNDLE_SHA256)
+                                               MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul: a separate bounded worker per variant")
     args = parser.parse_args()
@@ -39,6 +39,8 @@ def main():
     matmul_target = args.operation == "matmul" and args.target_size
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
+    if args.operation.startswith("rmsnorm") and (args.target_size or args.coarse_tiles):
+        parser.error("RMSNorm currently uses the 16x128 smoke")
     if bool(args.variant) != matmul_target:
         parser.error("--variant is required only for target Matmul; compare the three worker outputs afterward")
 
@@ -55,6 +57,9 @@ def main():
     if args.operation == "matmul":
         bundle_path = bundle_path.with_name("matmul-1024-sources.json" if matmul_target else "matmul-smoke-sources.json")
         bundle_hash = MATMUL_TARGET_BUNDLE_SHA256 if matmul_target else MATMUL_BUNDLE_SHA256
+    if args.operation.startswith("rmsnorm"):
+        bundle_path = bundle_path.with_name(args.operation + "-smoke-sources.json")
+        bundle_hash = RMSNORM_BUNDLES[args.operation]
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
@@ -66,6 +71,11 @@ def main():
     if args.operation == "matmul":
         torch_reference = (a.float().reshape(rows,width) @ b.float().reshape(rows,width)).half()
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, "matmul")
+    elif args.operation.startswith("rmsnorm"):
+        value, weight = a.float().reshape(rows, width), b.float().reshape(rows, width)
+        normalized = value * torch.rsqrt(value.square().mean(dim=1, keepdim=True) + 1e-12)
+        torch_reference = (normalized.half().float() * weight).half()
+        independent = check_output(expected, torch_reference.numpy().tobytes(), count, args.operation)
     else:
         calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[args.operation]
         assert calculate(a.float(), b.float()).half().numpy().tobytes() == expected
@@ -85,7 +95,7 @@ def main():
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
-        if args.target_size or args.operation == "matmul":
+        if args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk"):
             timing = {"warmups": 1, "samples": 1 if matmul_target else 2}
             repeated = call_host(library, lhs, rhs, timing=timing)
             assert repeated == output

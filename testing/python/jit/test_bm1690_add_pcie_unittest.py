@@ -449,6 +449,71 @@ class MatmulTargetManifestTests(MatmulManifestTests):
     dimension = 1024
 
 
+class RMSNormManifestTests(ManifestTests):
+    bundle_name = "rmsnorm-smoke-sources.json"
+    operation = "rmsnorm"
+
+    def test_rmsnorm_receipt_rechecks_tolerance_before_timing(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["operation"], self.operation)
+        self.assertEqual(identity["shape"], [16, 128])
+        self.assertEqual(identity["bundle_sha256"], runner.RMSNORM_BUNDLES[self.operation])
+        directory = self.root / "correctness"
+        directory.mkdir()
+        args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
+                               expected_pci="0000:01:00.0")
+        expected = struct.pack("<e", 1.0)
+        for value, passes in ((1.0009765625, True), (2.0, False), (float("nan"), False)):
+            (directory / "output.f16").write_bytes(struct.pack("<e", value))
+            numeric = {"status":"passed", "reference":{"passed":True}, "variant":"original",
+                       "shape":identity["shape"], "bundle_sha256":self.bundle_hash,
+                       "build_manifest_sha256":identity["build_manifest_sha256"], "input_sha256":"input",
+                       "device_id":0, "expected_pci":"0000:01:00.0",
+                       "output_sha256":runner.digest(directory / "output.f16")}
+            (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+            if passes:
+                self.assertTrue(runner.check_correctness_receipt(args, identity, "input", expected))
+            else:
+                with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                    runner.check_correctness_receipt(args, identity, "input", expected)
+
+
+class RMSNormSplitKManifestTests(RMSNormManifestTests):
+    bundle_name = "rmsnorm-splitk-smoke-sources.json"
+    operation = "rmsnorm-splitk"
+
+
+class RMSNormReferenceTests(unittest.TestCase):
+    def test_fp16_normalization_boundary_changes_the_result(self):
+        # RMS([1,2,...])=sqrt(2.5); applying weight before the FP16 boundary
+        # would give 0.822265625 at the first element instead of 0.82177734375.
+        source = struct.pack("<" + "e" * 2048, *([1.0, 2.0] * 1024))
+        weight = struct.pack("<" + "e" * 2048, *([1.2998046875] * 2048))
+        actual = runner.rmsnorm_reference(source, weight)
+        self.assertEqual(struct.unpack_from("<e", actual)[0], 0.82177734375)
+
+    def test_per_element_weights_are_not_broadcast_across_rows(self):
+        source = struct.pack("<" + "e" * 2048, *([1.0] * 2048))
+        weights = struct.pack("<" + "e" * 2048, *[(row + 1)/8 for row in range(16) for _ in range(128)])
+        self.assertEqual(runner.rmsnorm_reference(source, weights), weights)
+        with self.assertRaisesRegex(ValueError, "two 16x128"):
+            runner.rmsnorm_reference(source, weights[:256])
+
+    def test_zero_small_rows_and_strict_same_tile_comparison(self):
+        lhs, rhs, expected = runner.test_vectors(2048, "rmsnorm")
+        self.assertEqual((lhs, rhs, expected), runner.test_vectors(2048, "rmsnorm-splitk"))
+        self.assertEqual(expected[:256], bytes(256))
+        self.assertLess(max(abs(x[0]) for x in struct.iter_unpack("<e", lhs[256:512])), 0.003)
+        self.assertTrue(runner.check_output(expected, expected, 2048, "rmsnorm")["finite"])
+        for operation in ("rmsnorm", "rmsnorm-splitk"):
+            self.assertEqual(runner.check_output(expected, expected, 2048, operation)["atol"], 0.01)
+            with self.assertRaisesRegex(ValueError, "bitwise"):
+                runner.check_previous_output(struct.pack("<e", 1.0009765625), struct.pack("<e", 1.0),
+                                             1, operation, "pipeline")
+        with self.assertRaisesRegex(ValueError, "bounded"):
+            runner.test_vectors(1024**2, "rmsnorm")
+
+
 class MatmulContractTests(unittest.TestCase):
     def test_dense_row_major_reference_and_wrong_layout(self):
         lhs, rhs, expected = runner.test_vectors(128 * 128, "matmul")

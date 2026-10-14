@@ -37,44 +37,42 @@ mapping before dispatch. The recovery record is
 these measurements with earlier `7.0.0-31-generic` measurements as a controlled
 comparison. No permanent driver installation was performed.
 
-Matmul FP16 M=N=K=128 has now passed all three board builds and all six
-correctness/timing processes on device 0, one launch core. All outputs match the
-recorded CModel hashes; maximum absolute error is 0.000244140625 with no tolerance
-mismatches. Original/serial are not bitwise equal because their tiles differ;
-same-tile serial/pipeline are bitwise equal. Evidence and 60 raw samples are in
-`results/p8-matmul-smoke-{build,three-variants-board,latency}-user-reported.json`.
+Matmul has now completed its first board correctness and synchronous-call
+latency acceptance at both M=N=K=128 and M=N=K=1024, FP16, one launch core.
+For the 1024 target, all 18 build commands and all six test processes passed.
+Maximum absolute error is 0.0009765625 with zero tolerance mismatches for each
+variant; serial/pipeline are bitwise equal, and each variant's output hash
+matches its CModel record. Evidence and 60 raw samples are in
+`results/p8-matmul-1024-{build,three-variants-board,latency}-user-reported.json`.
+The remote target directory is `/home/bokai/bm1690-matmul1024-yckfLu/work`.
 
-The 128-cubed original / serial / pipeline median latencies are
-1092.2855 / 186.5785 / 193.149 us. Pipeline is 3.522% slower than same-tile serial
-in this one fixed-order round. The large original/serial difference includes
-changed tiling (16-cubed versus 32-cubed), so it is not a pipeline speedup.
-This small functional case is not a substitute for target-size measurements.
+Target original / same-tile serial / pipeline median synchronous-call latencies
+are 445.92678 / 56.9566865 / 52.667097 ms. Pipeline is 7.531% lower than serial
+in this one fixed-order round. Original uses 16-cubed tiles, versus 32-cubed for
+serial/pipeline; original-to-candidate ratios include tiling changes. The smoke
+round instead showed a 3.522% higher pipeline median. Retain both results;
+repeatability and physical overlap remain unverified.
 
-Next is the Matmul M=N=K=1024 handoff with the same three variants, FP16 inputs
-and output, FP32 accumulation, row-major layout, and one launch core. Use
-`prepare_add_1024.py --case matmul-target` in a new directory with GitHub API
-transport. The remote user rechecked the existing Python interpreter at
-`/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python` and imported NumPy
-1.26.4 successfully; no packages need installing. Evidence is
-`results/p8-matmul-1024-python-user-reported.json`. Use that interpreter for
-execution; the build helper remains standard-library-only. NumPy computes an
-independent CPU FP32 reference before any timed region, with BLAS threads limited
-to one. The local CModel uses existing NumPy 2.2.6, so its version is recorded
-separately; tolerance-based comparison remains authoritative.
+Next is RMSNorm, including ordinary and Split-K variants. Both 16x128 FP16
+smoke handoffs have passed exact-source CModel correctness and timed-ABI checks.
+All three variants in each case match the scalar reference and CPU PyTorch
+bitwise, with zero absolute error. The input includes zero and small-magnitude
+rows and nonuniform per-element weights. The original demo requires weights
+with the same shape as the input, epsilon 1e-12, and FP16 rounding of the
+normalized value before weight multiplication; these contracts are retained.
+Evidence is `results/p8-rmsnorm-smoke-timing-abi-cmodel.json` and
+`results/p8-rmsnorm-splitk-smoke-timing-abi-cmodel.json`. All 103 relevant manifest,
+reference, ABI, supervisor and handoff regression checks passed.
 
-The target exact-source CModel validation passed for all three variants, including
-the timed ABI. Maximum absolute error is 0.0009765625 for each variant, with zero
-tolerance mismatches; serial/pipeline are bitwise equal. NumPy/PyTorch references
-also agree within the unchanged tolerance (maximum difference 0.0009765625).
-Evidence is `results/p8-matmul-1024-timing-abi-cmodel.json`. All 87 relevant
-manifest, ABI, supervisor, reference and handoff regression checks passed.
-
-After compilation, run each variant's correctness check before its five-warmup,
-20-sample synchronous-call measurement. Stop on the first failure. Target Matmul
-board correctness and performance are still pending. Continue RMSNorm including
-Split-K, RoPE, SwiGLU and FlashAttention afterward. All six families remain in
-scope; broad shapes, repeated timing rounds and multicore board tests remain
-pending.
+Use the updated `prepare_add_1024.py` with `--case rmsnorm-smoke` first, then
+`--case rmsnorm-splitk-smoke`, in separate new directories. The preparation and
+these RMSNorm runners need only standard Python; they can also reuse the already
+inspected virtual environment. Their board build and execution remain pending.
+After each build, perform one-call correctness before five warmups and 20
+resident synchronous-call samples per variant, stopping on the first failure.
+Expand both RMSNorm cases to 1024x1024 after the smoke checks, then continue
+RoPE, SwiGLU and FlashAttention. All six families remain in scope; repeated
+varied-order rounds and multicore board acceptance remain later work.
 
 ## Execution and evidence
 
@@ -960,5 +958,61 @@ are bitwise equal. Original/serial, and each variant against the NumPy reference
 have maximum absolute difference 0.0009765625 with no tolerance mismatches. The
 NumPy versus CPU PyTorch comparison also passes the same contract; those two CPU
 references are not required to be bitwise equal. This evidence is stored in
-`results/p8-matmul-1024-timing-abi-cmodel.json`. Remote 1024-cubed compilation,
-correctness and synchronous-call latency are not yet claimed.
+`results/p8-matmul-1024-timing-abi-cmodel.json`. The subsequent remote validation is recorded below.
+
+
+The user subsequently completed all target builds and six correctness/timing
+processes from revision `6c83e0b79bb578d9eec0a85eca142aef2f37afc3`, ending with
+`MATMUL1024_EXIT=0`. All outputs are finite and within `atol=rtol=0.01`, with
+maximum absolute error 0.0009765625. Serial/pipeline are bitwise equal, while the
+original differs within tolerance because its K tiling differs. All three output
+hashes agree with the existing CModel evidence. Full remote result JSON remains
+on the board host; the archived evidence is from the user-provided terminal log.
+
+| Matmul FP16 M=N=K=1024, one TPU core | median ms | IQR ms | p95 ms |
+| --- | ---: | ---: | ---: |
+| original 16x16x16 | 445.926780 | 5.326600 | 450.594007 |
+| same-tile serial 32x32x32 | 56.956687 | 0.605835 | 57.444230 |
+| pipeline 32x32x32, depth 2 | 52.667097 | 0.159819 | 52.946247 |
+
+All 60 raw samples and recomputed statistics are retained in
+`results/p8-matmul-1024-latency-user-reported.json`. Five warmups and 20 samples
+were used per variant. Pipeline median is 7.531% lower than same-tile serial in
+this fixed-order round. The boundary includes host launch and stream synchronization,
+excluding compilation, allocation, module loading, H2D, D2H and reference work.
+This completes first-round target acceptance, not repeatability, broad-shape,
+multicore or physical-overlap validation.
+
+## P8.8 RMSNorm ordinary and Split-K smoke handoffs
+
+Both immutable source bundles use FP16 16x128 matrices, four rows per tile,
+per-element weights of the same shape, epsilon 1e-12 and one TPU launch core.
+The ordinary variant reduces the full width and pipelines independent output
+row tiles using `pipeline_kernel_tiles`. Its lowered report contains 12
+statements; input and weight each have two physical buffer versions, while the
+FP32 reduction state remains ordered. The output store follows the parallel
+scope before the output buffer is reused.
+
+Split-K uses block_k=32 and pipelines each of its two K passes separately.
+The first loop has five lowered statements and two input buffer versions; the
+second has seven statements and two input and weight versions. The generated
+first-pass drain and final accumulation precede `tpu_bdc_fp_rsqrt`, which precedes
+the second loop. The second pass retains the original reverse-K traversal.
+No pass crosses the dependency on the completed sum of squares. Split-K original
+and same-tile serial sources are identical at this smoke tiling and are retained
+under separate labels; no distinct optimization is claimed for that pair.
+
+The scalar FP32 reference includes the epsilon addition, reciprocal square root,
+FP16 normalization boundary and subsequent weight multiplication. Regression
+fixtures distinguish it from an incorrectly fused FP32 expression and from
+broadcast weights. Zero rows and small rows exercise epsilon behavior. CPU
+PyTorch independently checks the same mathematical/precision contract.
+
+Exact exported sources, host canaries, immutable inputs, one-call execution and
+one-warmup/two-sample timed ABI all passed locally for both RMSNorm forms.
+Their outputs agree bitwise across original/serial/pipeline and with their
+references (maximum error zero for these inputs). Local PPL 1.7 CModel still
+serializes parallel scopes, so this evidence does not establish physical overlap.
+The board PPL 1.4 build and board execution are pending. Existing Add/Matmul
+bundle identities, precision contracts and prior results remain intact. No
+compiler-pass changes or dependency installation were needed for this handoff.

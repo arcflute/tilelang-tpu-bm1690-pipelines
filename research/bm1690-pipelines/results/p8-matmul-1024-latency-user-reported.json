@@ -1,0 +1,277 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "9966172dcc1224f3c13d26be154034c1815e5afa0f0259fbd12b72e0b1d4c64f",
+  "operation": "matmul",
+  "dtype": "float16",
+  "matrix_dimensions": [
+    1024,
+    1024,
+    1024
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "source_revision": "6c83e0b79bb578d9eec0a85eca142aef2f37afc3",
+  "bundle_sha256": "fb97f8b800a47bbe91fe393885b785cd6323043231660c202bc510f271c1f643",
+  "runner_sha256": "06c2af318a8b0f379b2a6e082ac31a31c83c768dccf6c1b8ba1333f7de444d90",
+  "remote_work_directory": "/home/bokai/bm1690-matmul1024-yckfLu/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-matmul-board-latency-evidence-v1",
+  "status": "passed",
+  "sequence_exit_code": 0,
+  "rounds": 1,
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "157dbd6afdce6475f0f1aa3b6b193a53112dce9d428da339165e613561f0f2ad",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 5326.599500000011,
+        "max_us": 452763.757,
+        "median_us": 445926.78,
+        "min_us": 437758.741,
+        "p95_us": 450594.00734999997,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          448110.323,
+          452763.757,
+          448236.699,
+          448455.094,
+          447571.009,
+          445472.817,
+          443370.913,
+          443503.996,
+          447667.099,
+          444691.012,
+          446380.743,
+          437940.373,
+          450479.81,
+          445307.41,
+          441148.531,
+          448966.594,
+          446947.244,
+          440204.671,
+          437758.741,
+          439777.972
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-original/result.json",
+      "timing_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/timing-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+        "previous_variant_bitwise_equal": false,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 605.8354999999938,
+        "max_us": 57673.039,
+        "median_us": 56956.686499999996,
+        "min_us": 56125.1,
+        "p95_us": 57444.2296,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          57432.187,
+          57417.317,
+          56447.177,
+          57397.47,
+          57345.636,
+          57236.309,
+          56277.147,
+          56125.1,
+          56467.288,
+          56745.338,
+          56922.534,
+          57148.011,
+          56803.994,
+          56990.839,
+          57673.039,
+          56842.107,
+          56299.858,
+          57112.938,
+          56721.311,
+          57018.145
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-serial/result.json",
+      "timing_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/timing-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "matmul",
+        "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 159.81874999999854,
+        "max_us": 52946.594,
+        "median_us": 52667.096999999994,
+        "min_us": 52527.051,
+        "p95_us": 52946.24725,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          52527.051,
+          52630.726,
+          52646.331,
+          52562.822,
+          52627.255,
+          52670.299,
+          52851.401,
+          52946.594,
+          52702.073,
+          52640.272,
+          52946.229,
+          52879.526,
+          52663.895,
+          52781.545,
+          52748.894,
+          52752.137,
+          52930.557,
+          52652.077,
+          52640.356,
+          52635.945
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/run-pipeline/result.json",
+      "timing_receipt": "/home/bokai/bm1690-matmul1024-yckfLu/work/timing-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": -7.5313185573040675,
+    "serial_over_pipeline_median_ratio": 1.0814472364026444,
+    "original_over_pipeline_median_ratio": 8.466894995180768,
+    "conclusion": "The pipeline median is lower than same-tile serial in this one fixed-order target round. Original-to-candidate ratios include changed tiling and are not pipeline-only gains. Repeatability and physical overlap remain unverified."
+  },
+  "environment_file_contents_received": false,
+  "python_environment_evidence": "p8-matmul-1024-python-user-reported.json",
+  "driver_environment_provenance": "same ongoing session after Matmul smoke; each runtime/PCI mapping check passed, environment.txt contents were not pasted"
+}
