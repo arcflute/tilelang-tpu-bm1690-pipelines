@@ -1,0 +1,155 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "0dee3361e5014aff5273f787613614abd46135f8a9eacf64bb9a64a8324eea2b",
+  "operation": "div",
+  "case": "div",
+  "runner_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "build_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "bundle_sha256": "97238d2cb47b8921a14d1d82b0f63ca0eee6efdc98b0ed3d9baf2306689aab17",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+  "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+  "remote_work_directory": "/home/bokai/bm1690-div-UiXs7C/work",
+  "schema": "bm1690-elementwise-board-correctness-evidence-v1",
+  "status": "passed",
+  "variants": {
+    "original": {
+      "kind": "one_call",
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "div",
+        "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.00390625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "diagnostic_unwarmed_host_wrapper_us": 223,
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-div-UiXs7C/work/run-original/result.json"
+    },
+    "serial": {
+      "kind": "one_call",
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "div",
+        "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.00390625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "diagnostic_unwarmed_host_wrapper_us": 250,
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-div-UiXs7C/work/run-serial/result.json"
+    },
+    "pipeline": {
+      "kind": "one_call",
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "div",
+        "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.00390625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "diagnostic_unwarmed_host_wrapper_us": 254,
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-div-UiXs7C/work/run-pipeline/result.json"
+    }
+  },
+  "reference": {
+    "atol": 0.01,
+    "bitwise_equal_to_reference": false,
+    "finite": true,
+    "max_abs_error": 0.00390625,
+    "mismatched_elements": 0,
+    "passed": true,
+    "rtol": 0.01
+  },
+  "all_variants_bitwise_equal": true,
+  "matches_recorded_cmodel_output_sha256": true,
+  "target_shape_single_core_board_correctness_complete": true,
+  "accepted_performance_measurement": false,
+  "full_result_json_received_at_development_host": false,
+  "hardware_overlap_verified": false,
+  "same_tile_serial_and_pipeline_tiling": [
+    128,
+    1024
+  ],
+  "serial_pipeline_logical_tiles": 8,
+  "pipeline_depth": 2,
+  "cmodel_evidence": "p8-div-1024-pcie-cmodel.json",
+  "build_evidence": "p8-div-1024-build-user-reported.json"
+}

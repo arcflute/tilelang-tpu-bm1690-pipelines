@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -60,7 +61,7 @@ class ManifestTests(unittest.TestCase):
         self.build.mkdir()
         bundle = json.loads((self.root / "add.json").read_text())
         self.report = {"status": "compile_only_passed", "profile": builder.PROFILE,
-                       "bundle_sha256": self.bundle_hash, "builder_sha256": runner.CURRENT_BUILDER_SHA256,
+                       "bundle_sha256": self.bundle_hash, "builder_sha256": runner.digest(self.root / "build.py"),
                        "board_runtime_loaded": False, "kernel_launches": 0,
                        "runtime_identity": list(layout.runtime_identity_for("pcie", self.env)),
                        "completed_commands": [], "artifacts": {}}
@@ -411,6 +412,58 @@ class ElementwiseContractTests(unittest.TestCase):
             self.assertEqual((metrics["atol"],metrics["rtol"]),(tol,tol))
         with self.assertRaises(ValueError): runner.test_vectors(operation="unknown")
         with self.assertRaises(ValueError): runner.check_output(expected,expected,operation="unknown")
+
+
+class MatmulManifestTests(ManifestTests):
+    bundle_name = "matmul-smoke-sources.json"
+
+    def test_matrix_contract_and_timing_receipt(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["operation"], "matmul")
+        self.assertEqual(identity["shape"], [128, 128])
+        self.assertEqual(identity["bundle_sha256"], runner.MATMUL_BUNDLE_SHA256)
+        directory = self.root / "correctness"
+        directory.mkdir()
+        expected = struct.pack("<e", 1.0)
+        args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
+                               expected_pci="0000:01:00.0")
+        for value, passes in ((1.0009765625, True), (2.0, False), (float("nan"), False)):
+            (directory / "output.f16").write_bytes(struct.pack("<e", value))
+            numeric = {"status": "passed", "reference": {"passed": True}, "variant": "original",
+                       "shape": identity["shape"], "bundle_sha256": self.bundle_hash,
+                       "build_manifest_sha256": identity["build_manifest_sha256"], "input_sha256": "input",
+                       "device_id": 0, "expected_pci": "0000:01:00.0",
+                       "output_sha256": runner.digest(directory / "output.f16")}
+            (directory / "result.json").write_text(json.dumps({"status": "passed", "numeric": numeric}))
+            if passes:
+                self.assertTrue(runner.check_correctness_receipt(args, identity, "input", expected))
+            else:
+                with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                    runner.check_correctness_receipt(args, identity, "input", expected)
+
+
+class MatmulContractTests(unittest.TestCase):
+    def test_dense_row_major_reference_and_wrong_layout(self):
+        lhs, rhs, expected = runner.test_vectors(128 * 128, "matmul")
+        a, b, c = [[x[0] for x in struct.iter_unpack("<e", data)] for data in (lhs, rhs, expected)]
+        for i, j in ((0, 0), (0, 127), (63, 29), (127, 0), (127, 127)):
+            reference = math.fsum(a[i * 128 + k] * b[k * 128 + j] for k in range(128))
+            self.assertAlmostEqual(c[i * 128 + j], reference, delta=0.00025)
+        transposed = struct.pack("<" + "e" * len(c), *(c[j*128+i] for i in range(128) for j in range(128)))
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            runner.check_output(transposed, expected, len(c), "matmul")
+        with self.assertRaisesRegex(ValueError, "bounded"):
+            runner.test_vectors(1024 * 1024, "matmul")
+
+    def test_only_original_to_serial_allows_changed_reduction_grouping(self):
+        previous, changed = struct.pack("<e", 1.0), struct.pack("<e", 1.0009765625)
+        self.assertTrue(runner.check_previous_output(changed, previous, 1, "matmul", "serial")["passed"])
+        self.assertTrue(runner.check_previous_output(previous, previous, 1, "matmul", "pipeline")["passed"])
+        for operation, variant in (("matmul", "pipeline"), ("add", "serial"), ("div", "serial")):
+            with self.assertRaisesRegex(ValueError, "bitwise"):
+                runner.check_previous_output(changed, previous, 1, operation, variant)
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            runner.check_previous_output(struct.pack("<e", 2.0), previous, 1, "matmul", "serial")
 
 
 if __name__ == "__main__":

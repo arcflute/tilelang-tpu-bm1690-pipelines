@@ -1,4 +1,4 @@
-"""Supervised BM1690 elementwise correctness and resident synchronous-call latency.
+"""Supervised BM1690 elementwise/Matmul correctness and synchronous-call latency.
 
 Standalone Python standard library only. This is a narrowly scoped source/build
 manifest loader, not a relaxation of the generic JIT's prebuilt-library policy.
@@ -33,6 +33,9 @@ COUNT = 8 * 128
 # Retain the original handoff, including builds made by the frozen P8.1 helper.
 PREVIOUS_BUILDER_SHA256 = "b701ff09991eb77c202fd4108e784521efa2c427f0e677025c7045f6cdbc2525"
 CURRENT_BUILDER_SHA256 = "8b91f40d4f983ce6d91dd0f26b5ae04cea6e01efd6fa0b89a1c1d322c002cfce"
+# Matmul pins extend the existing handoffs without changing their contracts.
+MATMUL_BUILDER_SHA256 = "a597e826703ce358fad1b45f718cca517e442f8ab393b28b6497de7dd04b2701"
+MATMUL_BUNDLE_SHA256 = "71f50c676ecfba081728ef763a1ebc29ac36e7ece8b7b193310c0b5eb7309f88"
 TARGET_BUNDLE_SHA256 = "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"
 COARSE_BUNDLE_SHA256 = "2f6cfb1bf2af284b6abe576e966f2bc8f14352baac1e0f5c408cedf17e024ae2"
 BUNDLES = {
@@ -52,6 +55,10 @@ ELEMENTWISE_BUNDLES = {
 for _operation, _bundle in ELEMENTWISE_BUNDLES.items():
     BUNDLES[_bundle] = {"shape": [1024, 1024], "builders": (CURRENT_BUILDER_SHA256,),
                        "timing": True, "operation": _operation}
+for _contract in BUNDLES.values():
+    _contract["builders"] += (MATMUL_BUILDER_SHA256,)
+BUNDLES[MATMUL_BUNDLE_SHA256] = {"shape": [128, 128], "builders": (MATMUL_BUILDER_SHA256,),
+                                 "timing": True, "operation": "matmul"}
 
 
 def digest(path):
@@ -156,16 +163,35 @@ def test_vectors(count=COUNT, operation="add"):
     Division retains the demo's positive [0.5, 2] denominator domain. Add's
     historical stream and hashes are preserved exactly.
     """
-    if operation not in ("add", "sub", "mul", "div"):
-        raise ValueError("Unsupported elementwise reference operation")
+    if operation not in ("add", "sub", "mul", "div", "matmul"):
+        raise ValueError("Unsupported reference operation")
+    if operation == "matmul" and count != 128 * 128:
+        raise ValueError("The scalar Matmul reference is bounded to 128x128x128")
     state = 0
     values = []
     for _ in range(count * 2):
         state = (1664525 * state + 1013904223) & 0xffffffff
         values.append(((state >> 8) % 16384 - 8192) / 4096.0)
+    if operation == "matmul":
+        # Dense signed bounded inputs; every output depends on all K blocks.
+        values = [value * 0.125 for value in values]
     lhs = struct.pack("<" + "e" * count, *values[:count])
     rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
     rhs = struct.pack("<" + "e" * count, *rhs_values)
+    if operation == "matmul":
+        a = [v[0] for v in struct.iter_unpack("<e", lhs)]
+        b = [v[0] for v in struct.iter_unpack("<e", rhs)]
+        columns = [b[j::128] for j in range(128)]
+        result = []
+        for i in range(128):
+            row = a[i*128:(i+1)*128]
+            for column in columns:
+                acc = 0.0
+                for x, y in zip(row, column):
+                    # FP16 products fit exactly in FP32; round each addition.
+                    acc = struct.unpack("<f", struct.pack("<f", acc + x*y))[0]
+                result.append(acc)
+        return lhs, rhs, struct.pack("<" + "e" * count, *result)
     calculate = {"add": lambda a,b: a+b, "sub": lambda a,b: a-b,
                  "mul": lambda a,b: a*b, "div": lambda a,b: a/b}[operation]
     reference = b"".join(struct.pack("<e", struct.unpack("<f", struct.pack("<f", calculate(a[0], b[0])))[0])
@@ -174,15 +200,15 @@ def test_vectors(count=COUNT, operation="add"):
 
 
 def check_output(actual, expected, count=COUNT, operation="add"):
-    if operation not in ("add", "sub", "mul", "div"):
-        raise ValueError("Unsupported elementwise reference operation")
+    if operation not in ("add", "sub", "mul", "div", "matmul"):
+        raise ValueError("Unsupported reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
-        raise ValueError("Unexpected elementwise output length")
+        raise ValueError("Unexpected output length")
     a = [v[0] for v in struct.iter_unpack("<e", actual)]
     b = [v[0] for v in struct.iter_unpack("<e", expected)]
     finite = all(math.isfinite(v) for v in a + b)
     errors = [abs(x-y) for x,y in zip(a,b)]
-    atol = rtol = 0.01 if operation == "div" else 0.005
+    atol = rtol = 0.01 if operation in ("div", "matmul") else 0.005
     mismatches = sum(not math.isfinite(x) or abs(x-y) > atol + rtol*abs(y) for x,y in zip(a,b))
     metrics = {"passed": finite and mismatches == 0, "finite": finite,
                "atol": atol, "rtol": rtol, "mismatched_elements": mismatches,
@@ -337,13 +363,24 @@ def check_correctness_receipt(args, identity, input_hash, expected):
         raise ValueError("Timing requires a matching passed one-call correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
-    if identity.get("operation", "add") == "div":
-        # The TPU division primitive has the demo's existing tolerance;
-        # it need not be bitwise equal to independently rounded FP32 division.
-        check_output(actual, expected, len(expected) // 2, "div")
+    if identity.get("operation", "add") in ("div", "matmul"):
+        # Retain each demo's tolerance rather than requiring exact reference bits.
+        check_output(actual, expected, len(expected) // 2, identity["operation"])
     elif actual != expected:
         raise ValueError("Correctness receipt output does not equal the reference")
     return digest(args.correctness / "result.json")
+
+
+def check_previous_output(actual, previous, count, operation, variant):
+    if previous is None:
+        return None
+    if actual != previous:
+        if operation == "matmul" and variant == "serial":
+            # Original uses 16-cubed tiles, serial 32-cubed: reduction grouping
+            # can differ. Pipeline retains serial's exact accumulation order.
+            return check_output(actual, previous, count, operation)
+        raise ValueError("Output differs bitwise from the previous variant")
+    return {"passed": True, "bitwise_equal_to_reference": True}
 
 
 def child_command(args):
@@ -451,9 +488,9 @@ def worker(args):
         result["host_call_returned_success"] = True
         checkpoint("compare_reference")
         result["reference"] = check_output(actual, expected, count, operation)
-        if previous is not None and actual != previous:
-            raise ValueError("Output differs bitwise from the previous variant")
-        result["previous_variant_bitwise_equal"] = True if previous is not None else None
+        result["previous_variant_comparison"] = check_previous_output(
+            actual, previous, count, operation, args.variant)
+        result["previous_variant_bitwise_equal"] = (actual == previous) if previous is not None else None
         (args.output / "output.f16").write_bytes(actual)
         result["output_sha256"] = hashlib.sha256(actual).hexdigest()
         result["status"] = "passed"

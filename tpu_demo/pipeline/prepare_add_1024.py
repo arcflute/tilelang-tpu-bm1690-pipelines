@@ -1,4 +1,4 @@
-"""Download hash-pinned elementwise sources and compile with the observed BM1690 SDK.
+"""Download hash-pinned elementwise/Matmul sources and compile with the observed BM1690 SDK.
 
 Standard library only; never loads a vendor library or launches a kernel.
 The default paths are the paths inspected on the user's bokai board host.
@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "8b91f40d4f983ce6d91dd0f26b5ae04cea6e01efd6fa0b89a1c1d322c002cfce"),
+                 "a597e826703ce358fad1b45f718cca517e442f8ab393b28b6497de7dd04b2701"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3"),
+                   "b04d441876d7e1746e47710b179066d90cab37127b4a4d6fecc20501f5a0f490"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -45,14 +45,19 @@ ELEMENTWISE_SOURCES = {
 }
 
 
+MATMUL_SOURCE = ('research/bm1690-pipelines/handoff/matmul-smoke-sources.json', '71f50c676ecfba081728ef763a1ebc29ac36e7ece8b7b193310c0b5eb7309f88')
+
+
 def source_files(case):
+    if case == "matmul-smoke":
+        return {**FILES, "add.json": MATMUL_SOURCE}
     if case == "target":
         return dict(FILES)
     if case == "coarse":
         return {**FILES, "add.json": COARSE_SOURCE}
     if case in ELEMENTWISE_SOURCES:
         return {**FILES, "add.json": ELEMENTWISE_SOURCES[case]}
-    raise ValueError("Unsupported elementwise comparison case")
+    raise ValueError("Unsupported comparison case")
 
 
 def source_request(path, revision, transport):
@@ -109,8 +114,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div"), default="target",
-                        help="Add fine/coarse or Sub/Mul/Div coarse tiles; all shapes 1024x1024")
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke"), default="target",
+                        help="Elementwise 1024x1024 or Matmul M=N=K=128 smoke")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")
@@ -167,8 +172,9 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD"
-            print(prefix + "1024_BUILD_ONLY_OK kernel_launches=0", flush=True)
+            prefix = ("MATMUL128" if args.case == "matmul-smoke" else
+                      (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")
+            print(prefix + "_BUILD_ONLY_OK kernel_launches=0", flush=True)
     except Exception as exc:
         receipt.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         print("STOP " + receipt["error"], flush=True)

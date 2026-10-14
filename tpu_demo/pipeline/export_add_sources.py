@@ -9,10 +9,12 @@ import tempfile
 
 
 def export(*, target_size=False, coarse_tiles=False, operation="add"):
-    if operation not in ("add", "sub", "mul", "div"):
-        raise ValueError("Unsupported elementwise operation")
-    if operation != "add" and not (target_size and coarse_tiles):
+    if operation not in ("add", "sub", "mul", "div", "matmul"):
+        raise ValueError("Unsupported handoff operation")
+    if operation in ("sub", "mul", "div") and not (target_size and coarse_tiles):
         raise ValueError("Sub/Mul/Div handoffs require the 1024x1024, 128x1024-tile case")
+    if operation == "matmul" and (target_size or coarse_tiles):
+        raise ValueError("The first Matmul PCIe handoff is the bounded 128x128x128 case")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -28,8 +30,10 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
                                     cwd=root, text=True).splitlines()
     identity = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in sorted(set(paths)) if (root / name).is_file() and
-                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/"))}
+                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/"))}
     rows, width = (1024, 1024) if target_size else (8, 128)
+    if operation == "matmul":
+        rows = width = 128
     block_rows, block_width = (32, 128) if target_size else (4, 32)
     if coarse_tiles:
         block_rows, block_width = 128, 1024
@@ -49,13 +53,22 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         "evidence": {"board_compiled": False, "board_executed": False,
                      "hardware_overlap_verified": False},
     }
-    if operation != "add":
+    if operation in ("sub", "mul", "div"):
         bundle["schema"] = "bm1690-elementwise-source-check-v1"
         bundle["target"]["operation"] = operation
-    functions = {"original": build_elementwise(operation, rows=rows, width=width, dtype="float16")}
-    for name, stages in (("serial", 0), ("pipeline", 2)):
-        functions[name] = build_elementwise_tiled(operation, rows=rows, width=width, block_rows=block_rows,
-                                                 block_width=block_width, num_stages=stages)
+    if operation == "matmul":
+        from tpu_demo.matmul.matmul import build_matmul
+        bundle["schema"] = "bm1690-matmul-source-check-v1"
+        bundle["target"].update(operation="matmul", matrix_dimensions=[128, 128, 128],
+                                layout="row-major")
+        functions = {name: build_matmul(m=128, n=128, k=128, block_m=block,
+                                       block_n=block, block_k=block, num_stages=stages)
+                     for name, block, stages in (("original", 16, 0), ("serial", 32, 0), ("pipeline", 32, 2))}
+    else:
+        functions = {"original": build_elementwise(operation, rows=rows, width=width, dtype="float16")}
+        for name, stages in (("serial", 0), ("pipeline", 2)):
+            functions[name] = build_elementwise_tiled(operation, rows=rows, width=width, block_rows=block_rows,
+                                                     block_width=block_width, num_stages=stages)
     for name, function in functions.items():
         artifact = tilelang.lower(function, target=target, runtime_mode="pcie")
         reports = []
@@ -77,6 +90,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
             "sha256": {filename: hashlib.sha256(source.encode()).hexdigest()
                        for filename, source in sources.items()},
         }
+        if operation == "matmul":
+            bundle["variants"][name]["tiling"] = [16 if name == "original" else 32] * 3
     validate_source_bundle(bundle)
     return bundle
 
@@ -146,9 +161,11 @@ def main():
     mode.add_argument("--verify-cmodel-bundle", type=Path)
     parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
     parser.add_argument("--coarse-tiles", action="store_true", help="128x1024 tiles, retaining the original baseline")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul"), default="add")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
+        if json.loads(args.verify_cmodel_bundle.read_text())["target"].get("operation") == "matmul":
+            parser.error("Use the exact-ABI check_add_pcie_cmodel worker for Matmul")
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))
         return

@@ -12,22 +12,21 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-14)
 
-Mul FP16 1024x1024, one TPU launch core, has completed both fresh correctness
-checks and its first bounded synchronous-call latency round after driver
-recovery. All six processes passed; the original, same-tile serial and pipeline
-outputs are finite and bitwise equal to the independent reference and each
-other. The round directory is
-`/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL`; all older builds and
-receipts remain separate. Evidence is
-`results/p8-mul-1024-latency-user-reported.json`, including the 60 raw timing
-samples and independently recomputed statistics.
+Add/Sub/Mul/Div have completed their first board correctness and bounded
+synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
+cases. Div is the latest: all 18 build commands and six test processes passed.
+All three Div outputs are finite and bitwise equal to each other; maximum
+absolute error against the independent reference is 0.00390625, within the
+original demo's `atol=rtol=0.01` contract. The work directory is
+`/home/bokai/bm1690-div-UiXs7C/work`. Evidence and all 60 raw samples are in
+`results/p8-div-1024-{build,three-variants-board,latency}-user-reported.json`.
 
-With five warmups and 20 samples per variant, the median synchronous-call
-latencies are 114.013 / 118.763 / 121.1325 us for original / serial / pipeline.
-Pipeline is 1.995% higher than same-tile serial in this one fixed-order round;
-no speedup or physical overlap is established. The first correctness-plus-
-synchronous-latency acceptance is complete for Add, Sub and Mul in their
-recorded cases; broader performance conclusions remain pending.
+Div median synchronous-call latencies are 132.6975 / 138.413 / 126.023 us for
+original / same-tile serial / pipeline, with five warmups and 20 samples each.
+The pipeline median is 8.951% below serial and 5.030% below original in this
+single fixed-order round. Its 210.819 us maximum is retained; repeatability,
+pure device execution time and physical overlap remain unverified. Earlier
+Add/Sub/Mul results, including regressions, remain recorded separately.
 
 The host now runs `7.0.0-34-generic`. A separately built sgcard 1.9.3 module with
 SHA256 `0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65`
@@ -38,17 +37,24 @@ mapping before dispatch. The recovery record is
 these measurements with earlier `7.0.0-31-generic` measurements as a controlled
 comparison. No permanent driver installation was performed.
 
-Next is Div FP16 1024x1024 using the existing hash-verified preparation helper
-at `/home/bokai/bm1690-sub-GvDYeE/prepare.py`, `--case div`, GitHub API transport
-and source revision `0a49d91eefeb744e08d5e73b3453de50cbca9f42`. Its exact bundle
-and timing ABI have CModel evidence; Div board compilation/execution are still
-pending. Compile in a new handoff directory with the existing SDK and runtime,
-then run original, serial and pipeline sequentially. Each variant must pass a
-fresh one-call correctness check before its five-warmup/20-sample latency run;
-serial and pipeline additionally compare with the preceding variant. Stop on
-the first failed build or test. Retain Div's existing `atol=rtol=1e-2` contract.
-Continue Matmul, RMSNorm including Split-K, RoPE, SwiGLU and FlashAttention
-board validation afterward; all six families remain in scope.
+Next is the Matmul board smoke: FP16 M=N=K=128, one TPU launch core, row-major
+inputs, FP32 accumulation and FP16 output. The new `--case matmul-smoke` handoff
+retains original 16x16x16 tiles, serial 32x32x32 tiles and pipeline 32x32x32 tiles
+with depth 2. The exact exported sources and one-call/timed host ABI passed the
+local PPL 1.7 BM1690 CModel check; evidence is
+`results/p8-matmul-smoke-timing-abi-cmodel.json`. All three variants have maximum
+absolute error 0.000244140625; serial/pipeline are bitwise equal. Original/serial
+differ by at most 0.000030517578125 and pass the original `atol=rtol=0.01`
+contract. The independent scalar reference agrees bitwise with CPU PyTorch for
+these inputs. Neither Matmul board compilation nor execution is claimed yet.
+
+Use a fresh handoff directory and the updated hash-pinned preparation helper,
+with GitHub API transport and the existing board SDK/runtime. After compilation,
+run each variant's correctness check followed by five warmups and 20 synchronous
+calls, stopping on the first failure. This 128-cubed case validates the Matmul
+handoff, not target-size performance. Extend to M=N=K=1024 after it passes, then
+continue RMSNorm including Split-K, RoPE, SwiGLU and FlashAttention. All six
+families remain in scope; broad shapes and multicore board tests remain pending.
 
 ## Execution and evidence
 
@@ -819,9 +825,62 @@ excluding compilation, allocation, module loading, H2D, D2H and reference work.
 It establishes neither a speedup nor physical overlap. Preserve this negative
 result; later repeated rounds with varied execution order will assess
 reproducibility. Mul's first correctness-plus-synchronous-latency acceptance is
-complete for this case. No board Div build or execution has yet been reported.
+complete for this case.
 
-Next compile and validate Div, reusing the restored environment, then continue Matmul,
-RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
-failure retains the immutable source bundle, logs and prior Add results. Do not
-rebuild native dependencies or retry failed board kernels automatically.
+Div subsequently completed its three-variant build and all six correctness/timing
+processes using the same restored session, source revision `0a49d91`, and
+`/home/bokai/bm1690-div-UiXs7C/work`. All exits are zero. Each variant's maximum
+absolute error is 0.00390625 with no tolerance mismatches (`atol=rtol=0.01`).
+Outputs are bitwise equal across variants, but not to independently rounded FP32
+division, as permitted by the existing demo contract. Input/output hashes match
+the Div CModel evidence. The terminal evidence is archived in
+`results/p8-div-1024-build-user-reported.json`,
+`results/p8-div-1024-three-variants-board-user-reported.json`, and
+`results/p8-div-1024-latency-user-reported.json`; full remote receipts remain on
+the board host.
+
+| Div FP16 1024x1024, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original whole-block | 132.6975 | 4.4685 | 139.02905 |
+| same-tile serial 128x1024 | 138.413 | 1.9015 | 141.30445 |
+| pipeline 128x1024, depth 2 | 126.023 | 3.9515 | 140.10385 |
+
+The pipeline median is 8.951% lower than serial and 5.030% lower than original
+in this fixed-order round. All 60 raw samples and recomputed statistics are
+preserved, including the pipeline's 210.819 us maximum. Timing includes launch
+and stream synchronization, excluding compilation, allocation, module loading,
+H2D, D2H and reference work. Varied-order repetitions are still needed to assess
+stability; neither pure device time nor physical overlap has been measured.
+
+## P8.6 Matmul smoke handoff
+
+`export_add_sources.py --operation matmul` exports the existing low-precision
+`build_matmul` implementation with original 16-cubed tiles and serial/pipeline
+32-cubed tiles. `matmul-smoke-sources.json` fixes M=N=K=128, FP16, row-major,
+TPU-Kernel and one launch core. No prepacking is introduced. The separate FP32
+`local.matrix` path is outside this FP16 handoff.
+
+The pipeline report records K extent 4, stage `[0,0,1]`, order `[0,1,2]`, and two
+physical buffer versions each for A and B. Generated C fills the first tiles,
+then runs three prefetch/compute iterations inside paired parallel scopes,
+consumes the final tiles, casts the ordered single-version FP32 accumulator and
+stores FP16 output. CModel disables the parallel scopes; it does not prove
+hardware overlap. The board compilation will exercise the existing PPL 1.4
+headers/archive, which have not been replaced by the local PPL 1.7 installation.
+
+The exact source bundle, deterministic dense signed inputs, independent scalar
+FP32 reference, CPU PyTorch check, host buffer canaries, one-call ABI and timed
+ABI (one warmup plus two samples locally) passed under the existing bounded
+CModel supervisor. Serial/pipeline output is bitwise equal. Original/serial uses
+the existing 0.01 tolerance because its K grouping differs; timing admission
+also revalidates the saved output against the reference. Remote tests still use
+five warmups and 20 samples. The scalar reference is intentionally bounded to
+128-cubed; the 1024-cubed handoff needs a separately validated reference path.
+
+`prepare_add_1024.py --case matmul-smoke` downloads pinned sources, builder and
+runner through the same official GitHub transport and compiles only. Old
+Add/Sub/Mul/Div bundles and builder hashes remain accepted. No dependencies,
+native compiler passes or runtime library installations changed for this step.
+On any failure retain the source bundle, logs and completed results; do not retry
+failed board kernels automatically. Resume larger Matmul and the other families
+after the smoke passes.
