@@ -6,7 +6,11 @@
   "previous_working_kernel": "7.0.0-31-generic",
   "observed_running_kernel": "7.0.0-34-generic",
   "reported_uptime": "6 days, 40 min",
-  "reported_load_averages": [2.26, 2.34, 2.48],
+  "reported_load_averages": [
+    2.26,
+    2.34,
+    2.48
+  ],
   "observed_absent_paths": [
     "/sys/module/sgcard/initstate",
     "/dev/sg-host-drv-0",
@@ -21,27 +25,44 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "mul",
-  "pending_test": "5 warmups and 20 synchronous-call latency samples per variant",
+  "pending_operation": "div",
+  "pending_test": "Compile three Div variants, then one-call correctness and 5+20 synchronous-call latency per variant",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
-  "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and operator recovery checks pending",
-  "current_environment_correctness_rechecked": false,
+  "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
+  "current_environment_correctness_rechecked": true,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
   "current_kernel_matching_module_availability": "new module built in isolated user directory and temporarily loaded; no permanent installation performed",
   "followup_prerequisite_checks": {
     "pci_functions": [
-      {"address": "0000:01:00.0", "vendor_device": "1f1c:1690", "revision": "01"},
-      {"address": "0000:01:00.1", "vendor_device": "1f1c:1690", "revision": "01"}
+      {
+        "address": "0000:01:00.0",
+        "vendor_device": "1f1c:1690",
+        "revision": "01"
+      },
+      {
+        "address": "0000:01:00.1",
+        "vendor_device": "1f1c:1690",
+        "revision": "01"
+      }
     ],
     "kernel_build_link": "/lib/modules/7.0.0-34-generic/build",
     "kernel_build_target": "/usr/src/linux-headers-7.0.0-34-generic",
-    "present_build_inputs": ["Makefile", ".config", "Module.symvers", "include/generated/autoconf.h"],
+    "present_build_inputs": [
+      "Makefile",
+      ".config",
+      "Module.symvers",
+      "include/generated/autoconf.h"
+    ],
     "config_cc_version_text": "x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
     "config_modversions": "y",
     "config_module_sig_force_assignment_printed": false,
-    "available_commands": ["/usr/bin/make", "/usr/bin/gcc", "/usr/bin/x86_64-linux-gnu-gcc-13"],
+    "available_commands": [
+      "/usr/bin/make",
+      "/usr/bin/gcc",
+      "/usr/bin/x86_64-linux-gnu-gcc-13"
+    ],
     "secure_boot": "disabled",
     "existing_source_directory": "/opt/tpuv7/driver-1.9.3",
     "existing_module_vermagic": "6.17.0-35-generic SMP preempt mod_unload modversions",
@@ -58,7 +79,10 @@
     "source_copy_exit_code": 0,
     "preflight_exit_code": 0,
     "build_exit_code": 0,
-    "host_cpu_affinity": [0, 1],
+    "host_cpu_affinity": [
+      0,
+      1
+    ],
     "make_jobs": 1,
     "nice_increment": 10,
     "timeout_seconds_per_make_command": 180,
@@ -89,27 +113,70 @@
     "insmod_log_stdout_reported": "empty",
     "initstate": "live",
     "device_nodes": [
-      {"path": "/dev/sg-host-drv-0", "major": 511, "minor": 0},
-      {"path": "/dev/sg-host-drv-1", "major": 511, "minor": 1}
+      {
+        "path": "/dev/sg-host-drv-0",
+        "major": 511,
+        "minor": 0
+      },
+      {
+        "path": "/dev/sg-host-drv-1",
+        "major": 511,
+        "minor": 1
+      }
     ],
     "pci_bindings": [
-      {"address": "0000:01:00.0", "driver": "sg-host-drv"},
-      {"address": "0000:01:00.1", "driver": "sg-host-drv"}
+      {
+        "address": "0000:01:00.0",
+        "driver": "sg-host-drv"
+      },
+      {
+        "address": "0000:01:00.1",
+        "driver": "sg-host-drv"
+      }
     ],
-    "kernel_log_reports": ["Chip 0 initialized", "Chip 1 initialized", "All 2 devices probed successfully"],
+    "kernel_log_reports": [
+      "Chip 0 initialized",
+      "Chip 1 initialized",
+      "All 2 devices probed successfully"
+    ],
     "permanent_module_installation_performed": false,
-    "runtime_query_after_load_reported": false,
-    "operator_execution_after_load_reported": false
+    "runtime_query_after_load_reported": true,
+    "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "reuse_existing_runner_and_build": true,
-    "new_output_directory_template": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-XXXXXX",
-    "runtime_mapping_checked_by": "run_add_pcie.py:verify_device before every kernel dispatch",
-    "variant_order": ["original", "serial", "pipeline"],
-    "per_variant_steps": ["fresh one-call correctness", "5 warmups and 20 synchronous-call latency samples"],
+    "operation": "div",
+    "reuse_existing_prepare_helper": true,
+    "reuse_existing_sdk_and_runtime": true,
+    "compile_new_div_variants": true,
+    "revision": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+    "variant_order": [
+      "original",
+      "serial",
+      "pipeline"
+    ],
+    "per_variant_steps": [
+      "fresh one-call correctness",
+      "5 warmups and 20 synchronous-call latency samples"
+    ],
     "stop_on_first_failure": true,
-    "status": "instructions prepared; remote execution not yet reported"
+    "status": "instructions prepared; remote Div build and execution not yet reported"
   },
   "cause_of_kernel_change": "not established",
-  "full_remote_receipts_received_at_development_host": false
+  "full_remote_receipts_received_at_development_host": false,
+  "initial_preflight_observations_preserved": "observed_absent_paths and existing_timing_directories describe the pre-recovery check, not the current state",
+  "resumed_mul_validation": {
+    "evidence": "p8-mul-1024-latency-user-reported.json",
+    "remote_run_directory": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL",
+    "completed_test_processes": 6,
+    "sequence_exit_code": 0,
+    "all_fresh_correctness_checks_passed": true,
+    "all_latency_runs_passed": true,
+    "median_latency_us": {
+      "original": 114.013,
+      "serial": 118.763,
+      "pipeline": 121.1325
+    },
+    "pipeline_speedup_established": false,
+    "physical_overlap_verified": false
+  }
 }

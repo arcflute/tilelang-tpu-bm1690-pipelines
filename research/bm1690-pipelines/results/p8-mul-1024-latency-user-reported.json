@@ -1,0 +1,427 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "runner_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "build_commit": "0a49d91eefeb744e08d5e73b3453de50cbca9f42",
+  "bundle_sha256": "704340e5fecb142001b3b362cb50516cd818b848b4987dfc39dd36b5c0a0c1aa",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "launch_cores": 1,
+  "mapping": {
+    "character_device": "/dev/sg-host-drv-0",
+    "device_count": 2,
+    "device_id": 0,
+    "pci_function": "0000:01:00.0"
+  },
+  "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+  "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+  "schema": "bm1690-elementwise-board-latency-evidence-v1",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "443ee03efa03772cf1cd0d7842fd851026ec9719b8f2b4b1f5461ba2621a458a",
+  "status": "passed",
+  "case": "mul",
+  "operation": "mul",
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "execution_steps": [
+    {
+      "variant": "original",
+      "kind": "one_call"
+    },
+    {
+      "variant": "original",
+      "kind": "timed"
+    },
+    {
+      "variant": "serial",
+      "kind": "one_call"
+    },
+    {
+      "variant": "serial",
+      "kind": "timed"
+    },
+    {
+      "variant": "pipeline",
+      "kind": "one_call"
+    },
+    {
+      "variant": "pipeline",
+      "kind": "timed"
+    }
+  ],
+  "rounds": 1,
+  "sequence_exit_code": 0,
+  "variants": {
+    "original": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 2.6850000000000023,
+        "max_us": 124.506,
+        "median_us": 114.013,
+        "min_us": 110.605,
+        "p95_us": 123.55789999999999,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          124.506,
+          116.586,
+          116.754,
+          116.003,
+          111.064,
+          114.052,
+          113.771,
+          114.91,
+          112.86,
+          117.722,
+          115.85,
+          112.493,
+          115.299,
+          113.912,
+          113.727,
+          123.508,
+          111.635,
+          113.974,
+          110.605,
+          113.665
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "mul",
+        "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/timing-original/result.json",
+      "tiling": null,
+      "fresh_one_call_correctness": {
+        "kind": "one_call",
+        "correctness": {
+          "dtype": "float16",
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "operation": "mul",
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "previous_variant_bitwise_equal": null,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "shape": [
+            1024,
+            1024
+          ],
+          "variant": "original"
+        },
+        "diagnostic_unwarmed_host_wrapper_us": 216,
+        "worker_exit": 0,
+        "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/run-original/result.json"
+      },
+      "individual_process_exit_zero_inferred_from_successful_sequence": true
+    },
+    "serial": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 2.0502499999999912,
+        "max_us": 120.536,
+        "median_us": 118.763,
+        "min_us": 115.419,
+        "p95_us": 120.2795,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          120.266,
+          118.814,
+          119.228,
+          120.536,
+          118.854,
+          117.12,
+          116.949,
+          115.995,
+          118.566,
+          118.783,
+          119.666,
+          118.805,
+          118.743,
+          118.698,
+          115.419,
+          116.524,
+          116.433,
+          117.54,
+          120.105,
+          119.094
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "mul",
+        "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/timing-serial/result.json",
+      "tiling": [
+        128,
+        1024
+      ],
+      "fresh_one_call_correctness": {
+        "kind": "one_call",
+        "correctness": {
+          "dtype": "float16",
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "operation": "mul",
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "previous_variant_bitwise_equal": true,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "shape": [
+            1024,
+            1024
+          ],
+          "variant": "serial"
+        },
+        "diagnostic_unwarmed_host_wrapper_us": 227,
+        "worker_exit": 0,
+        "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/run-serial/result.json"
+      },
+      "individual_process_exit_zero_inferred_from_successful_sequence": true
+    },
+    "pipeline": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3.4819999999999993,
+        "max_us": 127.511,
+        "median_us": 121.1325,
+        "min_us": 116.025,
+        "p95_us": 126.25795,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          119.215,
+          123.248,
+          117.189,
+          118.14,
+          127.511,
+          121.778,
+          120.513,
+          118.359,
+          116.025,
+          120.402,
+          126.192,
+          123.022,
+          121.823,
+          120.87,
+          122.996,
+          121.395,
+          120.267,
+          116.177,
+          121.607,
+          122.312
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "mul",
+        "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "worker_exit": 0,
+      "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/timing-pipeline/result.json",
+      "tiling": [
+        128,
+        1024
+      ],
+      "fresh_one_call_correctness": {
+        "kind": "one_call",
+        "correctness": {
+          "dtype": "float16",
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "operation": "mul",
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "previous_variant_bitwise_equal": true,
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "shape": [
+            1024,
+            1024
+          ],
+          "variant": "pipeline"
+        },
+        "diagnostic_unwarmed_host_wrapper_us": 241,
+        "worker_exit": 0,
+        "remote_result": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/run-pipeline/result.json"
+      },
+      "individual_process_exit_zero_inferred_from_successful_sequence": true
+    }
+  },
+  "remote_environment": {
+    "running_kernel": "7.0.0-34-generic",
+    "driver_module_name": "sgcard",
+    "driver_module_version": "1.9.3",
+    "driver_module_sha256": "0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65",
+    "provenance": "same-session driver rebuild/load evidence and successful exact-kernel guard before creating this run directory",
+    "driver_recovery_evidence": "p8-resume-kernel-change-user-reported.json",
+    "remote_run_directory": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL",
+    "environment_file": "/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL/environment.txt",
+    "environment_file_contents_received": false,
+    "comparison_with_prior_kernel_runs": "not treated as a controlled performance comparison"
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "accepted_as_first_bounded_latency_measurement": true,
+  "full_result_json_received_at_development_host": false,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "all_variants_bitwise_equal": true,
+  "matches_recorded_cmodel_output_sha256": true,
+  "source_code_changed_for_this_measurement": false,
+  "build_evidence": "p8-mul-1024-build-user-reported.json",
+  "prior_kernel_correctness_evidence": "p8-mul-1024-three-variants-board-user-reported.json",
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": 1.9951500046310633,
+    "serial_over_original_latency_ratio": 1.04166191574645,
+    "pipeline_over_original_latency_ratio": 1.0624446335067053,
+    "conclusion": "No pipeline speedup in this single fixed-order round: the pipeline median is higher than same-tile serial, and the original whole-block variant remains faster. Repeated order-varied rounds are needed for reproducibility; no physical-overlap evidence is available."
+  }
+}

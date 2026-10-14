@@ -12,53 +12,43 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-14)
 
-The user resumed from a new terminal. Read-only preflight now reports kernel
-`7.0.0-34-generic`, whereas the previously working temporary sgcard module was
-built for `7.0.0-31-generic`. The sgcard initstate file, device-0 character node
-and PCI function 0's driver link were initially absent. Follow-up output confirms that PCI
-functions `0000:01:00.0` and `0000:01:00.1` still enumerate as `1f1c:1690`.
-The current kernel's Makefile, configuration, Module.symvers and generated
-autoconf header exist; the configuration names GCC 13.3.0 and the GCC 13 binary
-is available. Secure Boot is disabled. Named `modinfo sgcard` lookup finds no
-installed module, while `/opt/tpuv7/driver-1.9.3/sgcard.ko` still targets
-`6.17.0-35-generic`. The installed source's `sgdrv_fw.c` hash matches the previous
-successful `7.0.0-31` build copy; this does not establish equality of the entire
-source tree. The isolated build against `7.0.0-34` has now completed with exit
-zero in `/home/bokai/sgcard-build-7.0.0-34-C6NGFW`, using two allowed CPUs,
-`make -j1`, nice 10 and a 180-second timeout per make command. The resulting
-module reports name `sgcard`, version `1.9.3` and vermagic
-`7.0.0-34-generic SMP preempt mod_unload modversions`; its SHA256 is
-`0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65`.
-The original installed module and firmware-loading source both passed their
-pre/post-build checksums. The build log reports disabled optional RDMA support
-and skipped BTF generation; it does not establish runtime readiness.
-The temporary load of the verified new module has now completed with
-`INSMOD_EXIT=0`. The module is `live`; `/dev/sg-host-drv-0` and `-1` exist;
-both PCI functions bind to `sg-host-drv`. Kernel log excerpts report both chips
-initialized and `All 2 devices probed successfully`. Recovery logs are in
-`/home/bokai/sgcard-load-7.0.0-34-l8BCyP`. This establishes driver initialization;
-runtime calls and operator execution after recovery still need validation.
-No board kernel or latency test has yet been reported during this recovery.
+Mul FP16 1024x1024, one TPU launch core, has completed both fresh correctness
+checks and its first bounded synchronous-call latency round after driver
+recovery. All six processes passed; the original, same-tile serial and pipeline
+outputs are finite and bitwise equal to the independent reference and each
+other. The round directory is
+`/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL`; all older builds and
+receipts remain separate. Evidence is
+`results/p8-mul-1024-latency-user-reported.json`, including the 60 raw timing
+samples and independently recomputed statistics.
 
-Mul's runner hash still matches, all three saved correctness receipts report
-`passed`, and no `timing-*` directories exist in
-`/home/bokai/bm1690-mul-LNbaFw/work`. The postponed 5-warmup/20-sample Mul latency
-commands remain unexecuted. Preserve the existing builds and `run-*` receipts.
-The pinned runner SHA256 is
-`f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3`.
-Evidence is `results/p8-resume-kernel-change-user-reported.json`. Proceed with
-the existing hash-verified Mul runner and compiled binaries. Its `verify_device`
-checks runtime initialization, the observed device count, selected device and
-fd-to-PCI mapping before dispatch; an additional standalone runtime probe is
-not needed for this handoff. Use a new `resume-k34-*` result directory under the
-existing Mul work directory and record the running kernel there. Execute the
-original, serial and pipeline variants sequentially, each with a fresh one-call
-correctness receipt followed by its 5-warmup/20-sample latency run. Serial and
-pipeline also compare with the previous variant's fresh correctness output.
-Stop on the first failed process; preserve all receipts. These next runs are
-pending, not completed. Record the changed kernel/driver identity; do not
-silently mix measurements across the old and restored environments.
-Continue Div and the other five operator families afterward.
+With five warmups and 20 samples per variant, the median synchronous-call
+latencies are 114.013 / 118.763 / 121.1325 us for original / serial / pipeline.
+Pipeline is 1.995% higher than same-tile serial in this one fixed-order round;
+no speedup or physical overlap is established. The first correctness-plus-
+synchronous-latency acceptance is complete for Add, Sub and Mul in their
+recorded cases; broader performance conclusions remain pending.
+
+The host now runs `7.0.0-34-generic`. A separately built sgcard 1.9.3 module with
+SHA256 `0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65`
+was temporarily loaded successfully. Both chips initialized, device nodes and
+PCI bindings were restored, and all six Mul processes verified runtime/device
+mapping before dispatch. The recovery record is
+`results/p8-resume-kernel-change-user-reported.json`. Do not silently combine
+these measurements with earlier `7.0.0-31-generic` measurements as a controlled
+comparison. No permanent driver installation was performed.
+
+Next is Div FP16 1024x1024 using the existing hash-verified preparation helper
+at `/home/bokai/bm1690-sub-GvDYeE/prepare.py`, `--case div`, GitHub API transport
+and source revision `0a49d91eefeb744e08d5e73b3453de50cbca9f42`. Its exact bundle
+and timing ABI have CModel evidence; Div board compilation/execution are still
+pending. Compile in a new handoff directory with the existing SDK and runtime,
+then run original, serial and pipeline sequentially. Each variant must pass a
+fresh one-call correctness check before its five-warmup/20-sample latency run;
+serial and pipeline additionally compare with the preceding variant. Stop on
+the first failed build or test. Retain Div's existing `atol=rtol=1e-2` contract.
+Continue Matmul, RMSNorm including Split-K, RoPE, SwiGLU and FlashAttention
+board validation afterward; all six families remain in scope.
 
 ## Execution and evidence
 
@@ -804,12 +794,34 @@ outer exit codes are zero. Evidence is
 `results/p8-mul-1024-three-variants-board-user-reported.json`, based on the user
 terminal output; full remote result JSON remains on the board host. Mul board
 correctness is complete for these recorded inputs. The reported 219/243/229 us
-are single unwarmed diagnostics, not an accepted latency comparison. Repeated
-Mul latency sampling and physical-overlap evidence remain pending; Div board
-compilation remains pending.
+are single unwarmed diagnostics, not an accepted latency comparison.
 
-Next collect Mul original/serial/pipeline 5+20 synchronous-call latency samples. Repeat for Div
-without changing the environment, then continue Matmul,
+After the host kernel changed to `7.0.0-34-generic` and its driver was rebuilt
+and temporarily loaded, the user completed fresh one-call checks and 5+20
+synchronous-call latency runs for each Mul variant. All six worker exits are
+zero, all six processes report `MUL_PCIE_PASSED`, and the guarded sequence ends
+with `MUL_EXIT=0`. Every output remains finite and bitwise equal to the reference
+with maximum absolute error 0; serial and pipeline match the preceding variant.
+Evidence is `results/p8-mul-1024-latency-user-reported.json`. It preserves all 60
+raw samples and both correctness and timing receipt paths under
+`/home/bokai/bm1690-mul-LNbaFw/work/resume-k34-5FAebL`.
+
+| Mul FP16 1024x1024, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original whole-block | 114.013 | 2.685 | 123.55790 |
+| same-tile serial 128x1024 | 118.763 | 2.05025 | 120.27950 |
+| pipeline 128x1024, depth 2 | 121.1325 | 3.482 | 126.25795 |
+
+Statistics were independently recomputed from the pasted raw samples. Pipeline
+median is 1.995% higher than same-tile serial and 6.244% higher than original.
+This is one fixed-order round of host launch-plus-stream-sync measurements,
+excluding compilation, allocation, module loading, H2D, D2H and reference work.
+It establishes neither a speedup nor physical overlap. Preserve this negative
+result; later repeated rounds with varied execution order will assess
+reproducibility. Mul's first correctness-plus-synchronous-latency acceptance is
+complete for this case. No board Div build or execution has yet been reported.
+
+Next compile and validate Div, reusing the restored environment, then continue Matmul,
 RMSNorm (including Split-K), RoPE, SwiGLU and FlashAttention. A compiler/runtime
 failure retains the immutable source bundle, logs and prior Add results. Do not
 rebuild native dependencies or retry failed board kernels automatically.
