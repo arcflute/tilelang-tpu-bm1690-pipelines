@@ -1,0 +1,34 @@
+{
+  "schema": "bm1690-resume-preflight-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "remote_user": "bokai",
+  "previous_working_kernel": "7.0.0-31-generic",
+  "observed_running_kernel": "7.0.0-34-generic",
+  "reported_uptime": "6 days, 40 min",
+  "reported_load_averages": [2.26, 2.34, 2.48],
+  "observed_absent_paths": [
+    "/sys/module/sgcard/initstate",
+    "/dev/sg-host-drv-0",
+    "/sys/bus/pci/devices/0000:01:00.0/driver"
+  ],
+  "remote_work_directory": "/home/bokai/bm1690-mul-LNbaFw/work",
+  "runner_sha256": "f3b2306fa7e24c6be22af3fd9025e9b40c3ec3724f1901f446f070e3a8698ae3",
+  "runner_checksum_passed": true,
+  "saved_correctness_receipt_statuses": {
+    "original": "passed",
+    "serial": "passed",
+    "pipeline": "passed"
+  },
+  "existing_timing_directories": [],
+  "pending_operation": "mul",
+  "pending_test": "5 warmups and 20 synchronous-call latency samples per variant",
+  "board_kernels_launched_in_this_preflight": 0,
+  "driver_recovery_complete": false,
+  "current_environment_correctness_rechecked": false,
+  "current_kernel_build_prerequisites_verified": false,
+  "current_pci_enumeration_verified": false,
+  "current_kernel_matching_module_availability": "not yet queried",
+  "cause_of_kernel_change": "not established",
+  "full_remote_receipts_received_at_development_host": false
+}
