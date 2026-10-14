@@ -26,9 +26,30 @@
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": false,
   "current_environment_correctness_rechecked": false,
-  "current_kernel_build_prerequisites_verified": false,
-  "current_pci_enumeration_verified": false,
-  "current_kernel_matching_module_availability": "not yet queried",
+  "current_kernel_build_prerequisites_verified": true,
+  "current_pci_enumeration_verified": true,
+  "current_kernel_matching_module_availability": "named modinfo lookup reports Module sgcard not found; no exhaustive filesystem search claimed",
+  "followup_prerequisite_checks": {
+    "pci_functions": [
+      {"address": "0000:01:00.0", "vendor_device": "1f1c:1690", "revision": "01"},
+      {"address": "0000:01:00.1", "vendor_device": "1f1c:1690", "revision": "01"}
+    ],
+    "kernel_build_link": "/lib/modules/7.0.0-34-generic/build",
+    "kernel_build_target": "/usr/src/linux-headers-7.0.0-34-generic",
+    "present_build_inputs": ["Makefile", ".config", "Module.symvers", "include/generated/autoconf.h"],
+    "config_cc_version_text": "x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "config_modversions": "y",
+    "config_module_sig_force_assignment_printed": false,
+    "available_commands": ["/usr/bin/make", "/usr/bin/gcc", "/usr/bin/x86_64-linux-gnu-gcc-13"],
+    "secure_boot": "disabled",
+    "existing_source_directory": "/opt/tpuv7/driver-1.9.3",
+    "existing_module_vermagic": "6.17.0-35-generic SMP preempt mod_unload modversions",
+    "previous_build_source_directory": "/home/bokai/sgcard-build-7.0.0-31-generic-jZc4Pe/source",
+    "sgdrv_fw_c_sha256_both_copies": "a6e1a457e4ce10a895beb76d07d53a313c490bdc320839171f0aef29793c16f1",
+    "entire_source_tree_equality_verified": false,
+    "current_kernel_driver_build_reported": false,
+    "current_kernel_driver_load_reported": false
+  },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false
 }

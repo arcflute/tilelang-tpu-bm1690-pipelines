@@ -15,10 +15,18 @@ project's environment bring-up. P10 is not complete performance evidence.
 The user resumed from a new terminal. Read-only preflight now reports kernel
 `7.0.0-34-generic`, whereas the previously working temporary sgcard module was
 built for `7.0.0-31-generic`. The sgcard initstate file, device-0 character node
-and PCI function 0's driver link are absent. PCI enumeration, current-kernel
-module availability, build headers/compiler and signing state still need to be
-queried before selecting a recovery action. Do not force-load the old module.
-No board kernel or latency test was launched during this preflight.
+and PCI function 0's driver link are absent. Follow-up output confirms that PCI
+functions `0000:01:00.0` and `0000:01:00.1` still enumerate as `1f1c:1690`.
+The current kernel's Makefile, configuration, Module.symvers and generated
+autoconf header exist; the configuration names GCC 13.3.0 and the GCC 13 binary
+is available. Secure Boot is disabled. Named `modinfo sgcard` lookup finds no
+installed module, while `/opt/tpuv7/driver-1.9.3/sgcard.ko` still targets
+`6.17.0-35-generic`. The installed source's `sgdrv_fw.c` hash matches the previous
+successful `7.0.0-31` build copy; this does not establish equality of the entire
+source tree. The next action is an isolated, bounded build against `7.0.0-34`
+using the existing source and tools, followed by inspection before loading.
+Do not force-load the old module. Neither the new driver build nor a board
+kernel or latency test has been reported as executed during this recovery.
 
 Mul's runner hash still matches, all three saved correctness receipts report
 `passed`, and no `timing-*` directories exist in
