@@ -133,11 +133,16 @@ retains 4x32 tiles; serial/pipeline use the previously implemented 32x64 target
 tiles. FP32 1024x512 sin/cos tables, interleaved pairing and the four-argument
 ABI are preserved. All 141 relevant regression checks passed. Use a new pinned
 `prepare_add_1024.py` with `--case rope-target`; the old smoke helper does not
-support this case. Board target compilation/execution remains pending.
+support this case. All three target board builds subsequently passed, but the
+original one-call execution failed before reference comparison. The exact cause
+is pending inspection of the remote supervisor result and runtime log.
 The runner/reference use standard Python. Keep one-call correctness before five
 warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
 limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
-failure. SwiGLU and FlashAttention follow RoPE target acceptance.
+failure. The current failed attempt is retained at
+`/home/bokai/bm1690-rope1024-ehiG4z/work/run-original`; do not rerun or advance
+variants until the supervisor reason, cleanup status and device state have been
+inspected. SwiGLU and FlashAttention follow RoPE target acceptance.
 
 ## Execution and evidence
 
@@ -1332,3 +1337,21 @@ RSS, one TPU launch core, group cleanup, no automatic kernel retry. The original
 has 1024 times as many tiles as the smoke; the larger watchdog budget is not a
 prediction of actual duration. Board target compilation and execution remain
 pending. Use a fresh directory and correctness before timing for every variant.
+
+
+The first RoPE target board attempt used revision
+`2610cc6dcd06b7fb1fa094a024961c611e97fbfe` in
+`/home/bokai/bm1690-rope1024-ehiG4z/work`. All 18 build commands passed and the
+helper/runner checksums matched. Original one-call execution reached
+`STAGE tilelang_tpu_run_once`, then the supervisor reported `ROPE_PCIE_FAILED`
+and the sequence ended with `ROPE1024_EXIT=1`. No reference comparison, timing,
+serial or pipeline run completed/started in the supplied output. The checkpoint
+precedes the host ABI call, which also performs allocation, module loading and
+transfers; it alone cannot establish successful kernel launch or completion.
+The supervisor reason/return code/cleanup flag and full runtime log have not
+been received. Timeout, resource exhaustion, native process failure and device
+state are not established causes. Preserve the failed directory and inspect
+read-only receipts/process/device state before retrying. No retry or kernel
+change was performed in response to this report. Evidence is
+`results/p8-rope-1024-board-attempt-user-reported.json`; prior CModel and smoke
+passes remain valid for their recorded cases, not proof of target board success.
