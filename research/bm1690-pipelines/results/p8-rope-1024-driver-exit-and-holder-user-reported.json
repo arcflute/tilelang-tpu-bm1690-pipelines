@@ -1,0 +1,90 @@
+{
+  "schema": "bm1690-rope-driver-exit-and-device-holder-evidence-v1",
+  "evidence_kind": "user_supplied_driver_source_fuser_and_full_failure_window_journal",
+  "recorded_date": "2026-10-14",
+  "attachment_sha256": "76bfac875dac390d94d2ff7b759d5699d84e92f42d7f439c985ff5c6859d7f3f",
+  "previous_evidence": "p8-rope-1024-force-quit-user-reported.json",
+  "remote_work_directory": "/home/bokai/bm1690-rope1024-ehiG4z/work",
+  "driver_source": {
+    "path": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source/sgdrv_fops.c",
+    "function": "send_quit_request",
+    "function_lines": [
+      361,
+      385
+    ],
+    "send_to_msgfifo_line": 372,
+    "wait_lines": [
+      375,
+      377
+    ],
+    "wait_queue": "hdev->rt.ap_wqueue_list[STREAM_DESTROY_RESPONSE]",
+    "wait_condition": "find_api_count_response(hdev, send_info->request_id, stream_num)",
+    "wait_timeout_ms": 60000,
+    "error_log_line": 379,
+    "return_value_on_wait_timeout": -1,
+    "automatic_reset_in_this_function": false,
+    "callers_and_response_predicate_inspected": false
+  },
+  "device_users_observation": {
+    "command": "sudo timeout -k 2s 5s fuser -v /dev/sg-host-drv-0 /dev/sg-host-drv-1",
+    "holders_reported": [
+      {
+        "device": "/dev/sg-host-drv-0",
+        "user": "bokai",
+        "pid": 2737445,
+        "access": "F....",
+        "command": "pt_main_thread"
+      }
+    ],
+    "holder_reported_for_device_1": false,
+    "command_exit_status_not_supplied": true,
+    "module_reference_count": 4,
+    "holder_executable_cmdline_start_time_and_process_group": "not yet supplied",
+    "holder_relationship_to_failed_rope_worker": "unverified"
+  },
+  "journal_window": {
+    "since": "2026-10-14 18:09:00",
+    "until": "2026-10-14 18:15:00",
+    "entries": [
+      {
+        "time": "Oct 14 18:11:18",
+        "message": "[host drv-0, rt_task_done_response_sync, 2416]:wait task done force exit! task id 0x2346 in stream 0xf2!"
+      },
+      {
+        "time": "Oct 14 18:11:18",
+        "message": "[host drv-0, handle_ioctl_result, 1266]:ioctl result wrong! type is 0x11; request_id: 0x2346!"
+      },
+      {
+        "time": "Oct 14 18:12:20",
+        "message": "[host drv-0, send_quit_request, 379]:FORCE_QUIT default timeout! request_id:0x2348 pid is:0x2a446b stream_num: 2"
+      }
+    ],
+    "force_quit_pid_field_decimal": 2770027,
+    "force_quit_pid_field_equals_reported_holder_pid": false,
+    "task_done_force_exit_branch_implementation_inspected": false,
+    "ioctl_type_mapped_to_runtime_api": false
+  },
+  "local_supervisor_review": {
+    "path": "tpu_demo/pipeline/run_add_pcie.py",
+    "functions": [
+      "group_rss_bytes",
+      "stop_group",
+      "supervise"
+    ],
+    "cleanup_complete_scope": "worker leader reaped and tracked process-group RSS sum zero; does not inspect all device holders or firmware completion",
+    "device_holder_proven_to_be_escaped_descendant": false
+  },
+  "assessment": {
+    "all_device_users_absent": false,
+    "driver_unload_preconditions_met": false,
+    "device_recovery_established": false,
+    "root_cause_established": false,
+    "next_step": "Identify holder executable, command line, start time, parent/session/group and thread state; inspect task-wait error branch before choosing cleanup or driver recovery"
+  },
+  "actions": {
+    "implementation_changed": false,
+    "board_execution_performed": false,
+    "device_holder_killed": false,
+    "driver_unloaded_or_reset": false
+  }
+}

@@ -140,6 +140,10 @@ Host cleanup is confirmed. A later kernel-journal report shows
 and readiness remain unverified; inspect the driver error path and current
 device users before further board dispatch. The original-only host-call
 diagnostic is prepared and CModel-validated, but has not run on the board.
+Follow-up source inspection confirms a 60-second exit-response wait. `fuser`
+reports PID 2737445 (`pt_main_thread`) holding device 0, and sgcard's reference
+count is 4. Identify that process before attempting cleanup or driver recovery;
+its relationship to the failed worker is not established.
 The runner/reference use standard Python. Keep one-call correctness before five
 warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
 limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
@@ -1415,3 +1419,26 @@ alone neither identifies the timeout cause nor justifies inserting additional
 polls or synchronization into the kernel. No such implementation change,
 driver reset/unload or new board execution was performed for this follow-up.
 Evidence is `results/p8-rope-1024-force-quit-user-reported.json`.
+
+The next source excerpt identifies `sgdrv_fops.c::send_quit_request` at lines
+361-385. It sends the request to the message FIFO, then waits up to 60000 ms on
+`STREAM_DESTROY_RESPONSE` for `find_api_count_response` to satisfy the requested
+ID/stream-count condition. A zero wait result produces the error and returns
+-1; this function contains no reset. Its callers and the response predicate
+have not yet been inspected. The full 18:09-18:15 journal also shows
+`rt_task_done_response_sync: wait task done force exit` and an ioctl error for
+request `0x2346` at 18:11:18. The triggering branch and mapping to a specific
+runtime API remain to be read; these messages do not establish the original
+kernel timeout's root cause.
+
+The same follow-up reports PID 2737445 (`pt_main_thread`, user bokai) holding
+`/dev/sg-host-drv-0` and module reference count 4. No holder for device 1 is
+printed, but the `fuser` exit status was not supplied. The error's PID field,
+`0x2a446b` (2770027), differs from the holder PID; their relationship is unknown.
+The earlier runner-name search did not inspect every device user. The local
+supervisor's `cleanup_complete` checks that the worker leader was reaped and
+its tracked process group's RSS sum is zero, not absence of other device users
+or firmware work. Do not attribute the holder to a leaked runner without its
+command line, parent/group/session, start time and thread-state evidence.
+Board dispatch and driver unload remain held while collecting those facts.
+Evidence is `results/p8-rope-1024-driver-exit-and-holder-user-reported.json`.
