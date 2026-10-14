@@ -1,0 +1,21 @@
+{
+  "schema": "bm1690-existing-python-preflight-v1",
+  "evidence_kind": "user_supplied_terminal_output_in_chat",
+  "recorded_date": "2026-10-14",
+  "python_executable": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python",
+  "numpy_version": "1.26.4",
+  "import_successfully_reported": true,
+  "queried_with": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "host_cpu_affinity": [
+      0,
+      1
+    ],
+    "timeout_seconds": 10
+  },
+  "packages_installed_or_upgraded": false,
+  "board_runtime_loaded": false,
+  "kernel_launches": 0,
+  "scope": "NumPy import and interpreter identity only; target Matmul board execution not yet performed"
+}

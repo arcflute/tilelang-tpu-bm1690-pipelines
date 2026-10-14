@@ -140,6 +140,16 @@ class LegacyTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 legacy.validate_source_bundle(bad)
 
+    def test_matmul_target_cannot_change_k_size_or_precision(self):
+        bundle = json.loads((ROOT / "research/bm1690-pipelines/handoff/matmul-1024-sources.json").read_text())
+        legacy.validate_source_bundle(bundle)
+        for key, value in (("matrix_dimensions", [1024, 1024, 128]), ("dtype", "float32"),
+                           ("shape", [128, 128])):
+            bad = copy.deepcopy(bundle)
+            bad["target"][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+
     def test_standalone_compile_failure_preserves_diagnostics_and_stops(self):
         bundle = write(self.root / "bundle.json", json.dumps(self.bundle()))
         output = self.root / "build"

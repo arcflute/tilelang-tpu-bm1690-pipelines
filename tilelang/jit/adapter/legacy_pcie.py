@@ -193,7 +193,8 @@ def validate_source_bundle(bundle):
     schemas = {"bm1690-add-source-check-v1": [8, 128],
                "bm1690-add-source-check-v2": [1024, 1024],
                "bm1690-elementwise-source-check-v1": [1024, 1024],
-               "bm1690-matmul-source-check-v1": [128, 128]}
+               "bm1690-matmul-source-check-v1": [128, 128],
+               "bm1690-matmul-source-check-v2": [1024, 1024]}
     if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     target = {"chip": "bm1690", "programming_model": "tpukernel",
@@ -203,8 +204,8 @@ def validate_source_bundle(bundle):
         if operation not in ("sub", "mul", "div"):
             raise ValueError("Elementwise source schema requires sub, mul or div")
         target["operation"] = operation
-    if bundle["schema"] == "bm1690-matmul-source-check-v1":
-        target.update(operation="matmul", matrix_dimensions=[128, 128, 128],
+    if bundle["schema"].startswith("bm1690-matmul-"):
+        target.update(operation="matmul", matrix_dimensions=[target["shape"][0]] * 3,
                       layout="row-major")
     if bundle.get("target") != target:
         raise ValueError("Source schema requires its fixed single-core FP16 contract")
@@ -212,11 +213,11 @@ def validate_source_bundle(bundle):
     if set(variants) != {"original", "serial", "pipeline"}:
         raise ValueError("Source bundle must preserve original/serial/pipeline variants")
     for name, variant in variants.items():
-        if bundle["schema"] == "bm1690-matmul-source-check-v1":
+        if bundle["schema"].startswith("bm1690-matmul-"):
             block = 16 if name == "original" else 32
             if (variant.get("tiling") != [block] * 3 or
                     variant.get("num_stages") != (2 if name == "pipeline" else 0)):
-                raise ValueError("Matmul smoke requires original 16 and serial/pipeline 32 tiles")
+                raise ValueError("Matmul requires original 16 and serial/pipeline 32 tiles")
         if set(variant["sources"]) != set(SOURCE_NAMES):
             raise ValueError(f"Unexpected source names for {name}")
         if set(variant["sha256"]) != set(SOURCE_NAMES):

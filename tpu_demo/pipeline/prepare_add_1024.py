@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "a597e826703ce358fad1b45f718cca517e442f8ab393b28b6497de7dd04b2701"),
+                 "0495951befc58277f39eb5dc83a27a7ce2b215e0313c4e445555d16756e2e2e5"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "b04d441876d7e1746e47710b179066d90cab37127b4a4d6fecc20501f5a0f490"),
+                   "06c2af318a8b0f379b2a6e082ac31a31c83c768dccf6c1b8ba1333f7de444d90"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -48,7 +48,12 @@ ELEMENTWISE_SOURCES = {
 MATMUL_SOURCE = ('research/bm1690-pipelines/handoff/matmul-smoke-sources.json', '71f50c676ecfba081728ef763a1ebc29ac36e7ece8b7b193310c0b5eb7309f88')
 
 
+MATMUL_TARGET_SOURCE = ('research/bm1690-pipelines/handoff/matmul-1024-sources.json', 'fb97f8b800a47bbe91fe393885b785cd6323043231660c202bc510f271c1f643')
+
+
 def source_files(case):
+    if case == "matmul-target":
+        return {**FILES, "add.json": MATMUL_TARGET_SOURCE}
     if case == "matmul-smoke":
         return {**FILES, "add.json": MATMUL_SOURCE}
     if case == "target":
@@ -114,8 +119,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke"), default="target",
-                        help="Elementwise 1024x1024 or Matmul M=N=K=128 smoke")
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target"), default="target",
+                        help="Elementwise 1024x1024 or Matmul M=N=K=128/1024")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")
@@ -172,7 +177,8 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = ("MATMUL128" if args.case == "matmul-smoke" else
+            prefix = ("MATMUL1024" if args.case == "matmul-target" else
+                      "MATMUL128" if args.case == "matmul-smoke" else
                       (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")
             print(prefix + "_BUILD_ONLY_OK kernel_launches=0", flush=True)
     except Exception as exc:

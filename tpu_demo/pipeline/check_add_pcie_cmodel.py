@@ -22,19 +22,25 @@ def main():
     from tpu_demo.common import configure_runtime
     from tpu_demo.pipeline.run_add_pcie import (test_vectors, check_output, call_host, check_hash,
                                                BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
-                                               ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256)
+                                               ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
+                                               MATMUL_TARGET_BUNDLE_SHA256)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul"), default="add")
+    parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
+                        help="required for target Matmul: a separate bounded worker per variant")
     args = parser.parse_args()
     if args.coarse_tiles and not args.target_size:
         parser.error("--coarse-tiles requires --target-size")
     if args.operation in ("sub", "mul", "div") and not (args.target_size and args.coarse_tiles):
         parser.error("Sub/Mul/Div require --target-size --coarse-tiles")
-    if args.operation == "matmul" and (args.target_size or args.coarse_tiles):
-        parser.error("The Matmul handoff currently supports only the 128-cubed smoke")
+    matmul_target = args.operation == "matmul" and args.target_size
+    if args.operation == "matmul" and args.coarse_tiles:
+        parser.error("Matmul does not use elementwise --coarse-tiles")
+    if bool(args.variant) != matmul_target:
+        parser.error("--variant is required only for target Matmul; compare the three worker outputs afterward")
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     torch.set_num_threads(1)
@@ -47,15 +53,15 @@ def main():
         bundle_path = bundle_path.with_name(args.operation + "-1024-sources.json")
         bundle_hash = ELEMENTWISE_BUNDLES[args.operation]
     if args.operation == "matmul":
-        bundle_path = bundle_path.with_name("matmul-smoke-sources.json")
-        bundle_hash = MATMUL_BUNDLE_SHA256
+        bundle_path = bundle_path.with_name("matmul-1024-sources.json" if matmul_target else "matmul-smoke-sources.json")
+        bundle_hash = MATMUL_TARGET_BUNDLE_SHA256 if matmul_target else MATMUL_BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
     rows, width = bundle["target"]["shape"]
     count = rows * width
     lhs, rhs, expected = test_vectors(count, args.operation)
-    # Independent check of the stdlib FP32-arithmetic/FP16-rounding reference.
+    # Independent Torch check of the scalar/NumPy FP32 reference.
     a,b = [torch.frombuffer(bytearray(value),dtype=torch.float16) for value in (lhs,rhs)]
     if args.operation == "matmul":
         torch_reference = (a.float().reshape(rows,width) @ b.float().reshape(rows,width)).half()
@@ -66,7 +72,7 @@ def main():
         independent = {"bitwise_equal_to_reference": True, "passed": True}
     target = tvm.target.Target("tpu -mcpu=bm1690 -tpu-programming-model=tpukernel")
     records, outputs, owners = {}, [], []
-    for variant in ("original", "serial", "pipeline"):
+    for variant in ((args.variant,) if args.variant else ("original", "serial", "pipeline")):
         build = LibraryGenerator(target, tpu_target=TPUTargetSpec("bm1690", "tpukernel"),
                                  tpu_runtime=TPURuntimeConfig("cmodel"))
         for name, source in bundle["variants"][variant]["sources"].items():
@@ -80,18 +86,21 @@ def main():
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
         if args.target_size or args.operation == "matmul":
-            timing = {"warmups": 1, "samples": 2}
+            timing = {"warmups": 1, "samples": 1 if matmul_target else 2}
             repeated = call_host(library, lhs, rhs, timing=timing)
             assert repeated == output
             # Emulator wall times are never emitted as device latency evidence.
             records[variant]["timing_abi_check"] = {
-                "warmups": 1, "samples": 2, "finite_positive_samples": True,
+                "warmups": timing["warmups"], "samples": timing["samples"], "finite_positive_samples": True,
                 "reference": check_output(repeated, expected, count, args.operation), "same_output": True}
-    assert outputs[1] == outputs[2]
-    if args.operation == "matmul":
+    if args.variant:
+        Path("output.f16").write_bytes(outputs[0])
+        original_comparison = None
+    elif args.operation == "matmul":
+        assert outputs[1] == outputs[2]
         original_comparison = check_output(outputs[1], outputs[0], count, "matmul")
     else:
-        assert outputs[0] == outputs[1]
+        assert outputs[0] == outputs[1] == outputs[2]
         original_comparison = {"bitwise_equal_to_reference": True, "passed": True}
     report = {"status":"passed", "runtime_mode":"cmodel", "launch_cores":1,
               "operation":args.operation,
@@ -100,9 +109,13 @@ def main():
               "input_sha256":hashlib.sha256(lhs+rhs).hexdigest(), "variants":records,
               "reference_matches_torch":True, "independent_reference_comparison":independent,
               "original_serial_comparison":original_comparison,
-              "all_variants_bitwise_equal":outputs[0] == outputs[1] == outputs[2],
-              "serial_pipeline_bitwise_equal":True,
+              "all_variants_bitwise_equal":outputs[0] == outputs[1] == outputs[2] if not args.variant else None,
+              "serial_pipeline_bitwise_equal":True if not args.variant else None,
               "device_performance_measured":False,"hardware_overlap_verified":False}
+    if matmul_target:
+        import numpy as np
+        report.update(selected_variant=args.variant, matrix_dimensions=[rows] * 3,
+                      reference_backend={"name":"numpy.matmul", "version":np.__version__, "dtype":"float32"})
     print("BM1690_PIPELINE_RESULT=" + json.dumps(report,sort_keys=True))
 
 

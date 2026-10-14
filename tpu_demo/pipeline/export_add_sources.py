@@ -13,8 +13,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         raise ValueError("Unsupported handoff operation")
     if operation in ("sub", "mul", "div") and not (target_size and coarse_tiles):
         raise ValueError("Sub/Mul/Div handoffs require the 1024x1024, 128x1024-tile case")
-    if operation == "matmul" and (target_size or coarse_tiles):
-        raise ValueError("The first Matmul PCIe handoff is the bounded 128x128x128 case")
+    if operation == "matmul" and coarse_tiles:
+        raise ValueError("Matmul uses fixed 16/32-cubed tiles; --coarse-tiles is for elementwise")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -33,7 +33,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
                 name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/"))}
     rows, width = (1024, 1024) if target_size else (8, 128)
     if operation == "matmul":
-        rows = width = 128
+        rows = width = 1024 if target_size else 128
     block_rows, block_width = (32, 128) if target_size else (4, 32)
     if coarse_tiles:
         block_rows, block_width = 128, 1024
@@ -58,10 +58,10 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         bundle["target"]["operation"] = operation
     if operation == "matmul":
         from tpu_demo.matmul.matmul import build_matmul
-        bundle["schema"] = "bm1690-matmul-source-check-v1"
-        bundle["target"].update(operation="matmul", matrix_dimensions=[128, 128, 128],
+        bundle["schema"] = "bm1690-matmul-source-check-v2" if target_size else "bm1690-matmul-source-check-v1"
+        bundle["target"].update(operation="matmul", matrix_dimensions=[rows] * 3,
                                 layout="row-major")
-        functions = {name: build_matmul(m=128, n=128, k=128, block_m=block,
+        functions = {name: build_matmul(m=rows, n=rows, k=rows, block_m=block,
                                        block_n=block, block_k=block, num_stages=stages)
                      for name, block, stages in (("original", 16, 0), ("serial", 32, 0), ("pipeline", 32, 2))}
     else:

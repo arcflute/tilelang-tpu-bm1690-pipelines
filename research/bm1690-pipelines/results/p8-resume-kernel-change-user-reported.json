@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "matmul",
-  "pending_test": "Compile Matmul FP16 M=N=K=128 smoke variants; then fresh correctness and 5+20 synchronous-call latency per variant",
+  "pending_test": "Compile Matmul FP16 M=N=K=1024 variants, then fresh correctness and 5+20 synchronous-call latency per variant using the inspected NumPy-enabled environment",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -145,7 +145,7 @@
   },
   "next_handoff": {
     "operation": "matmul",
-    "case": "matmul-smoke",
+    "case": "matmul-target",
     "reuse_existing_sdk_and_runtime": true,
     "new_pinned_prepare_helper_required": true,
     "variant_order": [
@@ -158,7 +158,9 @@
       "5 warmups and 20 synchronous-call latency samples"
     ],
     "stop_on_first_failure": true,
-    "status": "exact-source CModel validation passed; remote compilation and execution pending"
+    "status": "exact-source target CModel validation and existing remote NumPy import check passed; remote compilation/execution pending",
+    "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python",
+    "numpy_version": "1.26.4"
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -187,5 +189,14 @@
     "all_fresh_correctness_checks_passed": true,
     "all_latency_runs_passed": true,
     "physical_overlap_verified": false
+  },
+  "subsequent_matmul_smoke_validation": {
+    "build_evidence": "p8-matmul-smoke-build-user-reported.json",
+    "correctness_evidence": "p8-matmul-smoke-three-variants-board-user-reported.json",
+    "latency_evidence": "p8-matmul-smoke-latency-user-reported.json",
+    "remote_work_directory": "/home/bokai/bm1690-matmul-eHJxZ9/work",
+    "all_six_test_processes_passed": true,
+    "serial_pipeline_bitwise_equal": true,
+    "hardware_overlap_verified": false
   }
 }

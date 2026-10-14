@@ -1,6 +1,8 @@
 """Supervised BM1690 elementwise/Matmul correctness and synchronous-call latency.
 
-Standalone Python standard library only. This is a narrowly scoped source/build
+Elementwise and Matmul smoke use only the Python standard library; Matmul 1024
+uses the existing NumPy installation for its independent CPU reference.
+This is a narrowly scoped source/build
 manifest loader, not a relaxation of the generic JIT's prebuilt-library policy.
 Only pinned bundles/builders are accepted. No automatic retry or multicore.
 """
@@ -59,6 +61,13 @@ for _contract in BUNDLES.values():
     _contract["builders"] += (MATMUL_BUILDER_SHA256,)
 BUNDLES[MATMUL_BUNDLE_SHA256] = {"shape": [128, 128], "builders": (MATMUL_BUILDER_SHA256,),
                                  "timing": True, "operation": "matmul"}
+MATMUL_TARGET_BUILDER_SHA256 = "0495951befc58277f39eb5dc83a27a7ce2b215e0313c4e445555d16756e2e2e5"
+MATMUL_TARGET_BUNDLE_SHA256 = "fb97f8b800a47bbe91fe393885b785cd6323043231660c202bc510f271c1f643"
+for _contract in BUNDLES.values():
+    _contract["builders"] += (MATMUL_TARGET_BUILDER_SHA256,)
+BUNDLES[MATMUL_TARGET_BUNDLE_SHA256] = {
+    "shape": [1024, 1024], "builders": (MATMUL_TARGET_BUILDER_SHA256,),
+    "timing": True, "operation": "matmul"}
 
 
 def digest(path):
@@ -157,6 +166,24 @@ def validate_build(build):
             "artifacts": report["artifacts"]}
 
 
+def numpy_matmul_reference(lhs, rhs, dimension):
+    """Bounded CPU FP32 GEMM reference; no board runtime, packing or transfer."""
+    if dimension not in (128, 1024) or len(lhs) != 2 * dimension**2 or len(rhs) != len(lhs):
+        raise ValueError("Unsupported Matmul reference dimensions or byte lengths")
+    # Remote workers import NumPy here for the first time, after CPU affinity
+    # and priority have been set. Reuse the inspected environment; never install.
+    for variable in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
+                     "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        os.environ[variable] = "1"
+    try:
+        import numpy as np
+    except ImportError as exc:
+        raise RuntimeError("Matmul 1024 requires the existing NumPy-enabled Python environment") from exc
+    a = np.frombuffer(lhs, dtype="<f2").reshape(dimension, dimension).astype(np.float32)
+    b = np.frombuffer(rhs, dtype="<f2").reshape(dimension, dimension).astype(np.float32)
+    return (a @ b).astype("<f2").tobytes(order="C")
+
+
 def test_vectors(count=COUNT, operation="add"):
     """FP16 inputs and independently FP32-rounded arithmetic, then FP16 output.
 
@@ -165,8 +192,8 @@ def test_vectors(count=COUNT, operation="add"):
     """
     if operation not in ("add", "sub", "mul", "div", "matmul"):
         raise ValueError("Unsupported reference operation")
-    if operation == "matmul" and count != 128 * 128:
-        raise ValueError("The scalar Matmul reference is bounded to 128x128x128")
+    if operation == "matmul" and count not in (128 * 128, 1024 * 1024):
+        raise ValueError("Matmul reference is bounded to 128-cubed or 1024-cubed")
     state = 0
     values = []
     for _ in range(count * 2):
@@ -179,6 +206,8 @@ def test_vectors(count=COUNT, operation="add"):
     rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
     rhs = struct.pack("<" + "e" * count, *rhs_values)
     if operation == "matmul":
+        if count == 1024 * 1024:
+            return lhs, rhs, numpy_matmul_reference(lhs, rhs, 1024)
         a = [v[0] for v in struct.iter_unpack("<e", lhs)]
         b = [v[0] for v in struct.iter_unpack("<e", rhs)]
         columns = [b[j::128] for j in range(128)]
@@ -215,7 +244,7 @@ def check_output(actual, expected, count=COUNT, operation="add"):
                "max_abs_error": max(errors) if finite else None,
                "bitwise_equal_to_reference": actual == expected}
     if not metrics["passed"]:
-        raise ValueError("Elementwise numerical mismatch: " + json.dumps(metrics))
+        raise ValueError("Output numerical mismatch: " + json.dumps(metrics))
     return metrics
 
 
@@ -445,6 +474,16 @@ def worker(args):
         count = math.prod(identity["shape"])
         operation = identity["operation"]
         lhs, rhs, expected = test_vectors(count, operation)
+        if operation == "matmul":
+            result["matrix_dimensions"] = [math.isqrt(count)] * 3
+            result["layout"] = "row-major"
+            result["reference_backend"] = {"accumulation_dtype": "float32", "output_dtype": "float16"}
+            if count == 1024 * 1024:
+                import numpy as np
+                result["reference_backend"].update(name="numpy.matmul", version=np.__version__,
+                                                    module_path=np.__file__, requested_blas_threads=1)
+            else:
+                result["reference_backend"]["name"] = "stdlib scalar FP32 accumulation"
         result["input_sha256"] = hashlib.sha256(lhs + rhs).hexdigest()
         previous = check_previous(args, identity, result["input_sha256"])
         timing = None

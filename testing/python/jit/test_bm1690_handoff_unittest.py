@@ -22,11 +22,12 @@ REVISION = "7c0efb8e36b3058a51b1aa1fb948ca67676e45f8"
 
 class HandoffTests(unittest.TestCase):
     def test_all_case_files_match_pinned_repository_bytes(self):
-        for case in ("target", "coarse", "sub", "mul", "div", "matmul-smoke"):
+        for case in ("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target"):
             for name, (path, expected) in prepare.source_files(case).items():
                 with self.subTest(case=case, name=name):
                     self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
         self.assertTrue(prepare.source_files("matmul-smoke")["add.json"][0].endswith("matmul-smoke-sources.json"))
+        self.assertTrue(prepare.source_files("matmul-target")["add.json"][0].endswith("matmul-1024-sources.json"))
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

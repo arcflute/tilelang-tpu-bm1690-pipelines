@@ -1,0 +1,51 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "6fe3a6ba1a68e5f943d6587f20a3995c61ff5242e78f2a5fdb46afde4a4ad0bd",
+  "operation": "matmul",
+  "dtype": "float16",
+  "matrix_dimensions": [
+    128,
+    128,
+    128
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "source_revision": "12bfcbf163400bd2b25efb1523f7f623b79fa690",
+  "bundle_sha256": "71f50c676ecfba081728ef763a1ebc29ac36e7ece8b7b193310c0b5eb7309f88",
+  "runner_sha256": "b04d441876d7e1746e47710b179066d90cab37127b4a4d6fecc20501f5a0f490",
+  "remote_work_directory": "/home/bokai/bm1690-matmul-eHJxZ9/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-matmul-board-build-evidence-v1",
+  "status": "compile_only_passed",
+  "prepare_exit_code": 0,
+  "download_transport": "github-api",
+  "verified_files": [
+    "build.py",
+    "add.json",
+    "run_add.py"
+  ],
+  "completed_build_labels": [
+    "BUILD original: Compile TPU kernel",
+    "BUILD original: Compile PPL helper",
+    "BUILD original: Link PCIe libkernel.so",
+    "BUILD original: Compile PCIe kernel.cpp",
+    "BUILD original: Compile PCIe main.cpp",
+    "BUILD original: Link PCIe main.so",
+    "BUILD serial: Compile TPU kernel",
+    "BUILD serial: Compile PPL helper",
+    "BUILD serial: Link PCIe libkernel.so",
+    "BUILD serial: Compile PCIe kernel.cpp",
+    "BUILD serial: Compile PCIe main.cpp",
+    "BUILD serial: Link PCIe main.so",
+    "BUILD pipeline: Compile TPU kernel",
+    "BUILD pipeline: Compile PPL helper",
+    "BUILD pipeline: Link PCIe libkernel.so",
+    "BUILD pipeline: Compile PCIe kernel.cpp",
+    "BUILD pipeline: Compile PCIe main.cpp",
+    "BUILD pipeline: Link PCIe main.so"
+  ],
+  "board_runtime_loaded_during_build": false,
+  "kernel_launches_during_build": 0,
+  "compiled_artifacts_received_at_development_host": false
+}

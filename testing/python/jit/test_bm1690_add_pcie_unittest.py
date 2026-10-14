@@ -416,12 +416,14 @@ class ElementwiseContractTests(unittest.TestCase):
 
 class MatmulManifestTests(ManifestTests):
     bundle_name = "matmul-smoke-sources.json"
+    dimension = 128
 
     def test_matrix_contract_and_timing_receipt(self):
         identity = runner.validate_build(self.build)
         self.assertEqual(identity["operation"], "matmul")
-        self.assertEqual(identity["shape"], [128, 128])
-        self.assertEqual(identity["bundle_sha256"], runner.MATMUL_BUNDLE_SHA256)
+        self.assertEqual(identity["shape"], [self.dimension] * 2)
+        self.assertEqual(identity["bundle_sha256"], runner.MATMUL_BUNDLE_SHA256 if self.dimension == 128
+                         else runner.MATMUL_TARGET_BUNDLE_SHA256)
         directory = self.root / "correctness"
         directory.mkdir()
         expected = struct.pack("<e", 1.0)
@@ -442,6 +444,11 @@ class MatmulManifestTests(ManifestTests):
                     runner.check_correctness_receipt(args, identity, "input", expected)
 
 
+class MatmulTargetManifestTests(MatmulManifestTests):
+    bundle_name = "matmul-1024-sources.json"
+    dimension = 1024
+
+
 class MatmulContractTests(unittest.TestCase):
     def test_dense_row_major_reference_and_wrong_layout(self):
         lhs, rhs, expected = runner.test_vectors(128 * 128, "matmul")
@@ -453,7 +460,7 @@ class MatmulContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "numerical mismatch"):
             runner.check_output(transposed, expected, len(c), "matmul")
         with self.assertRaisesRegex(ValueError, "bounded"):
-            runner.test_vectors(1024 * 1024, "matmul")
+            runner.test_vectors(256 * 256, "matmul")
 
     def test_only_original_to_serial_allows_changed_reduction_grouping(self):
         previous, changed = struct.pack("<e", 1.0), struct.pack("<e", 1.0009765625)
@@ -464,6 +471,41 @@ class MatmulContractTests(unittest.TestCase):
                 runner.check_previous_output(changed, previous, 1, operation, variant)
         with self.assertRaisesRegex(ValueError, "numerical mismatch"):
             runner.check_previous_output(struct.pack("<e", 2.0), previous, 1, "matmul", "serial")
+
+
+@unittest.skipUnless(importlib.util.find_spec("numpy"), "reuse existing NumPy environment")
+class MatmulNumpyReferenceTests(unittest.TestCase):
+    def test_numpy_reference_agrees_with_independent_scalar_smoke(self):
+        lhs, rhs, scalar = runner.test_vectors(128 * 128, "matmul")
+        with patch.dict(os.environ):
+            actual = runner.numpy_matmul_reference(lhs, rhs, 128)
+        self.assertTrue(runner.check_output(actual, scalar, 128 * 128, "matmul")["passed"])
+
+    def test_target_shape_reference_samples_and_corruption(self):
+        with patch.dict(os.environ):
+            lhs, rhs, expected = runner.test_vectors(1024 * 1024, "matmul")
+        self.assertEqual(len(expected), 2 * 1024**2)
+        a, b = [[x[0] for x in struct.iter_unpack("<e", data)] for data in (lhs, rhs)]
+        for i, j in ((0, 0), (31, 32), (511, 127), (1023, 1023)):
+            high_precision = math.fsum(a[i*1024+k] * b[k*1024+j] for k in range(1024))
+            actual = struct.unpack_from("<e", expected, 2*(i*1024+j))[0]
+            self.assertAlmostEqual(actual, high_precision, delta=0.002)
+        damaged = struct.pack("<e", float("nan")) + expected[2:]
+        with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+            runner.check_output(damaged, expected, 1024**2, "matmul")
+        with self.assertRaisesRegex(ValueError, "byte lengths"):
+            runner.numpy_matmul_reference(lhs[:-2], rhs, 1024)
+
+    def test_missing_numpy_fails_with_existing_environment_instruction(self):
+        import builtins
+        real_import = builtins.__import__
+        def missing(name, *args, **kwargs):
+            if name == "numpy":
+                raise ImportError("missing NumPy")
+            return real_import(name, *args, **kwargs)
+        with patch.dict(os.environ), patch.object(builtins, "__import__", side_effect=missing):
+            with self.assertRaisesRegex(RuntimeError, "existing NumPy-enabled"):
+                runner.numpy_matmul_reference(bytes(128**2*2), bytes(128**2*2), 128)
 
 
 if __name__ == "__main__":
