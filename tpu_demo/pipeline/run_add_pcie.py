@@ -102,6 +102,11 @@ BUNDLES[ROPE_TARGET_BUNDLE_SHA256] = {"shape": [1024, 1024], "builders": (ROPE_T
                                       "timing": True, "operation": "rope"}
 
 
+ROPE_TRACE_BUNDLE_SHA256 = '815a4f6489da76aa3855da3899029f93008dd82ae6be92f2b1033c0c9d6b9fcd'
+BUNDLES[ROPE_TRACE_BUNDLE_SHA256] = {"shape": [1024, 1024], "builders": (ROPE_TARGET_BUILDER_SHA256,),
+                                     "timing": False, "operation": "rope", "diagnostic_only": True}
+
+
 def digest(path):
     hasher = hashlib.sha256()
     with Path(path).open("rb") as source:
@@ -192,6 +197,7 @@ def validate_build(build):
     if bundle["target"].get("operation", "add") != operation or bundle["target"]["shape"] != contract["shape"]:
         raise ValueError("Pinned operation/shape differs from bundle")
     return {"build_manifest_sha256": digest(build / "result.json"), "operation": operation,
+            "diagnostic_only": contract.get("diagnostic_only", False),
             "bundle_sha256": bundle_hash, "shape": contract["shape"], "timing_supported": contract["timing"],
             "runtime_library": str(required[-2].resolve()),
             "runtime_sha256": report["sdk_inputs"][str(required[-2])],
@@ -584,6 +590,8 @@ def worker(args):
             raise ValueError("Fresh PCIe worker already has a vendor runtime mapped")
         identity = validate_build(args.build)
         result.update(identity)
+        if identity["diagnostic_only"] and (args.variant != "original" or args.measure):
+            raise ValueError("Diagnostic bundle permits original one-call execution only; no timing")
         count = math.prod(identity["shape"])
         operation = identity["operation"]
         if operation == "rope":

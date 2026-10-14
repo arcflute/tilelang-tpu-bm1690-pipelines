@@ -46,5 +46,6 @@
   "cmodel_evidence": "p8-rope-1024-timing-abi-cmodel.json",
   "prior_smoke_evidence": "p8-rope-smoke-three-variants-board-user-reported.json",
   "device_performance_measured": false,
-  "hardware_overlap_verified": false
+  "hardware_overlap_verified": false,
+  "followup_evidence": "p8-rope-1024-timeout-diagnostics-user-reported.json"
 }

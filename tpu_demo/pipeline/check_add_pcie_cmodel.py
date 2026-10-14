@@ -25,11 +25,14 @@ def main():
                                                ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
                                                MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES,
                                                RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256, ROPE_TARGET_BUNDLE_SHA256,
+                                               ROPE_TRACE_BUNDLE_SHA256,
                                                rope_test_vectors, call_rope_host)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
+    parser.add_argument("--trace-host-runtime", action="store_true",
+                        help="one original RoPE target call with flushed diagnostic host logs; no timing")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
@@ -42,6 +45,8 @@ def main():
     rmsnorm_target = args.operation.startswith("rmsnorm") and args.target_size
     rope_target = args.operation == "rope" and args.target_size
     target_worker = matmul_target or rmsnorm_target or rope_target
+    if args.trace_host_runtime and not (rope_target and args.variant == "original"):
+        parser.error("Host tracing is limited to the RoPE target original one-call check")
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
     if args.operation.startswith("rmsnorm") and args.coarse_tiles:
@@ -70,6 +75,9 @@ def main():
     if args.operation == "rope":
         bundle_path = bundle_path.with_name("rope-1024-sources.json" if rope_target else "rope-smoke-sources.json")
         bundle_hash = ROPE_TARGET_BUNDLE_SHA256 if rope_target else ROPE_BUNDLE_SHA256
+        if args.trace_host_runtime:
+            bundle_path = bundle_path.with_name("rope-1024-host-trace-sources.json")
+            bundle_hash = ROPE_TRACE_BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
@@ -123,7 +131,7 @@ def main():
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
-        if args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+        if not args.trace_host_runtime and (args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope")):
             timing = {"warmups": 1, "samples": 1 if target_worker else 2}
             repeated = launch(library, *inputs, timing=timing)
             assert repeated == output
@@ -141,6 +149,7 @@ def main():
         assert outputs[0] == outputs[1] == outputs[2]
         original_comparison = {"bitwise_equal_to_reference": True, "passed": True}
     report = {"status":"passed", "runtime_mode":"cmodel", "launch_cores":1,
+              "diagnostic_only":args.trace_host_runtime,
               "operation":args.operation,
               "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
               "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],

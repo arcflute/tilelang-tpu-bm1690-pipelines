@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Diagnose RoPE 1024 original one-call board failure; collect result.json, run.log and current process/device state before any retry",
+  "pending_test": "Inspect board kernel logs/device state after confirmed 90-second RoPE original timeout, then decide whether to execute the separately validated host-call diagnostic",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -145,26 +145,24 @@
   },
   "next_handoff": {
     "operation": "rope",
-    "case": "rope-target",
+    "case": "rope-target-trace",
     "reuse_existing_sdk_and_runtime": true,
     "new_pinned_prepare_helper_required": true,
     "variant_order": [
-      "original",
-      "serial",
-      "pipeline"
+      "original"
     ],
     "per_variant_steps": [
-      "fresh one-call correctness",
-      "5 warmups and 20 synchronous-call latency samples"
+      "original single diagnostic call only after board-state assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "All three RoPE target builds passed; original one-call execution failed before reference comparison; root cause pending remote result/log inspection",
+    "status": "Original target timed out at 90 seconds; host cleanup confirmed, device readiness pending; one-call trace CModel validated",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
-    "prepare_helper_sha256": "6e74b79db68ec7590bf74b89a8dcb3777a679541bbe17fc5ea42eda2b6385b5f",
+    "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
     "numpy_required": false,
-    "timeout_seconds": 90,
-    "automatic_retry": false
+    "timeout_seconds": 30,
+    "automatic_retry": false,
+    "diagnostic_only": true
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -280,7 +278,10 @@
     "original_one_call_passed": false,
     "timing_started": false,
     "serial_pipeline_started": false,
-    "failure_reason_verified": false,
-    "device_health_after_failure_verified": false
+    "failure_reason_verified": true,
+    "device_health_after_failure_verified": false,
+    "timeout_evidence": "p8-rope-1024-timeout-diagnostics-user-reported.json",
+    "supervisor_reason": "timeout",
+    "supervisor_cleanup_complete": true
   }
 }

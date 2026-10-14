@@ -536,6 +536,33 @@ class RoPETargetManifestTests(RoPEManifestTests):
     shape = [1024, 1024]
 
 
+class RoPETraceManifestTests(ManifestTests):
+    bundle_name = "rope-1024-host-trace-sources.json"
+
+    def test_trace_identity_excludes_timing(self):
+        identity = runner.validate_build(self.build)
+        self.assertTrue(identity["diagnostic_only"])
+        self.assertFalse(identity["timing_supported"])
+
+    def test_other_variants_and_measurement_fail_before_runtime_loading(self):
+        environment = dict(os.environ)
+        for key in ("LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT", "TPU_RT_CORE_NUM"):
+            environment.pop(key, None)
+        for variant, extra in (("serial", []), ("pipeline", []),
+                               ("original", ["--measure", "--correctness", str(self.root / "unused")])):
+            output = self.root / ("rejected-" + variant)
+            command = [sys.executable, str(ROOT / "tpu_demo/pipeline/run_add_pcie.py"),
+                       "--build", str(self.build), "--output", str(output), "--variant", variant,
+                       "--allow-pcie", "--device-id", "0", "--expected-pci", "0000:01:00.0", *extra]
+            result = subprocess.run(command, env=environment, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            report = json.loads((output / "result.json").read_text())
+            self.assertEqual(report["numeric"]["last_stage"], "validate_build")
+            self.assertIn("original one-call", report["numeric"]["error"])
+            self.assertFalse(report["numeric"]["dispatch_attempted"])
+            self.assertTrue(report["cleanup_complete"])
+
+
 class RoPEReferenceTests(unittest.TestCase):
     def test_target_rows_and_pairs_keep_four_quadrant_rotations(self):
         # Row and pair-dependent quarter turns have an exact analytic answer,

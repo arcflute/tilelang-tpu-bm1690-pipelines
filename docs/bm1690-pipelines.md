@@ -134,15 +134,16 @@ tiles. FP32 1024x512 sin/cos tables, interleaved pairing and the four-argument
 ABI are preserved. All 141 relevant regression checks passed. Use a new pinned
 `prepare_add_1024.py` with `--case rope-target`; the old smoke helper does not
 support this case. All three target board builds subsequently passed, but the
-original one-call execution failed before reference comparison. The exact cause
-is pending inspection of the remote supervisor result and runtime log.
+original one-call execution timed out at the 90-second supervisor deadline.
+Host cleanup is confirmed; the underlying runtime call and device readiness
+remain unverified pending kernel logs and a host-call diagnostic.
 The runner/reference use standard Python. Keep one-call correctness before five
 warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
 limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
 failure. The current failed attempt is retained at
 `/home/bokai/bm1690-rope1024-ehiG4z/work/run-original`; do not rerun or advance
-variants until the supervisor reason, cleanup status and device state have been
-inspected. SwiGLU and FlashAttention follow RoPE target acceptance.
+variants until device state has been assessed. The supervisor has confirmed
+timeout and host cleanup; that is not evidence of TPU completion or reset. SwiGLU and FlashAttention follow RoPE target acceptance.
 
 ## Execution and evidence
 
@@ -1355,3 +1356,41 @@ read-only receipts/process/device state before retrying. No retry or kernel
 change was performed in response to this report. Evidence is
 `results/p8-rope-1024-board-attempt-user-reported.json`; prior CModel and smoke
 passes remain valid for their recorded cases, not proof of target board success.
+
+
+## P8.12 RoPE target timeout investigation
+
+The remote supervisor receipt confirms `reason=timeout`, a 90-second deadline,
+`returncode=-9` and `cleanup_complete=true`. Peak group RSS was 245784576 bytes,
+below the 4 GiB limit. The checkpoint remained `tilelang_tpu_run_once`; no
+reference result or timing was produced. Kernel 7.0.0-34-generic, live sgcard,
+the device node and PCI binding are confirmed after failure. The supplied
+process search found no runner processes. These observations establish host
+cleanup and driver presence, not idle/completed/reset firmware. Evidence is
+`results/p8-rope-1024-timeout-diagnostics-user-reported.json`. Kernel logs and
+the observed board SDK's poll/synchronization declarations are requested before
+further board execution. Do not simply extend the timeout or substitute a
+candidate for the failed original baseline.
+
+A separate diagnostic bundle is derived reproducibly by
+`tpu_demo/pipeline/export_rope_trace.py` from the frozen target bundle. Only
+original `main.cpp` and `kernel.cpp` change: flushed stderr CALL/RETURN markers
+wrap runtime init/device selection, stream/module creation, allocation, H2D,
+kernel launch, synchronization, D2H and cleanup. `kernel.c`, ABI header and the
+other variants remain byte-identical. These host call-boundary logs are not a
+hardware profiler trace or overlap evidence. The diagnostic bundle is separately
+hash-pinned; the runner rejects timing and non-original variants before loading
+a vendor runtime. Its receipts cannot replace normal-bundle correctness receipts.
+
+One bounded original CModel call passed with the same input/output hashes as the
+normal target. All 22 calls returned: four initialization calls, four allocations,
+four uploads, one launch, two synchronizations, one download, four frees and two
+cleanup calls. The initial postprocessing expectation of 23 calls was corrected
+to the 22 shown by source and log without rerunning the kernel; the preserved
+record distinguishes that bookkeeping correction from kernel validation.
+All 135 PCIe, 13 handoff and two source-derivation regression tests passed.
+Evidence is `results/p8-rope-1024-host-trace-cmodel.json`. Native libraries,
+compiler passes, device kernels, SDK and dependencies remain unchanged.
+The diagnostic board build/execution remains pending. It is prepared so that,
+once device-state evidence supports a controlled call, the exact unreturned
+runtime API can be located without another uninstrumented retry or timing batch.
