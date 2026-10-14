@@ -86,6 +86,14 @@ for _operation, _bundle in RMSNORM_TARGET_BUNDLES.items():
                        "timing": True, "operation": _operation}
 
 
+ROPE_BUILDER_SHA256 = 'd32d28abfa02acc3d87efdf2cb1a38662f7cc2db84280c80fa033861aedc265b'
+ROPE_BUNDLE_SHA256 = '6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb'
+for _contract in BUNDLES.values():
+    _contract["builders"] += (ROPE_BUILDER_SHA256,)
+BUNDLES[ROPE_BUNDLE_SHA256] = {"shape": [8, 128], "builders": (ROPE_BUILDER_SHA256,),
+                               "timing": True, "operation": "rope"}
+
+
 def digest(path):
     hasher = hashlib.sha256()
     with Path(path).open("rb") as source:
@@ -224,6 +232,38 @@ def rmsnorm_reference(lhs, rhs, *, shape=(16, 128)):
     return struct.pack("<" + "e" * len(output), *output)
 
 
+def rope_reference(source, cosine, sine, *, shape=(8, 128)):
+    """Interleaved pairs, independent FP32 products/sum, then FP16 output."""
+    if shape != (8, 128):
+        raise ValueError("RoPE reference is bounded to the 8x128 smoke")
+    size = math.prod(shape) * 2
+    if any(len(data) != size for data in (source, cosine, sine)):
+        raise ValueError("RoPE requires FP16 input and two half-width FP32 tables")
+    values = [x[0] for x in struct.iter_unpack("<e", source)]
+    cos, sin = [[x[0] for x in struct.iter_unpack("<f", data)] for data in (cosine, sine)]
+    def f32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+    output = []
+    for pair, (c, s) in enumerate(zip(cos, sin)):
+        even, odd = values[2*pair:2*pair+2]
+        output.extend((f32(f32(even*c) - f32(odd*s)), f32(f32(odd*c) + f32(even*s))))
+    return struct.pack("<" + "e" * len(output), *output)
+
+
+def rope_test_vectors(*, shape=(8, 128)):
+    if shape != (8, 128):
+        raise ValueError("RoPE inputs are bounded to the 8x128 smoke")
+    rows, width = shape
+    source = test_vectors(rows * width, "add")[0]
+    def f32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+    frequencies = [f32(10000.0 ** f32(-2.0 * pair / width)) for pair in range(width // 2)]
+    theta = [f32(row * freq) for row in range(rows) for freq in frequencies]
+    cosine = struct.pack("<" + "f" * len(theta), *map(math.cos, theta))
+    sine = struct.pack("<" + "f" * len(theta), *map(math.sin, theta))
+    return source, cosine, sine, rope_reference(source, cosine, sine, shape=shape)
+
+
 def test_vectors(count=COUNT, operation="add"):
     """FP16 inputs and independently FP32-rounded arithmetic, then FP16 output.
 
@@ -279,7 +319,7 @@ def test_vectors(count=COUNT, operation="add"):
 
 
 def check_output(actual, expected, count=COUNT, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
         raise ValueError("Unsupported reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
         raise ValueError("Unexpected output length")
@@ -300,12 +340,24 @@ def check_output(actual, expected, count=COUNT, operation="add"):
 
 def call_host(library, lhs, rhs, *, timing=None):
     """One ABI call; optional explicit warmup/sample counts and returned samples."""
-    if len(lhs) != len(rhs) or len(lhs) % 2:
+    if not lhs or len(lhs) != len(rhs) or len(lhs) % 2:
         raise ValueError("Invalid FP16 input lengths")
+    return _call_host_buffers(library, (lhs, rhs), len(lhs), timing=timing)
+
+
+def call_rope_host(library, source, cosine, sine, *, timing=None):
+    # Each FP32 table has half as many elements as the FP16 source. The byte
+    # sizes coincide, but these remain distinct ordered ABI arguments.
+    if not source or len(source) % 4 or any(len(x) != len(source) for x in (cosine, sine)):
+        raise ValueError("Invalid RoPE input/table lengths")
+    return _call_host_buffers(library, (source, cosine, sine), len(source), timing=timing)
+
+
+def _call_host_buffers(library, inputs, output_bytes, *, timing=None):
     canary = bytes([0xa5]) * 64
-    payloads = [lhs, rhs, b"\x00\x7e" * (len(lhs) // 2)]
+    payloads = [*inputs, b"\x00\x7e" * (output_bytes // 2)]
     buffers = [ctypes.create_string_buffer(canary + value + canary, len(value) + 128) for value in payloads]
-    pointers = (ctypes.c_void_p * 3)(*[ctypes.addressof(buffer) + 64 for buffer in buffers])
+    pointers = (ctypes.c_void_p * len(buffers))(*[ctypes.addressof(buffer) + 64 for buffer in buffers])
     run = library.tilelang_tpu_run if timing is None else library.tilelang_tpu_run_timed
     run.argtypes = [ctypes.POINTER(ctypes.c_void_p)]
     run.restype = ctypes.c_int
@@ -323,12 +375,12 @@ def call_host(library, lhs, rhs, *, timing=None):
     for buffer in buffers:
         if buffer.raw[:64] != canary or buffer.raw[-64:] != canary:
             raise RuntimeError("Host staging buffer canary changed")
-    for buffer, original in zip(buffers[:2], payloads[:2]):
+    for buffer, original in zip(buffers[:-1], payloads[:-1]):
         if buffer.raw[64:-64] != original:
             raise RuntimeError("Host input staging buffer changed")
     if timing is not None:
         timing.update(summarize_samples(list(samples)))
-    return buffers[2].raw[64:-64]
+    return buffers[-1].raw[64:-64]
 
 
 def summarize_samples(values):
@@ -442,7 +494,7 @@ def check_correctness_receipt(args, identity, input_hash, expected):
         raise ValueError("Timing requires a matching passed one-call correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
-    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk"):
+    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
         # Retain each demo's tolerance rather than requiring exact reference bits.
         check_output(actual, expected, len(expected) // 2, identity["operation"])
     elif actual != expected:
@@ -525,7 +577,15 @@ def worker(args):
         result.update(identity)
         count = math.prod(identity["shape"])
         operation = identity["operation"]
-        lhs, rhs, expected = test_vectors(count, operation)
+        if operation == "rope":
+            *inputs, expected = rope_test_vectors(shape=tuple(identity["shape"]))
+            launch = call_rope_host
+            result.update(table_shape=[identity["shape"][0], identity["shape"][1] // 2],
+                          table_dtype="float32", pairing="interleaved-even-odd", output_index=3,
+                          layout="row-major", reference_backend={"name":"stdlib scalar FP32 RoPE"})
+        else:
+            *inputs, expected = test_vectors(count, operation)
+            launch = call_host
         if operation == "matmul":
             result["matrix_dimensions"] = [math.isqrt(count)] * 3
             result["layout"] = "row-major"
@@ -540,7 +600,8 @@ def worker(args):
             result.update(epsilon=1e-12, weight_shape=identity["shape"], layout="row-major",
                           normalization_rounding="fp16-before-weight-multiply",
                           reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
-        result["input_sha256"] = hashlib.sha256(lhs + rhs).hexdigest()
+        result["input_sha256"] = hashlib.sha256(b"".join(inputs)).hexdigest()
+        result["input_sha256_by_argument"] = [hashlib.sha256(data).hexdigest() for data in inputs]
         previous = check_previous(args, identity, result["input_sha256"])
         timing = None
         if args.measure:
@@ -579,7 +640,7 @@ def worker(args):
             raise RuntimeError("Host module refused the verified device binding")
         result["dispatch_attempted"] = True
         checkpoint("tilelang_tpu_run_timed" if timing is not None else "tilelang_tpu_run_once")
-        actual = call_host(library, lhs, rhs, timing=timing)
+        actual = launch(library, *inputs, timing=timing)
         result["host_call_returned_success"] = True
         checkpoint("compare_reference")
         result["reference"] = check_output(actual, expected, count, operation)

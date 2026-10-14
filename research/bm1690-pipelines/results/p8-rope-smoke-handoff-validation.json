@@ -1,0 +1,73 @@
+{
+  "schema": "bm1690-rope-smoke-handoff-validation-v1",
+  "status": "passed",
+  "recorded_date": "2026-10-14",
+  "board_execution_performed": false,
+  "cmodel_evidence": "p8-rope-smoke-timing-abi-cmodel.json",
+  "unit_tests": [
+    {
+      "pattern": "test_bm1690_*pcie_unittest.py",
+      "count": 118,
+      "exit_code": 0
+    },
+    {
+      "pattern": "test_bm1690_handoff_unittest.py",
+      "count": 13,
+      "exit_code": 0
+    }
+  ],
+  "tests_total": 131,
+  "generated_pipeline": {
+    "extent": 8,
+    "num_stages": 2,
+    "lowered_statement_count": 5,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "stage": [
+      0,
+      0,
+      0,
+      1,
+      1
+    ],
+    "buffer_versions": {
+      "cos": [
+        "cos",
+        "cos_pipeline_v1"
+      ],
+      "sin": [
+        "sin",
+        "sin_pipeline_v1"
+      ],
+      "x": [
+        "x",
+        "x_pipeline_v1"
+      ]
+    },
+    "local_addresses": {
+      "x": 256,
+      "cos": 320,
+      "sin": 384,
+      "x_pipeline_v1": 640,
+      "cos_pipeline_v1": 704,
+      "sin_pipeline_v1": 768
+    },
+    "stores": "after parallel end; completed before output reuse",
+    "physical_overlap_verified": false
+  },
+  "native_libraries_unchanged": {
+    "build-tpu/libtilelang_module.so": "88876fcc5d16be9c12fff294bbf1aecf8de7974fa41b6f85ed1cf66144de57a2",
+    "build-tpu/tvm/libtvm.so": "833631b0c930fe2955821f60818f873a759c70d1b99bdf70368a09d2ec342cb2"
+  },
+  "delivery_files_sha256": {
+    "tilelang/jit/adapter/legacy_pcie.py": "d32d28abfa02acc3d87efdf2cb1a38662f7cc2db84280c80fa033861aedc265b",
+    "tpu_demo/pipeline/run_add_pcie.py": "223d39c082336f12e5d5813698d897f8a47b8776b73f4bb6abc410e1485c5897",
+    "tpu_demo/pipeline/prepare_add_1024.py": "9482796ef364a2198f7e73dcd237717f09b2a7ecbee9dfc65291e0af9bdc7b41",
+    "research/bm1690-pipelines/handoff/rope-smoke-sources.json": "6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb"
+  }
+}

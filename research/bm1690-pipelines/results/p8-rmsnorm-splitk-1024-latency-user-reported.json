@@ -1,0 +1,283 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "893e04160c99c83aa9dc22ad2b8b455c9280d111fd504fd96b9dd3f830fa15c9",
+  "operation": "rmsnorm-splitk",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "weight_shape": [
+    1024,
+    1024
+  ],
+  "epsilon": 1e-12,
+  "normalization_rounding": "fp16-before-weight-multiply",
+  "source_revision": "180b987e834b8cd6e3d13f8fa089a7513771dfb3",
+  "bundle_sha256": "80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a",
+  "runner_sha256": "924e351377112dd634b5961fcb6b4a38e4b15f4f35d26cbf81a2aec8e81d3db7",
+  "builder_sha256": "3003fcdbd6321aba571c2e0615d667b001f7db7436b8f718ed9b5958ab587b7e",
+  "prepare_helper_sha256": "903671bb85932aedc8baeddf8ea23fd8ab1b58e527a87d48319157e3731e92b5",
+  "remote_work_directory": "/home/bokai/bm1690-splitk1024-dfggi5/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rmsnorm-board-latency-evidence-v1",
+  "status": "passed",
+  "sequence_exit_code": 0,
+  "rounds": 1,
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "63f5853ec620576f8765c990a1c7067bb3f498d7bd14f51787be62fa2ab029cf",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 278.7289999999921,
+        "max_us": 59531.049,
+        "median_us": 59026.270000000004,
+        "min_us": 58439.632,
+        "p95_us": 59362.99875,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          59043.232,
+          58982.949,
+          58439.632,
+          58829.909,
+          58512.09,
+          59112.182,
+          59037.492,
+          58454.771,
+          58787.908,
+          59107.503,
+          59015.048,
+          59226.712,
+          59531.049,
+          58925.256,
+          59153.928,
+          59354.154,
+          59232.496,
+          58914.557,
+          58989.333,
+          59335.719
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/run-original/result.json",
+      "timing_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/timing-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "445c1b3918e41dc0f551d5c6c105cb0b45b82d6f9381a4457953c6d91b8b866b",
+        "previous_variant_bitwise_equal": false,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 26.459750000000213,
+        "max_us": 1941.61,
+        "median_us": 1881.3245,
+        "min_us": 1850.644,
+        "p95_us": 1935.6554,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          1879.443,
+          1906.007,
+          1880.764,
+          1850.644,
+          1935.342,
+          1905.127,
+          1897.679,
+          1876.217,
+          1869.181,
+          1868.36,
+          1894.093,
+          1892.853,
+          1901.88,
+          1881.885,
+          1865.147,
+          1858.1,
+          1877.214,
+          1894.455,
+          1941.61,
+          1873.299
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/run-serial/result.json",
+      "timing_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/timing-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm-splitk",
+        "output_sha256": "445c1b3918e41dc0f551d5c6c105cb0b45b82d6f9381a4457953c6d91b8b866b",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 16.167500000000018,
+        "max_us": 1918.703,
+        "median_us": 1851.5839999999998,
+        "min_us": 1830.351,
+        "p95_us": 1871.29705,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          1831.275,
+          1836.772,
+          1854.056,
+          1854.983,
+          1839.311,
+          1868.802,
+          1856.326,
+          1853.522,
+          1855.012,
+          1918.703,
+          1840.007,
+          1843.575,
+          1846.084,
+          1859.03,
+          1838.723,
+          1857.194,
+          1855.892,
+          1843.146,
+          1830.351,
+          1849.646
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/run-pipeline/result.json",
+      "timing_receipt": "/home/bokai/bm1690-splitk1024-dfggi5/work/timing-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": -1.5808277625683487,
+    "serial_over_pipeline_median_ratio": 1.0160621932356297,
+    "original_over_pipeline_median_ratio": 31.878796749161804,
+    "conclusion": "Pipeline median is lower than same-tile serial in this one fixed-order round. Original-to-candidate ratios include row/K tile changes (4x32 to 32x128), not just pipelining. Repeatability, pure device time and physical overlap remain unverified."
+  },
+  "environment_file_contents_received": false,
+  "driver_environment_provenance": "same ongoing session after ordinary RMSNorm target; runtime/PCI mapping checks passed, environment.txt contents were not pasted"
+}

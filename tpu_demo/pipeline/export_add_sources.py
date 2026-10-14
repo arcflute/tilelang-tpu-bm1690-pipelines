@@ -9,7 +9,7 @@ import tempfile
 
 
 def export(*, target_size=False, coarse_tiles=False, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
         raise ValueError("Unsupported handoff operation")
     if operation in ("sub", "mul", "div") and not (target_size and coarse_tiles):
         raise ValueError("Sub/Mul/Div handoffs require the 1024x1024, 128x1024-tile case")
@@ -17,6 +17,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         raise ValueError("Matmul uses fixed 16/32-cubed tiles; --coarse-tiles is for elementwise")
     if operation.startswith("rmsnorm") and coarse_tiles:
         raise ValueError("RMSNorm uses fixed row/K tiles; --coarse-tiles is for elementwise")
+    if operation == "rope" and (target_size or coarse_tiles):
+        raise ValueError("The first RoPE handoff uses the 8x128 smoke")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -32,7 +34,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
                                     cwd=root, text=True).splitlines()
     identity = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in sorted(set(paths)) if (root / name).is_file() and
-                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/", "tpu_demo/rmsnorm/"))}
+                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/", "tpu_demo/rmsnorm/", "tpu_demo/rope/"))}
     rows, width = (1024, 1024) if target_size else (8, 128)
     if operation == "matmul":
         rows = width = 1024 if target_size else 128
@@ -68,6 +70,16 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         functions = {name: build_matmul(m=rows, n=rows, k=rows, block_m=block,
                                        block_n=block, block_k=block, num_stages=stages)
                      for name, block, stages in (("original", 16, 0), ("serial", 32, 0), ("pipeline", 32, 2))}
+    elif operation == "rope":
+        from tpu_demo.rope.rope import build_rope
+        from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
+        bundle["schema"] = "bm1690-rope-source-check-v1"
+        bundle["target"].update(operation="rope", table_shape=[rows, width // 2],
+                                table_dtype="float32", layout="row-major",
+                                pairing="interleaved-even-odd", output_index=3)
+        original = build_rope(rows=rows, width=width, block_rows=4, block_width=32)
+        functions = {"original": original, "serial": pipeline_kernel_tiles(original, 0),
+                     "pipeline": pipeline_kernel_tiles(original, 2)}
     elif operation.startswith("rmsnorm"):
         from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm, build_rmsnorm_splitk
         from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
@@ -102,7 +114,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
             raise AssertionError("Missing generated pipeline schedule/synchronization")
         with tempfile.TemporaryDirectory(prefix="bm1690-export-") as directory:
             TLTPUSourceWrapper(tvm.IRModule({"main": function}), artifact.kernel_source, target,
-                               output_indices=[2], output_dir=directory)
+                               output_indices=[3 if operation == "rope" else 2], output_dir=directory)
             sources = {filename: (Path(directory) / filename).read_text() for filename in SOURCE_NAMES}
         bundle["variants"][name] = {
             "num_stages": 2 if name == "pipeline" else 0,
@@ -114,6 +126,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         }
         if operation == "matmul":
             bundle["variants"][name]["tiling"] = [16 if name == "original" else 32] * 3
+        if operation == "rope":
+            bundle["variants"][name]["tiling"] = [4, 32]
         if operation.startswith("rmsnorm"):
             bundle["variants"][name]["tiling"] = (
                 [4, 32 if operation == "rmsnorm-splitk" else width] if name == "original"
@@ -187,11 +201,11 @@ def main():
     mode.add_argument("--verify-cmodel-bundle", type=Path)
     parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
     parser.add_argument("--coarse-tiles", action="store_true", help="128x1024 tiles, retaining the original baseline")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
-        if json.loads(args.verify_cmodel_bundle.read_text())["target"].get("operation") in ("matmul", "rmsnorm", "rmsnorm-splitk"):
-            parser.error("Use the exact-ABI check_add_pcie_cmodel worker for Matmul/RMSNorm")
+        if json.loads(args.verify_cmodel_bundle.read_text())["target"].get("operation") in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+            parser.error("Use the exact-ABI check_add_pcie_cmodel worker for Matmul/RMSNorm/RoPE")
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))
         return

@@ -495,6 +495,139 @@ class RMSNormSplitKTargetManifestTests(RMSNormTargetManifestTests):
     operation = "rmsnorm-splitk"
 
 
+class RoPEManifestTests(ManifestTests):
+    bundle_name = "rope-smoke-sources.json"
+
+    def test_receipt_rechecks_rope_tolerance_before_timing(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["operation"], "rope")
+        self.assertEqual(identity["shape"], [8, 128])
+        self.assertTrue(identity["timing_supported"])
+        directory = self.root / "correctness"
+        directory.mkdir()
+        args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
+                               expected_pci="0000:01:00.0")
+        expected = struct.pack("<e", 1.0)
+        for value, passes in ((1.0009765625, True), (1.02, False), (float("nan"), False)):
+            (directory / "output.f16").write_bytes(struct.pack("<e", value))
+            numeric = {"status":"passed", "reference":{"passed":True}, "variant":"original",
+                       "shape":identity["shape"], "bundle_sha256":self.bundle_hash,
+                       "build_manifest_sha256":identity["build_manifest_sha256"], "input_sha256":"input",
+                       "device_id":0, "expected_pci":"0000:01:00.0",
+                       "output_sha256":runner.digest(directory / "output.f16")}
+            (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+            if passes:
+                self.assertTrue(runner.check_correctness_receipt(args, identity, "input", expected))
+            else:
+                with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                    runner.check_correctness_receipt(args, identity, "input", expected)
+
+
+class RoPEReferenceTests(unittest.TestCase):
+    def test_identity_and_quarter_turn_keep_interleaved_pairs(self):
+        source = struct.pack("<" + "e" * 1024, *([1.0, 2.0] * 512))
+        ones, zeros = struct.pack("<" + "f" * 512, *([1.0] * 512)), bytes(2048)
+        self.assertEqual(runner.rope_reference(source, ones, zeros), source)
+        rotated = struct.pack("<" + "e" * 1024, *([-2.0, 1.0] * 512))
+        self.assertEqual(runner.rope_reference(source, zeros, ones), rotated)
+
+    def test_row_and_pair_tables_are_used_without_broadcast_or_swap(self):
+        source, cosine, sine, expected = runner.rope_test_vectors()
+        self.assertEqual(cosine[:256], struct.pack("<" + "f" * 64, *([1.0] * 64)))
+        self.assertEqual(sine[:256], bytes(256))
+        self.assertNotEqual(cosine[256:512], cosine[512:768])
+        for c, s in ((sine, cosine), (cosine[:256] * 8, sine[:256] * 8)):
+            wrong = runner.rope_reference(source, c, s)
+            with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                runner.check_output(wrong, expected, 1024, "rope")
+        for variant in ("serial", "pipeline"):
+            different = struct.pack("<e", 0.5) + expected[2:]
+            with self.assertRaisesRegex(ValueError, "bitwise"):
+                runner.check_previous_output(different, expected, 1024, "rope", variant)
+
+    def test_wrong_shape_and_table_lengths_fail_before_dispatch(self):
+        source, cosine, sine, _ = runner.rope_test_vectors()
+        with self.assertRaises(ValueError):
+            runner.rope_test_vectors(shape=(1024, 1024))
+        with self.assertRaises(ValueError):
+            runner.rope_reference(source, cosine, sine, shape=(8, 64))
+        for args in ((source, cosine[:1024], sine), (source[:-2], cosine, sine), (b"", b"", b"")):
+            with self.assertRaises(ValueError):
+                runner.call_rope_host(None, *args)
+            with self.assertRaises(ValueError):
+                runner.rope_reference(*args)
+
+
+FAKE_ROPE_HOST = r'''
+#include <cstdlib>
+#include <cstring>
+// DATA
+static int calls = 0;
+extern "C" int get_calls() { return calls; }
+extern "C" int tilelang_tpu_run(void **args) {
+  ++calls;
+  const char *mode = getenv("ROPE_TEST_MODE");
+  if (mode && !strcmp(mode,"status")) return 7;
+  if (memcmp(args[0], source, sizeof(source)) || memcmp(args[1], cosine, sizeof(cosine)) ||
+      memcmp(args[2], sine, sizeof(sine))) return 99;
+  size_t size = sizeof(reference);
+  if (mode && !strcmp(mode,"partial")) size -= 2;
+  memcpy(args[3], reference, size);
+  if (mode && !strcmp(mode,"canary")) static_cast<unsigned char *>(args[3])[size] = 0;
+  if (mode && !strncmp(mode,"mutate",6)) static_cast<unsigned char *>(args[mode[6]-'0'])[0] ^= 1;
+  if (mode && !strcmp(mode,"input-canary")) static_cast<unsigned char *>(args[2])[-1] = 0;
+  return 0;
+}
+extern "C" int tilelang_tpu_run_timed(void **args, int warmups, int count, double *samples) {
+  for (int i=0; i<warmups+count; ++i) {
+    int rc = tilelang_tpu_run(args);
+    if (rc) return rc;
+    if (i>=warmups) samples[i-warmups] = 10.0 + i;
+  }
+  return 0;
+}
+'''
+
+
+@unittest.skipUnless(shutil.which("c++"), "host C++ compiler required")
+class RoPEHostABITests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cls.temp.cleanup)
+        root = Path(cls.temp.name)
+        data = "\n".join("static const unsigned char " + name + "[] = {" +
+                         ",".join(map(str, value)) + "};" for name, value in
+                         zip(("source", "cosine", "sine", "reference"), runner.rope_test_vectors()))
+        source = write(root / "fake.cpp", FAKE_ROPE_HOST.replace("// DATA", data).encode())
+        library = root / "fake.so"
+        subprocess.run(["c++", "-O0", "-shared", "-fPIC", str(source), "-o", str(library)], check=True, timeout=30)
+        cls.library = ctypes.CDLL(str(library))
+
+    def test_four_argument_one_call_and_timed_staging(self):
+        source, cosine, sine, expected = runner.rope_test_vectors()
+        for timing, calls in ((None, 1), ({"warmups":2, "samples":3}, 5)):
+            before = self.library.get_calls()
+            with patch.dict(os.environ, {"ROPE_TEST_MODE":""}):
+                actual = runner.call_rope_host(self.library, source, cosine, sine, timing=timing)
+            self.assertEqual(actual, expected)
+            self.assertEqual(self.library.get_calls() - before, calls)
+            if timing is not None:
+                self.assertEqual(timing["raw_us"], [12.0, 13.0, 14.0])
+
+    def test_partial_output_canaries_and_all_three_input_mutations_fail(self):
+        source, cosine, sine, expected = runner.rope_test_vectors()
+        for mode in ("status", "partial", "canary", "input-canary", "mutate0", "mutate1", "mutate2"):
+            with self.subTest(mode=mode), patch.dict(os.environ, {"ROPE_TEST_MODE":mode}):
+                with self.assertRaises((RuntimeError, ValueError)):
+                    runner.check_output(runner.call_rope_host(self.library, source, cosine, sine), expected, 1024, "rope")
+
+    def test_equal_size_swapped_tables_are_rejected_by_callee(self):
+        source, cosine, sine, _ = runner.rope_test_vectors()
+        with patch.dict(os.environ, {"ROPE_TEST_MODE":""}), self.assertRaisesRegex(RuntimeError, "returned 99"):
+            runner.call_rope_host(self.library, source, sine, cosine)
+
+
 class RMSNormReferenceTests(unittest.TestCase):
     def test_fp16_normalization_boundary_changes_the_result(self):
         # RMS([1,2,...])=sqrt(2.5); applying weight before the FP16 boundary

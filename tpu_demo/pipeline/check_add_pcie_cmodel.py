@@ -24,12 +24,13 @@ def main():
                                                BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
                                                ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
                                                MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES,
-                                               RMSNORM_TARGET_BUNDLES)
+                                               RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256,
+                                               rope_test_vectors, call_rope_host)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
     parser.add_argument("--coarse-tiles", action="store_true")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm: one bounded worker per variant")
     args = parser.parse_args()
@@ -44,6 +45,8 @@ def main():
         parser.error("Matmul does not use elementwise --coarse-tiles")
     if args.operation.startswith("rmsnorm") and args.coarse_tiles:
         parser.error("RMSNorm does not use elementwise --coarse-tiles")
+    if args.operation == "rope" and (args.target_size or args.coarse_tiles):
+        parser.error("RoPE currently uses the 8x128 smoke")
     if bool(args.variant) != target_worker:
         parser.error("--variant is required only for target Matmul/RMSNorm; compare worker outputs afterward")
 
@@ -63,14 +66,32 @@ def main():
     if args.operation.startswith("rmsnorm"):
         bundle_path = bundle_path.with_name(args.operation + ("-1024-sources.json" if rmsnorm_target else "-smoke-sources.json"))
         bundle_hash = (RMSNORM_TARGET_BUNDLES if rmsnorm_target else RMSNORM_BUNDLES)[args.operation]
+    if args.operation == "rope":
+        bundle_path = bundle_path.with_name("rope-smoke-sources.json")
+        bundle_hash = ROPE_BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
     rows, width = bundle["target"]["shape"]
     count = rows * width
-    lhs, rhs, expected = test_vectors(count, args.operation)
+    if args.operation == "rope":
+        *inputs, expected = rope_test_vectors(shape=(rows, width))
+        launch = call_rope_host
+    else:
+        *inputs, expected = test_vectors(count, args.operation)
+        launch = call_host
     # Independent Torch check of the scalar/NumPy FP32 reference.
-    a,b = [torch.frombuffer(bytearray(value),dtype=torch.float16) for value in (lhs,rhs)]
+    if args.operation == "rope":
+        from tpu_demo.rope.rope import _reference, _cosine_sine
+        source = torch.frombuffer(bytearray(inputs[0]), dtype=torch.float16).reshape(rows, width)
+        cosine, sine = [torch.frombuffer(bytearray(data), dtype=torch.float32).reshape(rows, width//2) for data in inputs[1:]]
+        torch_reference = _reference(source, cosine, sine)
+        independent = check_output(expected, torch_reference.numpy().tobytes(), count, "rope")
+        demo_tables = _cosine_sine(rows, width)
+        table_errors = [float((actual - demo).abs().max()) for actual,demo in zip((cosine,sine),demo_tables)]
+        assert all(torch.allclose(actual, demo, atol=2e-6, rtol=2e-6) for actual,demo in zip((cosine,sine),demo_tables))
+    else:
+        a,b = [torch.frombuffer(bytearray(value),dtype=torch.float16) for value in inputs]
     if args.operation == "matmul":
         torch_reference = (a.float().reshape(rows,width) @ b.float().reshape(rows,width)).half()
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, "matmul")
@@ -79,7 +100,7 @@ def main():
         normalized = value * torch.rsqrt(value.square().mean(dim=1, keepdim=True) + 1e-12)
         torch_reference = (normalized.half().float() * weight).half()
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, args.operation)
-    else:
+    elif args.operation != "rope":
         calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[args.operation]
         assert calculate(a.float(), b.float()).half().numpy().tobytes() == expected
         independent = {"bitwise_equal_to_reference": True, "passed": True}
@@ -93,14 +114,14 @@ def main():
         build.compile_lib(timeout=60)
         library = build.load_lib()
         owners.append((build,library))
-        output = call_host(library, lhs, rhs)
+        output = launch(library, *inputs)
         records[variant] = {"reference":check_output(output,expected,count,args.operation),
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
-        if args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk"):
+        if args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
             timing = {"warmups": 1, "samples": 1 if target_worker else 2}
-            repeated = call_host(library, lhs, rhs, timing=timing)
+            repeated = launch(library, *inputs, timing=timing)
             assert repeated == output
             # Emulator wall times are never emitted as device latency evidence.
             records[variant]["timing_abi_check"] = {
@@ -119,7 +140,7 @@ def main():
               "operation":args.operation,
               "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
               "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],
-              "input_sha256":hashlib.sha256(lhs+rhs).hexdigest(), "variants":records,
+              "input_sha256":hashlib.sha256(b"".join(inputs)).hexdigest(), "variants":records,
               "reference_matches_torch":True, "independent_reference_comparison":independent,
               "original_serial_comparison":original_comparison,
               "all_variants_bitwise_equal":outputs[0] == outputs[1] == outputs[2] if not args.variant else None,
@@ -133,6 +154,11 @@ def main():
         report.update(selected_variant=args.variant, epsilon=1e-12, weight_shape=[rows,width],
                       normalization_rounding="fp16-before-weight-multiply",
                       reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
+    if args.operation == "rope":
+        report.update(table_shape=[rows,width//2], table_dtype="float32", pairing="interleaved-even-odd",
+                      output_index=3, table_max_abs_difference_from_demo=table_errors,
+                      input_sha256_by_argument=[hashlib.sha256(data).hexdigest() for data in inputs],
+                      reference_backend={"name":"stdlib scalar FP32 RoPE"})
     print("BM1690_PIPELINE_RESULT=" + json.dumps(report,sort_keys=True))
 
 

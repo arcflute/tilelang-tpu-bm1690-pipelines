@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "3003fcdbd6321aba571c2e0615d667b001f7db7436b8f718ed9b5958ab587b7e"),
+                 "d32d28abfa02acc3d87efdf2cb1a38662f7cc2db84280c80fa033861aedc265b"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "924e351377112dd634b5961fcb6b4a38e4b15f4f35d26cbf81a2aec8e81d3db7"),
+                   "223d39c082336f12e5d5813698d897f8a47b8776b73f4bb6abc410e1485c5897"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -55,7 +55,11 @@ RMSNORM_SOURCES = {'rmsnorm-smoke': ('research/bm1690-pipelines/handoff/rmsnorm-
 
 RMSNORM_SOURCES.update({'rmsnorm-target': ('research/bm1690-pipelines/handoff/rmsnorm-1024-sources.json', '2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb'), 'rmsnorm-splitk-target': ('research/bm1690-pipelines/handoff/rmsnorm-splitk-1024-sources.json', '80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a')})
 
+ROPE_SOURCE = ("research/bm1690-pipelines/handoff/rope-smoke-sources.json", '6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb')
+
 def source_files(case):
+    if case == "rope-smoke":
+        return {**FILES, "add.json": ROPE_SOURCE}
     if case in RMSNORM_SOURCES:
         return {**FILES, "add.json": RMSNORM_SOURCES[case]}
     if case == "matmul-target":
@@ -125,8 +129,8 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target"), default="target",
-                        help="Elementwise, Matmul or RMSNorm ordinary/Split-K smoke/target")
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke"), default="target",
+                        help="Elementwise, Matmul, RMSNorm ordinary/Split-K or RoPE smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
                         help="official GitHub endpoint; source SHA256 pins are identical")
@@ -183,7 +187,7 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES else
+            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case == "rope-smoke" else
                       "MATMUL1024" if args.case == "matmul-target" else
                       "MATMUL128" if args.case == "matmul-smoke" else
                       (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")

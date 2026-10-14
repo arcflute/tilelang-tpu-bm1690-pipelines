@@ -97,27 +97,34 @@ Pipeline is 4.291% below serial in this one fixed-order round. Original uses
 All 60 raw samples are retained in
 `results/p8-rmsnorm-1024-latency-user-reported.json`.
 
-Next is Split-K RMSNorm 1024x1024 board validation. Both target handoffs have
-already passed exact-source CModel checks in six separately
-supervised workers, plus all 118 relevant regression checks. Each candidate
-pipeline is bitwise equal to its same-tile serial baseline. All outputs pass the
-independent reference with maximum absolute error 0.0009765625. Ordinary's three
-outputs are bitwise equal; Split-K original/candidate outputs differ within
-tolerance because the K tile changes from 32 to 128. Evidence is
-`results/p8-rmsnorm-1024-timing-abi-cmodel.json` and
-`results/p8-rmsnorm-splitk-1024-timing-abi-cmodel.json`.
+Split-K RMSNorm has now also completed FP16 1024x1024 board acceptance in
+`/home/bokai/bm1690-splitk1024-dfggi5/work`, from revision
+`180b987e834b8cd6e3d13f8fa089a7513771dfb3`. All 18 build commands and six test
+processes passed. Each output hash matches CModel; serial/pipeline are bitwise
+equal, while original differs within tolerance because of different reduction
+grouping. Maximum reference error is 0.0009765625, with zero tolerance mismatches.
+Median synchronous-call latencies are 59026.27 / 1881.3245 / 1851.584 us.
+Pipeline is 1.581% below same-tile serial in this one fixed-order round. The
+31.879 original-to-pipeline ratio includes row/K tile changes from 4x32 to
+32x128. Evidence and all 60 raw samples are in
+`results/p8-rmsnorm-splitk-1024-{build,three-variants-board,latency}-user-reported.json`.
 
-Reuse `/home/bokai/bm1690-rmsnorm1024-XOF4Zd/prepare.py` from revision
-`180b987e834b8cd6e3d13f8fa089a7513771dfb3`, verify SHA256
-`903671bb85932aedc8baeddf8ea23fd8ab1b58e527a87d48319157e3731e92b5`, and use
-`--case rmsnorm-splitk-target` in a new directory. Preparation and both RMSNorm
-references use only standard Python. Split-K target board compilation/execution
-remain pending; its CModel validation is complete.
+Three of the six operator families have completed their first single-core board
+target correctness and synchronous-call latency acceptance: elementwise,
+Matmul and RMSNorm (ordinary and Split-K). This is not completion of the entire
+performance/multicore matrix. Next is RoPE smoke, followed by RoPE target,
+SwiGLU and FlashAttention. Repeated varied-order rounds and multicore board
+acceptance remain later work.
+
+RoPE's new four-argument handoff passed exact-source BM1690 CModel validation
+for all three variants at FP16 8x128 with FP32 8x64 cosine/sine tables. Outputs
+match each other and the independent reference bitwise, with maximum error zero.
+All 131 relevant host ABI, manifest, reference, supervisor and handoff regression
+checks passed. Use a new pinned `prepare_add_1024.py` with `--case rope-smoke`;
+the previous RMSNorm helper does not support this case. Board RoPE compilation
+and execution remain pending. The runner and reference use standard Python.
 After each build, perform one-call correctness before five warmups and 20
 resident synchronous-call samples per variant, stopping on the first failure.
-After Split-K target acceptance, continue RoPE, SwiGLU and FlashAttention.
-All six families remain in scope; repeated
-varied-order rounds and multicore board acceptance remain later work.
 
 ## Execution and evidence
 
@@ -1149,7 +1156,7 @@ dependencies changed. On the board, run ordinary then Split-K, each with fresh
 one-call correctness followed by five warmups/20 resident synchronous calls per
 variant. Compare pipeline against its same-tile serial; original-to-candidate
 ratios also include tiling changes. The subsequent ordinary target board results
-are recorded below; Split-K target board validation remains pending.
+are recorded below, followed by Split-K target board results.
 
 The user completed ordinary RMSNorm 1024x1024 in
 `/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work` from revision
@@ -1177,5 +1184,71 @@ Timing includes host launch plus stream synchronization, excluding compilation,
 allocation, module loading, H2D, D2H and reference work. Evidence is the supplied
 terminal output; full remote result JSON and `environment.txt` contents have not
 been received. This completes first-round ordinary RMSNorm target acceptance.
-Repeated varied-order rounds, pure device timing, physical overlap and Split-K
-target board validation remain pending.
+Repeated varied-order rounds, pure device timing and physical overlap remain
+unverified. Split-K target board results follow.
+
+
+The user completed Split-K RMSNorm 1024x1024 in
+`/home/bokai/bm1690-splitk1024-dfggi5/work` from the same target handoff revision
+`180b987e834b8cd6e3d13f8fa089a7513771dfb3`. All 18 build commands and six
+correctness/timing processes passed, ending with `SPLITK1024_EXIT=0`.
+All outputs are finite and within `atol=rtol=0.01` of the independent reference,
+maximum absolute error 0.0009765625. Input/output hashes match CModel.
+Serial/pipeline outputs are bitwise equal; original differs within tolerance
+because the K tiles change from 32 to 128. This Split-K is two ordered K passes
+on one TPU core; it is not a multicore reduction.
+
+| Split-K RMSNorm FP16 1024x1024, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original 4x32 tiles | 59026.2700 | 278.72900 | 59362.99875 |
+| same-tile serial 32x128 | 1881.3245 | 26.45975 | 1935.65540 |
+| pipeline 32x128, depth 2 | 1851.5840 | 16.16750 | 1871.29705 |
+
+Five warmups and 20 resident samples per variant ran in fixed original/serial/
+pipeline order. All 60 raw samples and recomputed statistics are retained in
+`results/p8-rmsnorm-splitk-1024-latency-user-reported.json`. Pipeline median is
+1.581% lower than same-tile serial in this round. The 31.879 original-to-pipeline
+ratio includes row/K tiling changes and must not be attributed to pipelining.
+The boundary is host launch plus stream synchronization, excluding compilation,
+allocation, module loading, H2D, D2H and reference. Full remote JSON receipts and
+`environment.txt` contents have not been received; this is supplied terminal
+output evidence. Stable gains, pure device time and physical overlap remain
+unverified. Both RMSNorm target variants now have first-round board acceptance.
+
+## P8.10 RoPE smoke handoff
+
+`build_rope` retains interleaved even/odd pairs, FP16 input/output (8x128) and
+FP32 cosine/sine tables (8x64). All variants use 4x32 tiles. The generated ABI is
+`source, cosine, sine, destination`, with output index 3 and 2048 bytes per
+argument. The equal byte counts do not imply equal dtypes. The standard-library
+reference rounds each product and add/sub to FP32 before FP16 output; the CPU
+PyTorch demo reference independently agrees bitwise for the supplied inputs.
+Generated tables differ from the demo's Torch tables by at most 5.96046448e-8;
+all variants/reference use the same recorded table bytes.
+
+The flattened eight-tile loop has five lowered statements: three loads, the
+16-pair compute loop, and one store. Its depth-2 stage array is [0,0,0,1,1], with
+order [0,1,2,3,4]. Generated local addresses are x 256/640, cos 320/704 and sin
+384/768 for the two versions. The source contains a fill, seven steady steps
+that prefetch the next tile in a parallel scope with current computation, and a
+final drain. Output and compute temporaries remain single-version; each store
+follows parallel end and completes before reuse. The inner pair loop preserves
+the original FP32 arithmetic and output placement. No compiler/native changes
+were needed for this handoff. These are generated-schedule facts, not proof of
+physical hardware overlap.
+
+All three exact source sets compiled and ran under the existing PPL 1.7 BM1690
+CModel, including one warmup/two sample calls to check the timed ABI. Outputs
+are bitwise equal across variants and reference, maximum error zero. The worker
+was bounded to two host CPUs, 4096 MiB group RSS and 120 seconds. CModel timing
+samples are not retained as device performance data. Evidence is
+`results/p8-rope-smoke-timing-abi-cmodel.json`; the source bundle is
+`handoff/rope-smoke-sources.json`.
+
+The board runner now checks four host buffers, all three inputs' immutability,
+canaries and NaN-prefilled output. Host-only tests cover mixed-dtype argument
+ordering, swapped equal-size tables, partial output, overwritten inputs,
+canary corruption, reference/timing receipts, pairing, and strict
+serial/pipeline equality. All 118 PCIe regression checks and 13 download-handoff
+checks passed. Existing source bundles and historical builders remain accepted.
+Board smoke compilation/execution is pending; 1024 target follows that check.

@@ -140,6 +140,22 @@ class LegacyTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 legacy.validate_source_bundle(bad)
 
+    def test_rope_schema_preserves_table_dtype_pairing_and_four_argument_abi(self):
+        bundle = json.loads((ROOT / "research/bm1690-pipelines/handoff/rope-smoke-sources.json").read_text())
+        legacy.validate_source_bundle(bundle)
+        for key, value in (("table_dtype", "float16"), ("table_shape", [8, 128]),
+                           ("pairing", "split-half"), ("output_index", 2),
+                           ("shape", [1024, 1024]), ("layout", "column-major")):
+            bad = copy.deepcopy(bundle)
+            bad["target"][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+        for key, value in (("tiling", [4, 31]), ("num_stages", 3)):
+            bad = copy.deepcopy(bundle)
+            bad["variants"]["pipeline"][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+
     def test_matmul_target_cannot_change_k_size_or_precision(self):
         bundle = json.loads((ROOT / "research/bm1690-pipelines/handoff/matmul-1024-sources.json").read_text())
         legacy.validate_source_bundle(bundle)
