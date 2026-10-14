@@ -23,10 +23,19 @@ is available. Secure Boot is disabled. Named `modinfo sgcard` lookup finds no
 installed module, while `/opt/tpuv7/driver-1.9.3/sgcard.ko` still targets
 `6.17.0-35-generic`. The installed source's `sgdrv_fw.c` hash matches the previous
 successful `7.0.0-31` build copy; this does not establish equality of the entire
-source tree. The next action is an isolated, bounded build against `7.0.0-34`
-using the existing source and tools, followed by inspection before loading.
-Do not force-load the old module. Neither the new driver build nor a board
-kernel or latency test has been reported as executed during this recovery.
+source tree. The isolated build against `7.0.0-34` has now completed with exit
+zero in `/home/bokai/sgcard-build-7.0.0-34-C6NGFW`, using two allowed CPUs,
+`make -j1`, nice 10 and a 180-second timeout per make command. The resulting
+module reports name `sgcard`, version `1.9.3` and vermagic
+`7.0.0-34-generic SMP preempt mod_unload modversions`; its SHA256 is
+`0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65`.
+The original installed module and firmware-loading source both passed their
+pre/post-build checksums. The build log reports disabled optional RDMA support
+and skipped BTF generation; it does not establish runtime readiness.
+The next action is one bounded temporary load of the verified new module,
+followed by kernel-log, initstate, device-node and PCI-binding inspection.
+No new-module load, board kernel or latency test has yet been reported during
+this recovery. Do not force-load either older-kernel module.
 
 Mul's runner hash still matches, all three saved correctness receipts report
 `passed`, and no `timing-*` directories exist in
