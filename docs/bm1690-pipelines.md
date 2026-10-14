@@ -135,8 +135,11 @@ ABI are preserved. All 141 relevant regression checks passed. Use a new pinned
 `prepare_add_1024.py` with `--case rope-target`; the old smoke helper does not
 support this case. All three target board builds subsequently passed, but the
 original one-call execution timed out at the 90-second supervisor deadline.
-Host cleanup is confirmed; the underlying runtime call and device readiness
-remain unverified pending kernel logs and a host-call diagnostic.
+Host cleanup is confirmed. A later kernel-journal report shows
+`send_quit_request: FORCE_QUIT default timeout` at 18:12:20. Device task cleanup
+and readiness remain unverified; inspect the driver error path and current
+device users before further board dispatch. The original-only host-call
+diagnostic is prepared and CModel-validated, but has not run on the board.
 The runner/reference use standard Python. Keep one-call correctness before five
 warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
 limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
@@ -1368,8 +1371,8 @@ the device node and PCI binding are confirmed after failure. The supplied
 process search found no runner processes. These observations establish host
 cleanup and driver presence, not idle/completed/reset firmware. Evidence is
 `results/p8-rope-1024-timeout-diagnostics-user-reported.json`. Kernel logs and
-the observed board SDK's poll/synchronization declarations are requested before
-further board execution. Do not simply extend the timeout or substitute a
+the observed board SDK's poll/synchronization declarations were initially requested;
+the follow-up findings are below. Do not simply extend the timeout or substitute a
 candidate for the failed original baseline.
 
 A separate diagnostic bundle is derived reproducibly by
@@ -1394,3 +1397,21 @@ compiler passes, device kernels, SDK and dependencies remain unchanged.
 The diagnostic board build/execution remains pending. It is prepared so that,
 once device-state evidence supports a controlled call, the exact unreturned
 runtime API can be located without another uninstrumented retry or timing batch.
+
+The subsequent user-supplied journal contains a driver error at 18:12:20:
+`[host drv-0, send_quit_request, 379]:FORCE_QUIT default timeout!`
+with request ID `0x2348`, PID field `0x2a446b` and `stream_num: 2`.
+The failed run log's reported mtime is 18:09:49.956059557 +0800; the PID has not
+yet been correlated to the worker. The exact condition and recovery semantics
+require inspection of the installed driver's source. Host process-group cleanup
+does not establish device task cleanup. Keep board dispatch held while checking
+that source, the full failure-window journal and users of both device nodes.
+The 15:41 module-signature warning and initial channel-state values are earlier
+load-time observations, not a current firmware health check.
+
+The board PPL 1.4 header confirms declarations for `tpu_poll`,
+`tpu_poll_descriptor`, `tpu_poll_empty` and the `tpu_sync_*` family. Their presence
+alone neither identifies the timeout cause nor justifies inserting additional
+polls or synchronization into the kernel. No such implementation change,
+driver reset/unload or new board execution was performed for this follow-up.
+Evidence is `results/p8-rope-1024-force-quit-user-reported.json`.

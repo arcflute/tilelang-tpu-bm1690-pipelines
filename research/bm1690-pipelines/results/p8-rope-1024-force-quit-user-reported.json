@@ -1,0 +1,67 @@
+{
+  "schema": "bm1690-rope-target-kernel-log-evidence-v1",
+  "evidence_kind": "user_supplied_filtered_kernel_journal_and_sdk_declarations",
+  "recorded_date": "2026-10-14",
+  "attachment_sha256": "ccbc089ba9813bc29c14c8d667b9d369ea621a5c0864abf3ef825bf43fb164b8",
+  "remote_work_directory": "/home/bokai/bm1690-rope1024-ehiG4z/work",
+  "related_evidence": "p8-rope-1024-timeout-diagnostics-user-reported.json",
+  "reported_wall_clock": "2026-10-14T18:42:33+08:00",
+  "run_log_mtime": "2026-10-14 18:09:49.956059557 +0800",
+  "driver_event": {
+    "journal_timestamp": "Oct 14 18:12:20",
+    "message": "[host drv-0, send_quit_request, 379]:FORCE_QUIT default timeout! request_id:0x2348 pid is:0x2a446b stream_num: 2",
+    "function": "send_quit_request",
+    "reported_source_line": 379,
+    "request_id_raw": "0x2348",
+    "pid_raw": "0x2a446b",
+    "stream_num_raw": 2,
+    "pid_correlated_to_test_worker": false,
+    "function_implementation_inspected": false
+  },
+  "earlier_driver_initialization": {
+    "module_signature_warning_time": "Oct 14 15:41:02",
+    "chip_0_initialized_time": "Oct 14 15:41:15",
+    "chip_1_initialized_time": "Oct 14 15:41:25",
+    "channel_state_zero_is_initialization_time_observation": true
+  },
+  "sdk_header": {
+    "path": "/home/bokai/ChunkScan-bm1690-deps/ppl_v1.4.195-geb2acdd0-20250220/runtime/bm1690/TPU1686/kernel/include/tpu_kernel.h",
+    "declarations_by_line": {
+      "226": "void tpu_initialize();",
+      "230": "void tpu_poll();",
+      "232": "void tpu_poll_descriptor();",
+      "234": "void tpu_poll_empty();",
+      "5595": "void tpu_sync_core();",
+      "5596": "void tpu_sync_all();",
+      "5597": "void tpu_sync_all_with_msg_id(int);",
+      "5598": "void tpu_sync_all_bdc();",
+      "5599": "void tpu_sync_all_gdma();",
+      "5600": "void tpu_sync_all_sdma();",
+      "5601": "void tpu_sync_all_hau();",
+      "5602": "void tpu_sync_core_innner();",
+      "5606": "void tpu_sync_finish();"
+    },
+    "implementations_or_required_poll_placement_verified": false
+  },
+  "interpretation": {
+    "driver_reported_force_quit_timeout": true,
+    "host_process_cleanup_does_not_establish_device_task_cleanup": true,
+    "device_readiness_after_failure_verified": false,
+    "timeout_root_cause": "unverified; obtain send_quit_request source, full failure-window journal and device users",
+    "runtime_api_that_blocked": "unverified; existing Python checkpoint covers multiple runtime calls",
+    "new_poll_or_sync_fix_justified_by_declarations_alone": false,
+    "signature_warning_is_not_new_failure_time_event": true
+  },
+  "next_steps": [
+    "Read driver FORCE_QUIT implementation and full failure-window journal",
+    "Inspect processes using both character devices and module reference count",
+    "Determine a supported recovery procedure from actual code and state before new board dispatch",
+    "After recovery assessment, use prepared original-only host-call diagnostic; no timing or automatic retry"
+  ],
+  "actions_this_followup": {
+    "board_kernel_retried": false,
+    "driver_unloaded_or_reset": false,
+    "implementation_changed": false,
+    "diagnostic_board_run_performed": false
+  }
+}
