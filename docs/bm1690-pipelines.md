@@ -84,8 +84,21 @@ normalized value before weight multiplication; these contracts are retained.
 Evidence is `results/p8-rmsnorm-smoke-timing-abi-cmodel.json` and
 `results/p8-rmsnorm-splitk-smoke-timing-abi-cmodel.json`.
 
-Next are the 1024x1024 RMSNorm board cases, ordinary first, then Split-K.
-Both target handoffs have now passed exact-source CModel checks in six separately
+Ordinary RMSNorm has now completed target board acceptance at FP16 1024x1024,
+one TPU launch core, from revision `180b987e834b8cd6e3d13f8fa089a7513771dfb3`.
+All 18 build commands and six correctness/timing processes passed in
+`/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work`. All three outputs are bitwise equal
+to each other and match their CModel hashes, with maximum reference error
+0.0009765625 and zero tolerance mismatches. Median synchronous-call latencies
+are 1787.4105 / 273.9225 / 262.1675 us for original / same-tile serial / pipeline.
+Pipeline is 4.291% below serial in this one fixed-order round. Original uses
+4x1024 tiles and candidates use 32x1024, so the original-to-pipeline ratio of
+6.818 includes tiling changes. Repeatability and physical overlap are unverified.
+All 60 raw samples are retained in
+`results/p8-rmsnorm-1024-latency-user-reported.json`.
+
+Next is Split-K RMSNorm 1024x1024 board validation. Both target handoffs have
+already passed exact-source CModel checks in six separately
 supervised workers, plus all 118 relevant regression checks. Each candidate
 pipeline is bitwise equal to its same-tile serial baseline. All outputs pass the
 independent reference with maximum absolute error 0.0009765625. Ordinary's three
@@ -94,13 +107,15 @@ tolerance because the K tile changes from 32 to 128. Evidence is
 `results/p8-rmsnorm-1024-timing-abi-cmodel.json` and
 `results/p8-rmsnorm-splitk-1024-timing-abi-cmodel.json`.
 
-Download the new pinned `prepare_add_1024.py` and use `--case rmsnorm-target`,
-then `--case rmsnorm-splitk-target`, in separate new directories. The old smoke
-helper does not accept target cases. Preparation and both RMSNorm references
-still use only standard Python. Target board compilation/execution remain pending.
+Reuse `/home/bokai/bm1690-rmsnorm1024-XOF4Zd/prepare.py` from revision
+`180b987e834b8cd6e3d13f8fa089a7513771dfb3`, verify SHA256
+`903671bb85932aedc8baeddf8ea23fd8ab1b58e527a87d48319157e3731e92b5`, and use
+`--case rmsnorm-splitk-target` in a new directory. Preparation and both RMSNorm
+references use only standard Python. Split-K target board compilation/execution
+remain pending; its CModel validation is complete.
 After each build, perform one-call correctness before five warmups and 20
 resident synchronous-call samples per variant, stopping on the first failure.
-After the two target cases, continue RoPE, SwiGLU and FlashAttention.
+After Split-K target acceptance, continue RoPE, SwiGLU and FlashAttention.
 All six families remain in scope; repeated
 varied-order rounds and multicore board acceptance remain later work.
 
@@ -1133,4 +1148,34 @@ accepted. No kernel arithmetic, compiler passes, native libraries or installed
 dependencies changed. On the board, run ordinary then Split-K, each with fresh
 one-call correctness followed by five warmups/20 resident synchronous calls per
 variant. Compare pipeline against its same-tile serial; original-to-candidate
-ratios also include tiling changes. Target board results remain pending.
+ratios also include tiling changes. The subsequent ordinary target board results
+are recorded below; Split-K target board validation remains pending.
+
+The user completed ordinary RMSNorm 1024x1024 in
+`/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work` from revision
+`180b987e834b8cd6e3d13f8fa089a7513771dfb3`. All 18 build commands and six
+correctness/timing processes passed, ending with `RMSNORM1024_EXIT=0`.
+All outputs are finite and bitwise equal across original/serial/pipeline, and
+each input/output hash matches CModel. Maximum reference error is 0.0009765625
+with zero mismatches under `atol=rtol=0.01`; outputs are not bitwise equal to
+the independent reference. Every worker verified device 0, `/dev/sg-host-drv-0`,
+PCI `0000:01:00.0` before dispatch.
+
+| Ordinary RMSNorm FP16 1024x1024, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original 4x1024 tiles | 1787.4105 | 19.07450 | 1851.05175 |
+| same-tile serial 32x1024 | 273.9225 | 4.40850 | 280.95345 |
+| pipeline 32x1024, depth 2 | 262.1675 | 6.17225 | 268.89950 |
+
+Five warmups and 20 resident samples per variant were executed in fixed
+original/serial/pipeline order. All 60 raw samples and independently recomputed
+statistics are in `results/p8-rmsnorm-1024-latency-user-reported.json`.
+Pipeline median is 4.291% below same-tile serial in this round; the 6.818
+original-to-pipeline ratio also includes the row tile change from 4 to 32.
+The original's 2446.887 us maximum is retained without attributing its cause.
+Timing includes host launch plus stream synchronization, excluding compilation,
+allocation, module loading, H2D, D2H and reference work. Evidence is the supplied
+terminal output; full remote result JSON and `environment.txt` contents have not
+been received. This completes first-round ordinary RMSNorm target acceptance.
+Repeated varied-order rounds, pure device timing, physical overlap and Split-K
+target board validation remain pending.

@@ -1,0 +1,283 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "62840ab2124bc996b52b0dac4fc6d8fe1e5191715ac0fde7edd81eb2f7e71c74",
+  "operation": "rmsnorm",
+  "dtype": "float16",
+  "shape": [
+    1024,
+    1024
+  ],
+  "layout": "row-major",
+  "launch_cores": 1,
+  "weight_shape": [
+    1024,
+    1024
+  ],
+  "epsilon": 1e-12,
+  "normalization_rounding": "fp16-before-weight-multiply",
+  "source_revision": "180b987e834b8cd6e3d13f8fa089a7513771dfb3",
+  "bundle_sha256": "2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb",
+  "runner_sha256": "924e351377112dd634b5961fcb6b4a38e4b15f4f35d26cbf81a2aec8e81d3db7",
+  "builder_sha256": "3003fcdbd6321aba571c2e0615d667b001f7db7436b8f718ed9b5958ab587b7e",
+  "prepare_helper_sha256": "903671bb85932aedc8baeddf8ea23fd8ab1b58e527a87d48319157e3731e92b5",
+  "remote_work_directory": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rmsnorm-board-latency-evidence-v1",
+  "status": "passed",
+  "sequence_exit_code": 0,
+  "rounds": 1,
+  "execution_order": [
+    "original",
+    "serial",
+    "pipeline"
+  ],
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm",
+        "output_sha256": "a9d6f266683db2669825585fb272f69e7eed454a7a7c3b5b92f73d70b8bcb691",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 19.074499999999944,
+        "max_us": 2446.887,
+        "median_us": 1787.4105,
+        "min_us": 1751.599,
+        "p95_us": 1851.0517500000005,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          1797.79,
+          1819.692,
+          1811.652,
+          1791.624,
+          1755.868,
+          1812.563,
+          1780.661,
+          2446.887,
+          1782.041,
+          1781.122,
+          1763.135,
+          1802.709,
+          1777.798,
+          1786.875,
+          1787.675,
+          1788.235,
+          1787.146,
+          1751.599,
+          1797.19,
+          1774.812
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/run-original/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/timing-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm",
+        "output_sha256": "a9d6f266683db2669825585fb272f69e7eed454a7a7c3b5b92f73d70b8bcb691",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.408500000000004,
+        "max_us": 285.693,
+        "median_us": 273.9225,
+        "min_us": 267.322,
+        "p95_us": 280.95345000000003,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          276.28,
+          279.059,
+          280.704,
+          269.709,
+          273.63,
+          273.705,
+          268.748,
+          271.724,
+          276.986,
+          267.322,
+          285.693,
+          274.003,
+          277.809,
+          272.703,
+          273.909,
+          277.286,
+          276.415,
+          272.501,
+          273.936,
+          273.095
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/run-serial/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/timing-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "2d3e1ec2ca524ad6039c85a75091098a93d5b9bb4a706e185d47f8bce873a13d",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rmsnorm",
+        "output_sha256": "a9d6f266683db2669825585fb272f69e7eed454a7a7c3b5b92f73d70b8bcb691",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0009765625,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 6.1722500000000196,
+        "max_us": 284.394,
+        "median_us": 262.1675,
+        "min_us": 253.865,
+        "p95_us": 268.8995,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          257.921,
+          284.394,
+          257.278,
+          258.538,
+          262.835,
+          259.436,
+          255.254,
+          268.084,
+          256.645,
+          253.865,
+          261.5,
+          265.261,
+          264.321,
+          265.897,
+          261.451,
+          262.881,
+          266.355,
+          263.143,
+          258.728,
+          262.938
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/run-pipeline/result.json",
+      "timing_receipt": "/home/bokai/bm1690-rmsnorm1024-XOF4Zd/work/timing-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "statistics_recomputed_from_raw_samples": true,
+  "synchronous_call_latency_measured": true,
+  "pure_device_time_measured": false,
+  "hardware_overlap_verified": false,
+  "comparison": {
+    "pipeline_vs_serial_latency_change_percent": -4.291359782420212,
+    "serial_over_pipeline_median_ratio": 1.0448377468603087,
+    "original_over_pipeline_median_ratio": 6.817818760906672,
+    "conclusion": "Pipeline median is lower than same-tile serial in this one fixed-order target round. The original uses 4x1024 tiles and candidates use 32x1024; original-to-candidate ratios include tiling changes and are not pipeline-only gains. All outliers are retained. Repeatability, pure device time and physical overlap remain unverified."
+  },
+  "environment_file_contents_received": false,
+  "driver_environment_provenance": "same ongoing session after RMSNorm Split-K smoke; each runtime/PCI mapping check passed, environment.txt contents were not pasted"
+}
