@@ -53,8 +53,19 @@ serial/pipeline; original-to-candidate ratios include tiling changes. The smoke
 round instead showed a 3.522% higher pipeline median. Retain both results;
 repeatability and physical overlap remain unverified.
 
-Next is RMSNorm, including ordinary and Split-K variants. Both 16x128 FP16
-smoke handoffs have passed exact-source CModel correctness and timed-ABI checks.
+Ordinary RMSNorm has completed its first board smoke acceptance at FP16 16x128,
+one TPU launch core. All 18 build commands and six correctness/timing processes
+passed in `/home/bokai/bm1690-rmsnorm-AHShF4/work`. All three outputs match the
+reference bitwise with zero absolute error; their input/output hashes also match
+CModel. Original / same-tile serial / pipeline median synchronous-call latencies
+are 84.4125 / 86.265 / 83.5965 us (five warmups, 20 samples each). Pipeline is
+3.093% below serial in this one fixed-order smoke round, with a retained maximum
+of 115.657 us. The median difference is smaller than the observed IQRs; stable
+speedup and target-size performance remain unverified. Evidence and all 60 raw
+samples are in `results/p8-rmsnorm-smoke-{build,three-variants-board,latency}-user-reported.json`.
+
+Next is Split-K RMSNorm smoke. Both 16x128 FP16 RMSNorm handoffs have already
+passed exact-source CModel correctness and timed-ABI checks.
 All three variants in each case match the scalar reference and CPU PyTorch
 bitwise, with zero absolute error. The input includes zero and small-magnitude
 rows and nonuniform per-element weights. The original demo requires weights
@@ -64,10 +75,12 @@ Evidence is `results/p8-rmsnorm-smoke-timing-abi-cmodel.json` and
 `results/p8-rmsnorm-splitk-smoke-timing-abi-cmodel.json`. All 103 relevant manifest,
 reference, ABI, supervisor and handoff regression checks passed.
 
-Use the updated `prepare_add_1024.py` with `--case rmsnorm-smoke` first, then
-`--case rmsnorm-splitk-smoke`, in separate new directories. The preparation and
-these RMSNorm runners need only standard Python; they can also reuse the already
-inspected virtual environment. Their board build and execution remain pending.
+Reuse `/home/bokai/bm1690-rmsnorm-AHShF4/prepare.py` from revision
+`78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e`, verify its SHA256
+`36899c9da33cb757ad544f3d9794333f09dd9d2c609549f45854d9d31eee94d9`, and use
+`--case rmsnorm-splitk-smoke` in a new directory. The preparation and these
+RMSNorm runners need only standard Python. Split-K board build and execution
+remain pending; its implementation and CModel checks are complete in this scope.
 After each build, perform one-call correctness before five warmups and 20
 resident synchronous-call samples per variant, stopping on the first failure.
 Expand both RMSNorm cases to 1024x1024 after the smoke checks, then continue
@@ -1013,6 +1026,32 @@ one-warmup/two-sample timed ABI all passed locally for both RMSNorm forms.
 Their outputs agree bitwise across original/serial/pipeline and with their
 references (maximum error zero for these inputs). Local PPL 1.7 CModel still
 serializes parallel scopes, so this evidence does not establish physical overlap.
-The board PPL 1.4 build and board execution are pending. Existing Add/Matmul
-bundle identities, precision contracts and prior results remain intact. No
-compiler-pass changes or dependency installation were needed for this handoff.
+Existing Add/Matmul bundle identities, precision contracts and prior results
+remain intact. No compiler-pass changes or dependency installation were needed
+for this handoff.
+
+The user subsequently completed ordinary RMSNorm's PPL 1.4 board build and all
+six correctness/timing processes from revision
+`78a3f2b9d22315d4c3998a9ec538d421ba3d6c9e`, ending with `RMSNORM_EXIT=0`.
+All three variants are bitwise equal to the independent reference and to each
+other, with zero absolute error; all input/output hashes match CModel. Each
+worker verified device 0, `/dev/sg-host-drv-0`, PCI `0000:01:00.0` before launch.
+The evidence is the user-supplied terminal log; full remote result JSON and the
+contents of `environment.txt` have not been received at the development host.
+
+| Ordinary RMSNorm FP16 16x128, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original 4x128 tiles | 84.4125 | 4.66600 | 87.34455 |
+| same-tile serial 4x128 | 86.2650 | 5.68875 | 95.10865 |
+| pipeline 4x128, depth 2 | 83.5965 | 5.34125 | 92.59955 |
+
+All 60 raw samples are retained and their statistics independently recomputed in
+`results/p8-rmsnorm-smoke-latency-user-reported.json`. Five warmups and 20 resident
+samples were used per variant in original/serial/pipeline order. Timing includes
+host launch plus stream synchronization and excludes compilation, allocation,
+module loading, H2D, D2H and reference work. The pipeline median is 3.093% below
+serial and 0.967% below original in this round, but its 115.657 us maximum is
+retained and the median differences are smaller than the observed IQRs. This
+small smoke establishes first-round correctness and synchronous-call timing,
+not stable speedup, target-size performance, pure device time or physical overlap.
+Split-K board smoke and both 1024x1024 RMSNorm board handoffs remain pending.
