@@ -1,0 +1,148 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "7dd6a34c3953156cbdda7bdb185237341a7de5908a821b1842fbb56bbe8a3543",
+  "operation": "rope",
+  "dtype": "float16",
+  "shape": [
+    8,
+    128
+  ],
+  "table_shape": [
+    8,
+    64
+  ],
+  "table_dtype": "float32",
+  "layout": "row-major",
+  "pairing": "interleaved-even-odd",
+  "output_index": 3,
+  "launch_cores": 1,
+  "source_revision": "9a596d4f971dd124945a67db261e406dbd904a1a",
+  "bundle_sha256": "6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb",
+  "runner_sha256": "223d39c082336f12e5d5813698d897f8a47b8776b73f4bb6abc410e1485c5897",
+  "builder_sha256": "d32d28abfa02acc3d87efdf2cb1a38662f7cc2db84280c80fa033861aedc265b",
+  "prepare_helper_sha256": "9482796ef364a2198f7e73dcd237717f09b2a7ecbee9dfc65291e0af9bdc7b41",
+  "remote_work_directory": "/home/bokai/bm1690-rope-BMzRZC/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rope-board-correctness-evidence-v1",
+  "status": "passed",
+  "variants": {
+    "original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "c94aeb14c560115986e64b199dc52a7d074f9be85aa2cee9fdafa1991e6af17a",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rope",
+        "output_sha256": "cfb02bcb37058a473c4147ff1c82a5551c2c691a3e936a25d6d6bee87bfce650",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "original"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rope-BMzRZC/work/run-original/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "c94aeb14c560115986e64b199dc52a7d074f9be85aa2cee9fdafa1991e6af17a",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rope",
+        "output_sha256": "cfb02bcb37058a473c4147ff1c82a5551c2c691a3e936a25d6d6bee87bfce650",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "serial"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rope-BMzRZC/work/run-serial/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    },
+    "pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "c94aeb14c560115986e64b199dc52a7d074f9be85aa2cee9fdafa1991e6af17a",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "rope",
+        "output_sha256": "cfb02bcb37058a473c4147ff1c82a5551c2c691a3e936a25d6d6bee87bfce650",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.005,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.005
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "pipeline"
+      },
+      "correctness_receipt": "/home/bokai/bm1690-rope-BMzRZC/work/run-pipeline/result.json",
+      "worker_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "all_variants_bitwise_equal": true,
+  "serial_pipeline_bitwise_equal": true,
+  "matches_recorded_cmodel_input_sha256": true,
+  "matches_recorded_cmodel_output_sha256": true,
+  "cmodel_evidence": "p8-rope-smoke-timing-abi-cmodel.json",
+  "all_variant_tiling": [
+    4,
+    32
+  ],
+  "pipeline_depth": 2,
+  "pipeline_loop_extent": 8,
+  "hardware_overlap_verified": false
+}

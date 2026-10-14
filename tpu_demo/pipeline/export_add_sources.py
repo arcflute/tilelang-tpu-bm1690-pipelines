@@ -17,8 +17,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         raise ValueError("Matmul uses fixed 16/32-cubed tiles; --coarse-tiles is for elementwise")
     if operation.startswith("rmsnorm") and coarse_tiles:
         raise ValueError("RMSNorm uses fixed row/K tiles; --coarse-tiles is for elementwise")
-    if operation == "rope" and (target_size or coarse_tiles):
-        raise ValueError("The first RoPE handoff uses the 8x128 smoke")
+    if operation == "rope" and coarse_tiles:
+        raise ValueError("RoPE uses fixed row/pair tiles; --coarse-tiles is for elementwise")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -73,13 +73,15 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
     elif operation == "rope":
         from tpu_demo.rope.rope import build_rope
         from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
-        bundle["schema"] = "bm1690-rope-source-check-v1"
+        bundle["schema"] = "bm1690-rope-source-check-v2" if target_size else "bm1690-rope-source-check-v1"
         bundle["target"].update(operation="rope", table_shape=[rows, width // 2],
                                 table_dtype="float32", layout="row-major",
                                 pairing="interleaved-even-odd", output_index=3)
         original = build_rope(rows=rows, width=width, block_rows=4, block_width=32)
-        functions = {"original": original, "serial": pipeline_kernel_tiles(original, 0),
-                     "pipeline": pipeline_kernel_tiles(original, 2)}
+        block_rows, block_width = (32, 64) if target_size else (4, 32)
+        tiled = build_rope(rows=rows, width=width, block_rows=block_rows, block_width=block_width)
+        functions = {"original": original, "serial": pipeline_kernel_tiles(tiled, 0),
+                     "pipeline": pipeline_kernel_tiles(tiled, 2)}
     elif operation.startswith("rmsnorm"):
         from tpu_demo.rmsnorm.rmsnorm import build_rmsnorm, build_rmsnorm_splitk
         from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
@@ -127,7 +129,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         if operation == "matmul":
             bundle["variants"][name]["tiling"] = [16 if name == "original" else 32] * 3
         if operation == "rope":
-            bundle["variants"][name]["tiling"] = [4, 32]
+            bundle["variants"][name]["tiling"] = [4, 32] if name == "original" else [block_rows, block_width]
         if operation.startswith("rmsnorm"):
             bundle["variants"][name]["tiling"] = (
                 [4, 32 if operation == "rmsnorm-splitk" else width] if name == "original"

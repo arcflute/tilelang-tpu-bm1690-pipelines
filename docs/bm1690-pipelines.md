@@ -116,15 +116,28 @@ performance/multicore matrix. Next is RoPE smoke, followed by RoPE target,
 SwiGLU and FlashAttention. Repeated varied-order rounds and multicore board
 acceptance remain later work.
 
-RoPE's new four-argument handoff passed exact-source BM1690 CModel validation
-for all three variants at FP16 8x128 with FP32 8x64 cosine/sine tables. Outputs
-match each other and the independent reference bitwise, with maximum error zero.
-All 131 relevant host ABI, manifest, reference, supervisor and handoff regression
-checks passed. Use a new pinned `prepare_add_1024.py` with `--case rope-smoke`;
-the previous RMSNorm helper does not support this case. Board RoPE compilation
-and execution remain pending. The runner and reference use standard Python.
-After each build, perform one-call correctness before five warmups and 20
-resident synchronous-call samples per variant, stopping on the first failure.
+RoPE has completed its FP16 8x128 board smoke in
+`/home/bokai/bm1690-rope-BMzRZC/work`, revision
+`9a596d4f971dd124945a67db261e406dbd904a1a`. All 18 build commands and six test
+processes passed. All outputs match the reference and each other bitwise,
+maximum error zero, and input/output hashes match CModel. Original / same-tile
+serial / pipeline median synchronous-call latencies are 995.9885 / 1025.3975 /
+909.761 us (five warmups, 20 samples). Pipeline is 11.277% below serial in this
+single fixed-order smoke round; the 1159.521 us maximum is retained. Stable
+speedup and physical overlap remain unverified. All 60 raw samples are in
+`results/p8-rope-smoke-latency-user-reported.json`.
+
+Next is RoPE 1024x1024 board acceptance. Its three exact-source variants passed
+CModel with output/reference bitwise equality and maximum error zero. Original
+retains 4x32 tiles; serial/pipeline use the previously implemented 32x64 target
+tiles. FP32 1024x512 sin/cos tables, interleaved pairing and the four-argument
+ABI are preserved. All 141 relevant regression checks passed. Use a new pinned
+`prepare_add_1024.py` with `--case rope-target`; the old smoke helper does not
+support this case. Board target compilation/execution remains pending.
+The runner/reference use standard Python. Keep one-call correctness before five
+warmups/20 resident samples, with the explicit `--timeout-seconds 90` process
+limit (default remains 30); CPU/RSS/core limits are unchanged. Stop on first
+failure. SwiGLU and FlashAttention follow RoPE target acceptance.
 
 ## Execution and evidence
 
@@ -1251,4 +1264,71 @@ ordering, swapped equal-size tables, partial output, overwritten inputs,
 canary corruption, reference/timing receipts, pairing, and strict
 serial/pipeline equality. All 118 PCIe regression checks and 13 download-handoff
 checks passed. Existing source bundles and historical builders remain accepted.
-Board smoke compilation/execution is pending; 1024 target follows that check.
+Board smoke compilation/execution subsequently passed, as recorded below;
+1024 target board acceptance follows.
+
+
+The RoPE smoke board handoff completed in
+`/home/bokai/bm1690-rope-BMzRZC/work` from revision
+`9a596d4f971dd124945a67db261e406dbd904a1a`, ending with `ROPE_EXIT=0`.
+All 18 build commands and six correctness/timing processes passed. All variants
+are finite and bitwise equal to the independent reference and one another;
+maximum error is zero. Input/output hashes match CModel. Each worker verified
+device 0 -> `/dev/sg-host-drv-0` -> PCI `0000:01:00.0` before dispatch.
+
+| RoPE FP16 8x128, FP32 tables, one TPU core | median us | IQR us | p95 us |
+| --- | ---: | ---: | ---: |
+| original 4x32 tiles | 995.9885 | 17.56650 | 1019.68805 |
+| same-tile serial 4x32 | 1025.3975 | 24.59925 | 1049.90185 |
+| pipeline 4x32, depth 2 | 909.7610 | 24.19225 | 945.75770 |
+
+Five warmups and 20 resident samples per variant were run in fixed original /
+serial / pipeline order. Pipeline median is 11.277% below serial and 8.657% below
+original in this round. The pipeline maximum 1159.521 us is retained without
+attributing its cause. All 60 raw samples and independently recomputed statistics
+are in `results/p8-rope-smoke-latency-user-reported.json`, with companion build
+and correctness records. Timing includes host launch plus stream synchronization,
+excluding compilation, allocation, module loading, H2D, D2H and reference work.
+Evidence is user-supplied terminal output; full remote JSON receipts and the
+contents of `environment.txt` have not been received. Stable speedup, pure device
+time and physical overlap remain unverified.
+
+## P8.11 RoPE 1024 target handoff
+
+The target preserves FP16 1024x1024 source/destination, FP32 1024x512 cosine/sine
+tables, interleaved even/odd pairs, and FP32 arithmetic before FP16 output. All
+four ABI arguments are 2097152 bytes. Original retains the demo's 4x32 tiles
+(8192 tiles); serial/pipeline use the existing P4 target configuration, 32x64
+(512 tiles). Original-to-candidate ratios will therefore include tiling changes.
+Pipeline-only gains must be compared against the same-tile serial version.
+
+The depth-2 candidate loop has 512 independent tiles and five lowered statements:
+three loads, one inner 32-pair compute loop, one store. Stage/order remain
+[0,0,0,1,1] / [0,1,2,3,4]. The generated input local addresses are x 256/768,
+cos 384/896 and sin 512/1024. Fill loads the first tile; 511 steady iterations
+prefetch the next while current computation sits in the parallel scope; the
+final tile drains afterward. Output and compute temporaries remain single-version,
+with each store after parallel end before reuse. No original arithmetic,
+compiler pass, native library or installed dependency changed for this extension.
+
+All three variants passed exact-source CModel checks in separate bounded workers
+(two host CPUs, 4096 MiB group RSS, 120 seconds each). Each ran one correctness
+call and a one-warmup/one-sample timed ABI check. All three outputs match one
+another and the independent scalar reference bitwise, maximum error zero. CPU
+PyTorch independently agrees with that reference on the identical input/table
+bytes. The generated sin/cos tables differ from the demo's Torch generation by
+at most 3.0517578125e-5; FP32 power rounding differences grow with the position
+multiply. Table-generation comparison uses a row-scaled FP32 bound, recorded
+separately; the kernel's original `atol=rtol=0.005` contract is unchanged.
+Evidence is `results/p8-rope-1024-timing-abi-cmodel.json`. CModel durations are
+not board performance measurements.
+
+All 128 PCIe regression checks and 13 download-handoff checks passed. New tests
+cover target table shape/dtype, original/candidate tiles, exact quarter turns
+across target rows/pairs, preserved smoke input bytes and deadline propagation.
+The board runner offers bounded deadlines of 30 seconds (unchanged default) or
+90 seconds for the larger batch, still with two host CPUs, nice +10, 4096 MiB
+RSS, one TPU launch core, group cleanup, no automatic kernel retry. The original
+has 1024 times as many tiles as the smoke; the larger watchdog budget is not a
+prediction of actual duration. Board target compilation and execution remain
+pending. Use a fresh directory and correctness before timing for every variant.

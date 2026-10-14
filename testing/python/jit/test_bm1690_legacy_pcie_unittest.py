@@ -166,6 +166,21 @@ class LegacyTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 legacy.validate_source_bundle(bad)
 
+    def test_rope_target_preserves_shape_table_width_and_original_candidate_tiles(self):
+        bundle = json.loads((ROOT / "research/bm1690-pipelines/handoff/rope-1024-sources.json").read_text())
+        legacy.validate_source_bundle(bundle)
+        for key, value in (("shape", [8, 128]), ("table_shape", [1024, 1024]),
+                           ("table_dtype", "float16"), ("pairing", "split-half"), ("output_index", 2)):
+            bad = copy.deepcopy(bundle)
+            bad["target"][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+        for name in ("original", "serial", "pipeline"):
+            bad = copy.deepcopy(bundle)
+            bad["variants"][name]["tiling"] = [32, 32]
+            with self.subTest(variant=name), self.assertRaises(ValueError):
+                legacy.validate_source_bundle(bad)
+
     def test_rmsnorm_schema_preserves_weights_epsilon_and_rounding_boundary(self):
         for operation in ("rmsnorm", "rmsnorm-splitk"):
             bundle = json.loads((ROOT / f"research/bm1690-pipelines/handoff/{operation}-smoke-sources.json").read_text())

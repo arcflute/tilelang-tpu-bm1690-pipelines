@@ -1,0 +1,59 @@
+{
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-14",
+  "evidence_text_sha256": "7dd6a34c3953156cbdda7bdb185237341a7de5908a821b1842fbb56bbe8a3543",
+  "operation": "rope",
+  "dtype": "float16",
+  "shape": [
+    8,
+    128
+  ],
+  "table_shape": [
+    8,
+    64
+  ],
+  "table_dtype": "float32",
+  "layout": "row-major",
+  "pairing": "interleaved-even-odd",
+  "output_index": 3,
+  "launch_cores": 1,
+  "source_revision": "9a596d4f971dd124945a67db261e406dbd904a1a",
+  "bundle_sha256": "6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb",
+  "runner_sha256": "223d39c082336f12e5d5813698d897f8a47b8776b73f4bb6abc410e1485c5897",
+  "builder_sha256": "d32d28abfa02acc3d87efdf2cb1a38662f7cc2db84280c80fa033861aedc265b",
+  "prepare_helper_sha256": "9482796ef364a2198f7e73dcd237717f09b2a7ecbee9dfc65291e0af9bdc7b41",
+  "remote_work_directory": "/home/bokai/bm1690-rope-BMzRZC/work",
+  "full_remote_receipts_received_at_development_host": false,
+  "schema": "bm1690-rope-board-build-evidence-v1",
+  "status": "compile_only_passed",
+  "prepare_exit_code": 0,
+  "download_transport": "github-api",
+  "verified_files": [
+    "build.py",
+    "add.json",
+    "run_add.py"
+  ],
+  "completed_build_labels": [
+    "BUILD original: Compile TPU kernel",
+    "BUILD original: Compile PPL helper",
+    "BUILD original: Link PCIe libkernel.so",
+    "BUILD original: Compile PCIe kernel.cpp",
+    "BUILD original: Compile PCIe main.cpp",
+    "BUILD original: Link PCIe main.so",
+    "BUILD serial: Compile TPU kernel",
+    "BUILD serial: Compile PPL helper",
+    "BUILD serial: Link PCIe libkernel.so",
+    "BUILD serial: Compile PCIe kernel.cpp",
+    "BUILD serial: Compile PCIe main.cpp",
+    "BUILD serial: Link PCIe main.so",
+    "BUILD pipeline: Compile TPU kernel",
+    "BUILD pipeline: Compile PPL helper",
+    "BUILD pipeline: Link PCIe libkernel.so",
+    "BUILD pipeline: Compile PCIe kernel.cpp",
+    "BUILD pipeline: Compile PCIe main.cpp",
+    "BUILD pipeline: Link PCIe main.so"
+  ],
+  "board_runtime_loaded_during_build": false,
+  "kernel_launches_during_build": 0,
+  "compiled_artifacts_received_at_development_host": false
+}

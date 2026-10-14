@@ -221,6 +221,13 @@ class HostABITests(unittest.TestCase):
 
 
 class SupervisorTests(unittest.TestCase):
+    def test_bounded_deadline_is_forwarded_to_child(self):
+        args = SimpleNamespace(build=Path("build"), output=Path("output"), variant="original",
+                               previous=None, device_id=0, expected_pci="0000:01:00.0")
+        self.assertEqual(runner.child_command(args)[-2:], ["--timeout-seconds", "30"])
+        args.timeout_seconds = 90
+        self.assertEqual(runner.child_command(args)[-2:], ["--timeout-seconds", "90"])
+
     def run_program(self, source, timeout=3, max_rss=512*1024**2):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
@@ -497,11 +504,12 @@ class RMSNormSplitKTargetManifestTests(RMSNormTargetManifestTests):
 
 class RoPEManifestTests(ManifestTests):
     bundle_name = "rope-smoke-sources.json"
+    shape = [8, 128]
 
     def test_receipt_rechecks_rope_tolerance_before_timing(self):
         identity = runner.validate_build(self.build)
         self.assertEqual(identity["operation"], "rope")
-        self.assertEqual(identity["shape"], [8, 128])
+        self.assertEqual(identity["shape"], self.shape)
         self.assertTrue(identity["timing_supported"])
         directory = self.root / "correctness"
         directory.mkdir()
@@ -523,7 +531,31 @@ class RoPEManifestTests(ManifestTests):
                     runner.check_correctness_receipt(args, identity, "input", expected)
 
 
+class RoPETargetManifestTests(RoPEManifestTests):
+    bundle_name = "rope-1024-sources.json"
+    shape = [1024, 1024]
+
+
 class RoPEReferenceTests(unittest.TestCase):
+    def test_target_rows_and_pairs_keep_four_quadrant_rotations(self):
+        # Row and pair-dependent quarter turns have an exact analytic answer,
+        # including coordinates on both sides of the candidate tile boundaries.
+        source = struct.pack("<ee", 3.0, -2.0) * (1024 * 512)
+        quadrants = [(row * 3 + pair) % 4 for row in range(1024) for pair in range(512)]
+        cosine = struct.pack("<" + "f" * len(quadrants), *[(1., 0., -1., 0.)[q] for q in quadrants])
+        sine = struct.pack("<" + "f" * len(quadrants), *[(0., 1., 0., -1.)[q] for q in quadrants])
+        pairs = [struct.pack("<ee", *values) for values in ((3., -2.), (2., 3.), (-3., 2.), (-2., -3.))]
+        expected = b"".join(pairs[q] for q in quadrants)
+        actual = runner.rope_reference(source, cosine, sine, shape=(1024, 1024))
+        self.assertEqual(actual, expected)
+
+    def test_smoke_input_bytes_remain_unchanged(self):
+        source, cosine, sine, expected = runner.rope_test_vectors()
+        self.assertEqual(hashlib.sha256(source + cosine + sine).hexdigest(),
+                         "c94aeb14c560115986e64b199dc52a7d074f9be85aa2cee9fdafa1991e6af17a")
+        self.assertEqual(hashlib.sha256(expected).hexdigest(),
+                         "cfb02bcb37058a473c4147ff1c82a5551c2c691a3e936a25d6d6bee87bfce650")
+
     def test_identity_and_quarter_turn_keep_interleaved_pairs(self):
         source = struct.pack("<" + "e" * 1024, *([1.0, 2.0] * 512))
         ones, zeros = struct.pack("<" + "f" * 512, *([1.0] * 512)), bytes(2048)
@@ -548,7 +580,7 @@ class RoPEReferenceTests(unittest.TestCase):
     def test_wrong_shape_and_table_lengths_fail_before_dispatch(self):
         source, cosine, sine, _ = runner.rope_test_vectors()
         with self.assertRaises(ValueError):
-            runner.rope_test_vectors(shape=(1024, 1024))
+            runner.rope_test_vectors(shape=(1024, 128))
         with self.assertRaises(ValueError):
             runner.rope_reference(source, cosine, sine, shape=(8, 64))
         for args in ((source, cosine[:1024], sine), (source[:-2], cosine, sine), (b"", b"", b"")):

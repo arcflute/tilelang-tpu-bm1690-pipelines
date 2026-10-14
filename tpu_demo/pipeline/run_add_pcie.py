@@ -94,6 +94,14 @@ BUNDLES[ROPE_BUNDLE_SHA256] = {"shape": [8, 128], "builders": (ROPE_BUILDER_SHA2
                                "timing": True, "operation": "rope"}
 
 
+ROPE_TARGET_BUILDER_SHA256 = '8234fdc245476f93becd3ca86f945f911507527dc89990a92a435d7e43191f64'
+ROPE_TARGET_BUNDLE_SHA256 = 'c45a7e3a2676f59be6808d940938a4618bab1f7e78f5fb5ceb58112b5ed8eb87'
+for _contract in BUNDLES.values():
+    _contract["builders"] += (ROPE_TARGET_BUILDER_SHA256,)
+BUNDLES[ROPE_TARGET_BUNDLE_SHA256] = {"shape": [1024, 1024], "builders": (ROPE_TARGET_BUILDER_SHA256,),
+                                      "timing": True, "operation": "rope"}
+
+
 def digest(path):
     hasher = hashlib.sha256()
     with Path(path).open("rb") as source:
@@ -234,8 +242,8 @@ def rmsnorm_reference(lhs, rhs, *, shape=(16, 128)):
 
 def rope_reference(source, cosine, sine, *, shape=(8, 128)):
     """Interleaved pairs, independent FP32 products/sum, then FP16 output."""
-    if shape != (8, 128):
-        raise ValueError("RoPE reference is bounded to the 8x128 smoke")
+    if shape not in ((8, 128), (1024, 1024)):
+        raise ValueError("RoPE reference is bounded to 8x128 or 1024x1024")
     size = math.prod(shape) * 2
     if any(len(data) != size for data in (source, cosine, sine)):
         raise ValueError("RoPE requires FP16 input and two half-width FP32 tables")
@@ -251,8 +259,8 @@ def rope_reference(source, cosine, sine, *, shape=(8, 128)):
 
 
 def rope_test_vectors(*, shape=(8, 128)):
-    if shape != (8, 128):
-        raise ValueError("RoPE inputs are bounded to the 8x128 smoke")
+    if shape not in ((8, 128), (1024, 1024)):
+        raise ValueError("RoPE inputs are bounded to 8x128 or 1024x1024")
     rows, width = shape
     source = test_vectors(rows * width, "add")[0]
     def f32(value):
@@ -524,6 +532,7 @@ def child_command(args):
         command += ["--previous", str(args.previous)]
     if getattr(args, "measure", False):
         command += ["--measure", "--correctness", str(args.correctness)]
+    command += ["--timeout-seconds", str(getattr(args, "timeout_seconds", 30))]
     return command
 
 
@@ -740,6 +749,8 @@ def main():
     parser.add_argument("--previous", type=Path)
     parser.add_argument("--measure", action="store_true", help="5 warmups, 20 resident synchronous calls")
     parser.add_argument("--correctness", type=Path, help="passed one-call receipt for this variant")
+    parser.add_argument("--timeout-seconds", type=int, choices=(30, 90), default=30,
+                        help="bounded process-group deadline; 90 for the large RoPE batch")
     parser.add_argument("--allow-pcie", action="store_true")
     parser.add_argument("--device-id", type=int, choices=(0,), required=True)
     parser.add_argument("--expected-pci", choices=("0000:01:00.0",), required=True)
@@ -769,7 +780,7 @@ def main():
         args.output.mkdir(parents=True, exist_ok=False)
         command = child_command(args) + ["--guard-parent", str(os.getpid()),
                                         "--lock-fd", str(lock.fileno())]
-        return supervise(command, args.output, lock_fd=lock.fileno())
+        return supervise(command, args.output, timeout_s=args.timeout_seconds, lock_fd=lock.fileno())
 
 
 if __name__ == "__main__":

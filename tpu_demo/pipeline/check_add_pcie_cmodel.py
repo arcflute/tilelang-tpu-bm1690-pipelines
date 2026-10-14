@@ -24,7 +24,7 @@ def main():
                                                BUNDLE_SHA256, TARGET_BUNDLE_SHA256, COARSE_BUNDLE_SHA256,
                                                ELEMENTWISE_BUNDLES, MATMUL_BUNDLE_SHA256,
                                                MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES,
-                                               RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256,
+                                               RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256, ROPE_TARGET_BUNDLE_SHA256,
                                                rope_test_vectors, call_rope_host)
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -32,7 +32,7 @@ def main():
     parser.add_argument("--coarse-tiles", action="store_true")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
-                        help="required for target Matmul/RMSNorm: one bounded worker per variant")
+                        help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
     args = parser.parse_args()
     if args.coarse_tiles and not args.target_size:
         parser.error("--coarse-tiles requires --target-size")
@@ -40,15 +40,16 @@ def main():
         parser.error("Sub/Mul/Div require --target-size --coarse-tiles")
     matmul_target = args.operation == "matmul" and args.target_size
     rmsnorm_target = args.operation.startswith("rmsnorm") and args.target_size
-    target_worker = matmul_target or rmsnorm_target
+    rope_target = args.operation == "rope" and args.target_size
+    target_worker = matmul_target or rmsnorm_target or rope_target
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
     if args.operation.startswith("rmsnorm") and args.coarse_tiles:
         parser.error("RMSNorm does not use elementwise --coarse-tiles")
-    if args.operation == "rope" and (args.target_size or args.coarse_tiles):
-        parser.error("RoPE currently uses the 8x128 smoke")
+    if args.operation == "rope" and args.coarse_tiles:
+        parser.error("RoPE does not use elementwise --coarse-tiles")
     if bool(args.variant) != target_worker:
-        parser.error("--variant is required only for target Matmul/RMSNorm; compare worker outputs afterward")
+        parser.error("--variant is required only for target Matmul/RMSNorm/RoPE; compare worker outputs afterward")
 
     configure_runtime("cmodel", False, None, chip="bm1690")
     torch.set_num_threads(1)
@@ -67,8 +68,8 @@ def main():
         bundle_path = bundle_path.with_name(args.operation + ("-1024-sources.json" if rmsnorm_target else "-smoke-sources.json"))
         bundle_hash = (RMSNORM_TARGET_BUNDLES if rmsnorm_target else RMSNORM_BUNDLES)[args.operation]
     if args.operation == "rope":
-        bundle_path = bundle_path.with_name("rope-smoke-sources.json")
-        bundle_hash = ROPE_BUNDLE_SHA256
+        bundle_path = bundle_path.with_name("rope-1024-sources.json" if rope_target else "rope-smoke-sources.json")
+        bundle_hash = ROPE_TARGET_BUNDLE_SHA256 if rope_target else ROPE_BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
@@ -89,7 +90,10 @@ def main():
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, "rope")
         demo_tables = _cosine_sine(rows, width)
         table_errors = [float((actual - demo).abs().max()) for actual,demo in zip((cosine,sine),demo_tables)]
-        assert all(torch.allclose(actual, demo, atol=2e-6, rtol=2e-6) for actual,demo in zip((cosine,sine),demo_tables))
+        # CPU pow implementations may differ by an FP32 ulp before the
+        # position multiply. Its absolute phase error grows with row index.
+        table_atol = max(2e-6, 2 * rows * torch.finfo(torch.float32).eps)
+        assert all(torch.allclose(actual, demo, atol=table_atol, rtol=2e-6) for actual,demo in zip((cosine,sine),demo_tables))
     else:
         a,b = [torch.frombuffer(bytearray(value),dtype=torch.float16) for value in inputs]
     if args.operation == "matmul":
@@ -157,6 +161,7 @@ def main():
     if args.operation == "rope":
         report.update(table_shape=[rows,width//2], table_dtype="float32", pairing="interleaved-even-odd",
                       output_index=3, table_max_abs_difference_from_demo=table_errors,
+                      table_comparison_atol=table_atol, selected_variant=args.variant,
                       input_sha256_by_argument=[hashlib.sha256(data).hexdigest() for data in inputs],
                       reference_backend={"name":"stdlib scalar FP32 RoPE"})
     print("BM1690_PIPELINE_RESULT=" + json.dumps(report,sort_keys=True))

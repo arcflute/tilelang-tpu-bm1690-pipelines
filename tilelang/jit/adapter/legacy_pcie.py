@@ -197,7 +197,8 @@ def validate_source_bundle(bundle):
                "bm1690-matmul-source-check-v2": [1024, 1024],
                "bm1690-rmsnorm-source-check-v1": [16, 128],
                "bm1690-rmsnorm-source-check-v2": [1024, 1024],
-               "bm1690-rope-source-check-v1": [8, 128]}
+               "bm1690-rope-source-check-v1": [8, 128],
+               "bm1690-rope-source-check-v2": [1024, 1024]}
     if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     target = {"chip": "bm1690", "programming_model": "tpukernel",
@@ -210,8 +211,8 @@ def validate_source_bundle(bundle):
     if bundle["schema"].startswith("bm1690-matmul-"):
         target.update(operation="matmul", matrix_dimensions=[target["shape"][0]] * 3,
                       layout="row-major")
-    if bundle["schema"] == "bm1690-rope-source-check-v1":
-        target.update(operation="rope", table_shape=[8, 64], table_dtype="float32",
+    if bundle["schema"].startswith("bm1690-rope-"):
+        target.update(operation="rope", table_shape=[target["shape"][0], target["shape"][1] // 2], table_dtype="float32",
                       layout="row-major", pairing="interleaved-even-odd", output_index=3)
     if bundle["schema"].startswith("bm1690-rmsnorm-"):
         operation = bundle.get("target", {}).get("operation")
@@ -225,10 +226,11 @@ def validate_source_bundle(bundle):
     if set(variants) != {"original", "serial", "pipeline"}:
         raise ValueError("Source bundle must preserve original/serial/pipeline variants")
     for name, variant in variants.items():
-        if bundle["schema"] == "bm1690-rope-source-check-v1":
-            if (variant.get("tiling") != [4, 32] or
+        if bundle["schema"].startswith("bm1690-rope-"):
+            tile = [32, 64] if target["shape"] == [1024, 1024] and name != "original" else [4, 32]
+            if (variant.get("tiling") != tile or
                     variant.get("num_stages") != (2 if name == "pipeline" else 0)):
-                raise ValueError("RoPE smoke requires 4x32 tiles and depth 0/0/2")
+                raise ValueError("RoPE requires the pinned row/pair tiles and depth 0/0/2")
         if bundle["schema"].startswith("bm1690-matmul-"):
             block = 16 if name == "original" else 32
             if (variant.get("tiling") != [block] * 3 or
