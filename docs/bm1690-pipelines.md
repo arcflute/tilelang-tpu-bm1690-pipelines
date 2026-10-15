@@ -24,11 +24,21 @@ fails. The normal `pci_exit`/`pci_remove` entries exist, and the existing module
 hash/vermagic and `card_num=64` were reverified. The user subsequently completed
 the gated, non-force unload/reload successfully: both commands returned zero,
 and fresh logs show Chip 0 initialized at 16:53:49, Chip 1 at 16:53:59 and all
-two devices probed successfully. Both nodes/PCI bindings are restored. Runtime
-mapping and kernel execution after this reload remain unverified. Next is one
-original-only RoPE host diagnostic with fresh device-user checks; no timing or
-automatic retry. Evidence is
-`results/p8-driver-reload-20261015-user-reported.json`.
+two devices probed successfully. Both nodes/PCI bindings were restored. The
+subsequent original-only RoPE 1024 host diagnostic built all three variants,
+verified device 0 / PCI 0000:01:00.0 and passed initialization, module loading,
+four allocations and four uploads. It then timed out at 30 seconds after the
+CALL marker for `tpuRtKernelLaunch`, without a RETURN marker or any subsequent
+explicit stream synchronization. The supervisor reports failure / timeout /
+worker -9; its host process-group cleanup completed. The fresh journal again
+reports task-wait interruption and a FORCE_QUIT timeout. Thus driver
+reinitialization did not resolve this target case, and its failure cannot be
+explained solely by the earlier concurrent P10. No users were detected before
+dispatch or at the 17:03:58 follow-up; this is not continuous exclusivity or
+firmware health evidence. Further board dispatch awaits recovery assessment and
+a bounded diagnostic, not an identical full-target retry. Evidence is
+`results/p8-rope-1024-host-trace-board-user-reported.json`; the preceding
+reinitialization remains recorded in `results/p8-driver-reload-20261015-user-reported.json`.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
@@ -1421,9 +1431,9 @@ record distinguishes that bookkeeping correction from kernel validation.
 All 135 PCIe, 13 handoff and two source-derivation regression tests passed.
 Evidence is `results/p8-rope-1024-host-trace-cmodel.json`. Native libraries,
 compiler passes, device kernels, SDK and dependencies remain unchanged.
-The diagnostic board build/execution remains pending. It is prepared so that,
-once device-state evidence supports a controlled call, the exact unreturned
-runtime API can be located without another uninstrumented retry or timing batch.
+At that point diagnostic board build/execution was pending. The subsequent
+post-reload board attempt, described below, located the unreturned host runtime
+API without an uninstrumented retry or timing batch.
 
 The subsequent user-supplied journal contains a driver error at 18:12:20:
 `[host drv-0, send_quit_request, 379]:FORCE_QUIT default timeout!`
@@ -1557,5 +1567,55 @@ use one launch core, two host CPUs, 4 GiB group RSS and a 30-second supervisor
 deadline. Its call-boundary logging will identify an unreturned runtime call if
 the original target fails again. A diagnostic pass will not replace the normal
 bundle's correctness receipt or count as a performance result. Existing failed
-attempts remain preserved. No post-reload diagnostic result has been reported.
-Evidence is `results/p8-driver-reload-20261015-user-reported.json`.
+attempts remain preserved. Evidence for this recovery is
+`results/p8-driver-reload-20261015-user-reported.json`; the subsequent diagnostic
+result is below.
+
+### P8.14: post-reload RoPE host launch timeout
+
+The original-only diagnostic in `/home/bokai/bm1690-rope-trace-lT2aoZ/work`
+passed all 18 build commands and checksum checks. Before dispatch, privileged
+`fuser` reported empty output / exit 1. Runtime mapping again identified device
+0, `/dev/sg-host-drv-0`, PCI `0000:01:00.0`. Host tracing recorded 13 CALL and 12
+RETURN markers: init, selection, stream creation, module loading, four
+allocations and four uploads returned successfully; `tpuRtKernelLaunch` at
+generated `kernel.cpp:79` did not return within the 30-second supervisor limit.
+No explicit `tpuRtStreamSynchronize`, output download or reference comparison
+was reached. The installed runtime header declares separate launch and async
+launch APIs (lines 566 and 584), but does not specify their internal completion
+behavior. The observed boundary cannot locate a particular device instruction
+or even establish that the device kernel entry was reached.
+
+The supplied result reports `status=failed`, `reason=timeout`, worker return
+code -9 and peak group RSS 273035264 bytes. `numeric.status=running` is the last
+worker checkpoint, not successful completion. `cleanup_complete=true` refers
+only to the supervised host group. Fresh driver messages at 17:01:53 show task
+0x4 / stream 0x2 interrupted; 17:02:55 shows FORCE_QUIT request 0x6 / PID
+0x33be2e timing out. At 17:03:58 both device nodes had no detected holders and
+module refcount was zero. Those observations do not show firmware recovery.
+The original device library hash matches the first uninstrumented target
+attempt; only host call tracing was added. Neither serial nor pipeline nor any
+timing test was started. This failure therefore is not a pipeline-only result.
+
+Source inspection of `build_rope` and frozen original `kernel.c` identifies a
+scale hypothesis to investigate. The 4x32 local tile and 16-pair arithmetic are
+unchanged between smoke and target; global shapes/strides/offset constants and
+outer loops differ. Smoke executes 2x4 = 8 tiles; target executes 256x32 = 8192.
+Each pair contains 16 BDC API calls (six copies, four casts, four multiplies,
+one subtract, one add); each tile has three S2L and one L2S calls. If all target
+loops complete, this yields 2097152 BDC and 32768 GDMA API invocations, with
+`tpu_poll` explicitly placed only at the end of the generated wrapper. These
+are static source-derived counts, not measured descriptors or evidence of a
+specific command-limit overflow. The installed PPL 1.4 implementation still
+needs inspection; local PPL 1.7 CModel success does not establish that behavior.
+
+Next, inspect the installed SDK's synchronization/command handling read-only
+and prepare a small-work diagnostic that separates iteration count from global
+stride/layout. Any such derived kernel must have its own identity, local
+correctness checks and explicit diagnostic scope. Preserve the failing normal
+original baseline. Before another board dispatch, recover device health and
+check a previously passed small case. Do not extend the full-target timeout,
+insert unvalidated polling as a production fix, or replace original results
+with candidate results. This turn changed evidence and documentation only;
+no new kernel tests or performance claims are included. Evidence:
+`results/p8-rope-1024-host-trace-board-user-reported.json`.

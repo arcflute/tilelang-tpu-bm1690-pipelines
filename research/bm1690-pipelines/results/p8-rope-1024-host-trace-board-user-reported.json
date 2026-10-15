@@ -1,0 +1,144 @@
+{
+  "schema": "bm1690-rope-host-trace-board-evidence-v1",
+  "recorded_date": "2026-10-15",
+  "evidence_kind": "user_supplied_remote_terminal_output_and_result_json",
+  "build_and_call_log_attachment_sha256": "f543a1199fc4b96d34e1f94ce0b08215cbf1f8bbb78b440793d305d6f4c5376e",
+  "followup_source": "User reply containing result.json, device-user check, kernel journal and installed runtime header excerpt",
+  "remote_work_directory": "/home/bokai/bm1690-rope-trace-lT2aoZ/work",
+  "remote_result_directory": "/home/bokai/bm1690-rope-trace-lT2aoZ/work/run-original-trace",
+  "preceding_recovery_evidence": "p8-driver-reload-20261015-user-reported.json",
+  "handoff": {
+    "revision": "e30dade9ef20b13131100c6fecb9c2afc63a71a1",
+    "case": "rope-target-trace",
+    "prepare_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
+    "runner_sha256": "f66aaa7c8f8f21c73c6e44b46d6a4aa1e1c0c0920f5c60733816a52a6b74c6a7",
+    "bundle_sha256": "815a4f6489da76aa3855da3899029f93008dd82ae6be92f2b1033c0c9d6b9fcd",
+    "prepare_exit_code": 0,
+    "completed_build_commands": 18,
+    "all_three_variant_builds_passed": true,
+    "build_manifest_sha256": "b32901c7e1923cd89e63a2ab1b6f8aa4b669d22f36559213a025de6d4d8c210b",
+    "original_artifacts": {
+      "libkernel.so": "528a9e6e7e001ca297279f7c8b95ea4295a3302765885cab50f6e6bc8937f852",
+      "main.so": "d187e38494860dd0222d439f103e369410c8f5ede27e2707493428720cda6158"
+    },
+    "device_library_hash_matches_first_uninstrumented_target_attempt": true
+  },
+  "execution": {
+    "diagnostic_only": true,
+    "variant": "original",
+    "dtype": "float16",
+    "shape": [1024, 1024],
+    "table_dtype": "float32",
+    "table_shape": [1024, 512],
+    "pairing": "interleaved-even-odd",
+    "launch_cores": 1,
+    "requested_host_calls": 1,
+    "requested_kernel_calls": 1,
+    "completed_kernel_calls": null,
+    "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+    "mapping": {
+      "device_count": 2,
+      "device_id": 0,
+      "pci_function": "0000:01:00.0",
+      "character_device": "/dev/sg-host-drv-0"
+    },
+    "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+    "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+    "host_cpu_affinity": [0, 1],
+    "nice_increment": 10,
+    "supervisor_timeout_seconds": 30,
+    "outer_timeout_seconds": 40,
+    "max_group_rss_bytes": 4294967296,
+    "peak_group_rss_bytes": 273035264,
+    "status": "failed",
+    "supervisor_reason": "timeout",
+    "worker_returncode": -9,
+    "runner_exit_code": 1,
+    "cleanup_complete": true,
+    "cleanup_scope": "supervised host process group only; not a firmware recovery assertion",
+    "numeric_checkpoint_status": "running",
+    "last_stage": "tilelang_tpu_run_once",
+    "dispatch_attempted": true,
+    "reference_comparison_reached": false,
+    "timing_started": false,
+    "serial_pipeline_started": false
+  },
+  "call_trace": {
+    "kind": "flushed host runtime CALL/RETURN markers, not a hardware trace",
+    "call_markers": 13,
+    "return_markers": 12,
+    "completed_in_order": [
+      {"api": "tpuRtInit", "calls": 1, "return_code": 0},
+      {"api": "tpuRtSetDevice", "calls": 1, "return_code": 0},
+      {"api": "tpuRtStreamCreate", "calls": 1, "return_code": 0},
+      {"api": "tpuRtKernelLoadModuleFile", "calls": 1, "nonnull": true},
+      {"api": "tpuRtMalloc", "calls": 4, "return_code": 0},
+      {"api": "tpuRtMemcpyS2D", "calls": 4, "return_code": 0}
+    ],
+    "first_unreturned_api": "tpuRtKernelLaunch",
+    "source_location": "build/original/kernel.cpp:79",
+    "explicit_stream_synchronize_reached": false,
+    "device_entry_reached": "unknown",
+    "installed_header": {
+      "path": "/opt/tpuv7/tpuv7-current/include/tpuv7_rt.h",
+      "launch_declaration_line": 566,
+      "async_launch_declaration_line": 584,
+      "finding": "Separate tpuRtKernelLaunch and tpuRtKernelLaunchAsync declarations; only the latter is explicitly described as asynchronous. The excerpt does not specify internal wait/completion behavior."
+    }
+  },
+  "device_user_checks": {
+    "immediately_before_dispatch": {"fuser_exit_code": 1, "fuser_output": "empty"},
+    "after_failure": {
+      "time": "2026-10-15T17:03:58+08:00",
+      "fuser_exit_code": 1,
+      "fuser_output": "empty",
+      "module_refcount": 0
+    },
+    "continuous_exclusive_ownership_monitored": false
+  },
+  "fresh_kernel_journal": [
+    {"time": "2026-10-15T16:53:49+08:00", "event": "Chip 0 initialized"},
+    {"time": "2026-10-15T16:53:59+08:00", "event": "Chip 1 initialized; All 2 devices probed successfully"},
+    {"time": "2026-10-15T17:01:53+08:00", "function": "rt_task_done_response_sync", "line": 2416,
+     "event": "wait task done force exit", "task_id": "0x4", "stream_id": "0x2"},
+    {"time": "2026-10-15T17:01:53+08:00", "function": "handle_ioctl_result", "line": 1266,
+     "event": "ioctl result wrong", "type": "0x11", "request_id": "0x4"},
+    {"time": "2026-10-15T17:02:55+08:00", "function": "send_quit_request", "line": 379,
+     "event": "FORCE_QUIT default timeout", "request_id": "0x6", "pid_hex": "0x33be2e",
+     "pid_decimal": 3391022, "stream_num": 2}
+  ],
+  "source_audit": {
+    "read_revision": "a6f932cf2de791b5841a29a8036413bce21afe8c",
+    "dsl": "tpu_demo/rope/rope.py::build_rope",
+    "original_generated_kernel_sha256": "3e80987bfe8ddff0f3afbac7b2c1ec1ad8179b901f6896a204e243d18fe97249",
+    "trace_device_source_identical_to_frozen_target": true,
+    "block_shape": [4, 32],
+    "smoke_outer_loop_bounds": [2, 4],
+    "target_outer_loop_bounds": [256, 32],
+    "pair_loop_bound": 16,
+    "bdc_calls_per_pair": {"cpy": 6, "cast": 4, "fp_mul": 4, "fp_sub": 1, "fp_add": 1},
+    "gdma_calls_per_tile": {"S2L": 3, "L2S": 1},
+    "smoke_tile_count": 8,
+    "target_tile_count": 8192,
+    "source_derived_target_bdc_api_invocations": 2097152,
+    "source_derived_target_gdma_api_invocations": 32768,
+    "count_scope": "Expected dynamic SDK calls if loops complete; not observed calls, hardware descriptors or a verified SDK capacity limit",
+    "poll_scope": "main_kernel calls tpu_initialize, rope, tpu_poll; no explicit poll inside rope tile loops",
+    "smoke_target_difference": "Original generated kernel differs in global shapes, strides/offset constants and outer loop extents; local layout and arithmetic sequence are unchanged"
+  },
+  "assessment": {
+    "host_launch_call_timeout_reproduced_after_driver_reinitialization": true,
+    "prior_p10_concurrency_is_sufficient_explanation": false,
+    "pipeline_variant_implicated_by_this_attempt": false,
+    "root_cause": "not established: host launch boundary does not locate the device-side stall",
+    "firmware_health_after_failure_verified": false,
+    "correctness_accepted": false,
+    "device_performance_measured": false,
+    "hardware_overlap_verified": false,
+    "next_steps": [
+      "Inspect installed PPL 1.4 synchronization/command handling using read-only header/library evidence",
+      "Prepare an isolated bounded-work diagnostic to separate tile-count scale from global stride/layout; preserve the failing original baseline",
+      "Before any further dispatch, recover and validate device health with a previously passed small case; do not retry the full target or timing automatically"
+    ]
+  }
+}

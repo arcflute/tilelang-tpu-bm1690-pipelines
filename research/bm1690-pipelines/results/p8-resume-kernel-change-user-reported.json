@@ -26,10 +26,10 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Driver unload/reload and both-chip initialization passed; prepare hash-pinned original-only RoPE diagnostic and execute one bounded call after fresh device-user check",
+  "pending_test": "Post-reload original-only RoPE target again timed out inside host tpuRtKernelLaunch; inspect legacy SDK and prepare bounded diagnostic before further board dispatch",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
-  "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
+  "driver_recovery_scope": "Historical Oct 14 recovery and Mul correctness/latency passed; Oct 15 module reload and both-chip initialization passed, but subsequent original-only RoPE target diagnostic timed out and firmware health is again unverified",
   "current_environment_correctness_rechecked": true,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
@@ -155,7 +155,7 @@
       "original single diagnostic call only after device recovery assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "Driver reinitialized successfully on Oct 15; runtime mapping and original-only RoPE host diagnostic still pending",
+    "status": "Diagnostic built and attempted after driver reinitialization; original timed out at 30 seconds, no correctness or timing acceptance",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
@@ -290,15 +290,28 @@
     "concurrent_workload_evidence": "p8-rope-1024-concurrent-p10-user-reported.json"
   },
   "board_testing_user_directive": {
-    "instruction": "保留 P10，暂缓流水线迁移的真机测试",
-    "status": "resumed_driver_reinitialized_single_diagnostic_pending",
+    "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
+    "status": "resumed_post_reload_diagnostic_failed_under_investigation",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
-    "latest_instruction": "继续吧",
+    "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-resume-20261015-driver-state-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-1024-host-trace-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
-  "latest_recovery_evidence": "p8-driver-reload-20261015-user-reported.json"
+  "latest_recovery_evidence": "p8-driver-reload-20261015-user-reported.json",
+  "subsequent_rope_target_host_trace_attempt": {
+    "evidence": "p8-rope-1024-host-trace-board-user-reported.json",
+    "remote_work_directory": "/home/bokai/bm1690-rope-trace-lT2aoZ/work",
+    "all_three_builds_passed": true,
+    "original_one_call_passed": false,
+    "supervisor_reason": "timeout",
+    "first_unreturned_api": "tpuRtKernelLaunch",
+    "explicit_stream_synchronize_reached": false,
+    "timing_started": false,
+    "serial_pipeline_started": false,
+    "driver_force_quit_timeout_reported": true,
+    "firmware_health_after_failure_verified": false
+  }
 }
