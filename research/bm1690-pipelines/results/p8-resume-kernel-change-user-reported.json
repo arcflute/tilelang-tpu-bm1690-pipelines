@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Execute gated ordinary unload/reload of verified current-kernel module; review fresh initialization before original-only RoPE diagnostic",
+  "pending_test": "Driver unload/reload and both-chip initialization passed; prepare hash-pinned original-only RoPE diagnostic and execute one bounded call after fresh device-user check",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -155,14 +155,15 @@
       "original single diagnostic call only after device recovery assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "sg_close/unload entry inspected and existing module reverified; bounded non-force reload sequence prepared, remote execution and recovery not yet reported",
+    "status": "Driver reinitialized successfully on Oct 15; runtime mapping and original-only RoPE host diagnostic still pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
     "numpy_required": false,
     "timeout_seconds": 30,
     "automatic_retry": false,
-    "diagnostic_only": true
+    "diagnostic_only": true,
+    "source_revision": "e30dade9ef20b13131100c6fecb9c2afc63a71a1"
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -290,7 +291,7 @@
   },
   "board_testing_user_directive": {
     "instruction": "保留 P10，暂缓流水线迁移的真机测试",
-    "status": "resume_requested_device_recovery_pending",
+    "status": "resumed_driver_reinitialized_single_diagnostic_pending",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "继续吧",
@@ -298,5 +299,6 @@
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
   "latest_device_state_evidence": "p8-resume-20261015-driver-state-user-reported.json",
-  "latest_recovery_plan": "p8-driver-reload-plan-20261015.json"
+  "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
+  "latest_recovery_evidence": "p8-driver-reload-20261015-user-reported.json"
 }

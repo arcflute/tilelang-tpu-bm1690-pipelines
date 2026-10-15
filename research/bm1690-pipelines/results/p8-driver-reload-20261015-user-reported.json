@@ -1,0 +1,101 @@
+{
+  "schema": "bm1690-driver-reload-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output_and_kernel_journal",
+  "recorded_date": "2026-10-15",
+  "attachment_sha256": "414edb13bcf9ecff6bdf34259592a392cc7aaa8b4f863fe9653fb537c72fd950",
+  "plan_evidence": "p8-driver-reload-plan-20261015.json",
+  "remote_log_directory": "/home/bokai/sgcard-reload-1hsmI5",
+  "module_path": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source/sgcard.ko",
+  "module_sha256": "0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65",
+  "kernel_release_checked": "7.0.0-34-generic",
+  "reported_exit_codes": {
+    "module_check": 0,
+    "fuser": 1,
+    "preflight": 0,
+    "unload": 0,
+    "reload_preflight": 0,
+    "load": 0
+  },
+  "preflight": {
+    "fuser_output": "empty",
+    "module_initstate": "live",
+    "module_refcount": 0
+  },
+  "unload": {
+    "command": "rmmod sgcard",
+    "timeout_seconds": 45,
+    "kill_after_seconds": 5,
+    "host_affinity": [
+      0,
+      1
+    ],
+    "nice_increment": 10,
+    "forced": false,
+    "log_output_reported": "empty"
+  },
+  "reload_preflight": {
+    "module_absent": true,
+    "both_pci_bindings_absent": true
+  },
+  "load": {
+    "command": "insmod <verified module> card_num=64",
+    "timeout_seconds": 180,
+    "kill_after_seconds": 5,
+    "host_affinity": [
+      0,
+      1
+    ],
+    "nice_increment": 10,
+    "log_output_reported": "empty"
+  },
+  "after_load": {
+    "initstate": "live",
+    "device_nodes": [
+      {
+        "path": "/dev/sg-host-drv-0",
+        "major": 511,
+        "minor": 0
+      },
+      {
+        "path": "/dev/sg-host-drv-1",
+        "major": 511,
+        "minor": 1
+      }
+    ],
+    "pci_bindings": {
+      "0000:01:00.0": "sg-host-drv",
+      "0000:01:00.1": "sg-host-drv"
+    },
+    "journal_initialization_start": "Oct 15 16:53:36",
+    "chip_0_initialized": "Oct 15 16:53:49",
+    "chip_1_initialized": "Oct 15 16:53:59",
+    "all_devices_probed_successfully": "Oct 15 16:53:59",
+    "new_force_quit_timeout_in_supplied_initialization_excerpt": false,
+    "runtime_mapping_rechecked_after_reload": false,
+    "kernel_correctness_rechecked_after_reload": false
+  },
+  "assessment": {
+    "ordinary_module_unload_and_reload_passed": true,
+    "both_chip_initializations_reported": true,
+    "runtime_and_kernel_recovery_scope": "pending bounded runtime/mapping and one-call correctness diagnostic",
+    "rope_timeout_root_cause": "not established",
+    "next_action": "Prepare hash-pinned original-only RoPE host diagnostic, recheck device users and dispatch one bounded call in a new output directory"
+  },
+  "next_handoff": {
+    "revision": "e30dade9ef20b13131100c6fecb9c2afc63a71a1",
+    "case": "rope-target-trace",
+    "prepare_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
+    "runner_sha256": "f66aaa7c8f8f21c73c6e44b46d6a4aa1e1c0c0920f5c60733816a52a6b74c6a7",
+    "bundle_sha256": "815a4f6489da76aa3855da3899029f93008dd82ae6be92f2b1033c0c9d6b9fcd",
+    "variant": "original",
+    "timeout_seconds": 30,
+    "launch_cores": 1,
+    "host_cpus": 2,
+    "group_rss_mib": 4096,
+    "measure": false,
+    "automatic_retry": false
+  },
+  "board_diagnostic_execution_reported": false,
+  "dependencies_installed_or_changed": false,
+  "permanent_module_installation_performed": false
+}

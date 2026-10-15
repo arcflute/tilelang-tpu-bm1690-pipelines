@@ -21,10 +21,14 @@ Oct 14 20:05:47 and Oct 15 14:33:33, with preceding task-wait and close-time
 `load_lib_mutex` warnings. Follow-up source inspection shows that `sg_close`
 unlocks after that warning and continues host cleanup even after FORCE_QUIT
 fails. The normal `pci_exit`/`pci_remove` entries exist, and the existing module
-hash/vermagic and `card_num=64` were reverified. A gated, non-force unload/reload
-of that module is now prepared; its remote execution/recovery is not yet reported.
-The original-only RoPE host diagnostic remains prepared but unexecuted on board.
-Evidence is `results/p8-resume-20261015-driver-state-user-reported.json`.
+hash/vermagic and `card_num=64` were reverified. The user subsequently completed
+the gated, non-force unload/reload successfully: both commands returned zero,
+and fresh logs show Chip 0 initialized at 16:53:49, Chip 1 at 16:53:59 and all
+two devices probed successfully. Both nodes/PCI bindings are restored. Runtime
+mapping and kernel execution after this reload remain unverified. Next is one
+original-only RoPE host diagnostic with fresh device-user checks; no timing or
+automatic retry. Evidence is
+`results/p8-driver-reload-20261015-user-reported.json`.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
@@ -1533,3 +1537,25 @@ On failure preserve state/output and stop; on success inspect fresh chip
 initialization before any diagnostic kernel. No rebuild or dependency change is
 needed for this planned attempt, and no board recovery has yet been reported.
 Evidence is `results/p8-driver-reload-plan-20261015.json`.
+
+The user completed that procedure in `/home/bokai/sgcard-reload-1hsmI5`.
+The module hash/kernel check and both preflight checks passed. `fuser` had empty
+output and exit 1 before unload; module refcount was zero. Ordinary `rmmod`
+returned zero, and the module and both PCI driver links disappeared before
+`insmod` of the verified module with `card_num=64` returned zero. The new journal
+shows successful AP/TP firmware loading and both chips initialized, ending in
+`All 2 devices probed successfully` at Oct 15 16:53:59. The supplied fresh
+initialization excerpt contains no FORCE_QUIT error. Device nodes and bindings
+are restored. This establishes driver reinitialization, not yet successful
+post-reload runtime/mapping or operator correctness.
+
+Proceed to a new directory using pinned revision
+`e30dade9ef20b13131100c6fecb9c2afc63a71a1`, case `rope-target-trace`. The previously
+CModel-validated diagnostic permits only original one-call execution and rejects
+timing. Recheck that both device nodes have no users immediately before dispatch;
+use one launch core, two host CPUs, 4 GiB group RSS and a 30-second supervisor
+deadline. Its call-boundary logging will identify an unreturned runtime call if
+the original target fails again. A diagnostic pass will not replace the normal
+bundle's correctness receipt or count as a performance result. Existing failed
+attempts remain preserved. No post-reload diagnostic result has been reported.
+Evidence is `results/p8-driver-reload-20261015-user-reported.json`.
