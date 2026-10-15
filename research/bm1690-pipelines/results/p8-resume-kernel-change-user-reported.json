@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "User chose to keep ChunkScan P10 and defer migration board tests; resume after other TPU work ends and device availability/health is checked",
+  "pending_test": "User resumed Oct 15; no device holders reported but additional force-quit timeouts present; inspect close/unload path and verify existing module before recovery",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -155,7 +155,7 @@
       "original single diagnostic call only after device recovery assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "Deferred by user while P10 runs; retain original-only host diagnostic and failed RoPE evidence; no device reset or process termination",
+    "status": "Resume preflight: module live/refcount 0, no fuser holders; firmware health unverified after further Oct 15 force-quit timeout; original-only host diagnostic still pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
@@ -290,8 +290,12 @@
   },
   "board_testing_user_directive": {
     "instruction": "保留 P10，暂缓流水线迁移的真机测试",
-    "status": "deferred_by_user",
+    "status": "resume_requested_device_recovery_pending",
     "scope": "pipeline migration BM1690 board testing",
-    "evidence": "p8-rope-1024-concurrent-p10-user-reported.json"
-  }
+    "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
+    "latest_instruction": "继续吧",
+    "latest_date": "2026-10-15",
+    "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
+  },
+  "latest_device_state_evidence": "p8-resume-20261015-driver-state-user-reported.json"
 }

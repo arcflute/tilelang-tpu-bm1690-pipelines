@@ -10,7 +10,18 @@ The source owner reports that ChunkScan stages other than P10 have completed
 validation. This project migrates those mechanisms; it does not restart that
 project's environment bring-up. P10 is not complete performance evidence.
 
-## Current test handoff (2026-10-14)
+## Current test handoff (2026-10-15)
+
+The user requested resumption after the P10-related deferral. At 15:19:40 +0800,
+the board still runs kernel 7.0.0-34-generic, sgcard is live with reference count
+zero, both device nodes/PCI bindings exist, and privileged `fuser` reports no
+holders (empty output, exit 1). This establishes no detected host device users,
+not firmware recovery. The journal contains further FORCE_QUIT timeouts at
+Oct 14 20:05:47 and Oct 15 14:33:33, with preceding task-wait and close-time
+`load_lib_mutex` warnings. Inspect `sg_close` and the PCI driver unload path,
+and verify the existing matching module before choosing a recovery procedure.
+The original-only RoPE host diagnostic remains prepared but unexecuted on board.
+Evidence is `results/p8-resume-20261015-driver-state-user-reported.json`.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
@@ -1478,3 +1489,23 @@ prepared diagnostic for use after other TPU testing ends and device availability
 and health have been checked. Overlapping measurements from either project must
 not be presented as verified exclusive-device performance.
 Evidence is `results/p8-rope-1024-concurrent-p10-user-reported.json`.
+
+## P8.13 Resume preflight after concurrent testing
+
+The Oct 15 user-requested resume starts from fresh driver/device observations,
+not an assumption that P10 completed successfully. `fuser` prints no holder and
+returns 1; sgcard's reference count is zero. The kernel and device bindings are
+unchanged from the last verified 7.0.0-34-generic setup. No successful task
+completion or device reset has been reported after the earlier failure.
+
+Additional journal entries show task-wait interruption, an ioctl error and the
+close-time `load_lib_mutex` warning at Oct 14 20:04:45, followed by FORCE_QUIT
+timeout at 20:05:47. The PID field `0x29c525` equals 2737445, the previously
+identified P10 process. Similar messages recur at Oct 15 14:32:32/14:33:33 for
+PID field `0x243bc3`, whose workload identity is not established. The log alone
+does not establish that the mutex remains locked after `sg_close` returns.
+Read its handling and the driver unload path before a recovery action; verify
+the existing matching module rather than rebuild or use the incompatible
+installed module. No board dispatch, driver unload/reset, dependency change or
+termination of another workload was performed for this preflight.
+Evidence is `results/p8-resume-20261015-driver-state-user-reported.json`.
