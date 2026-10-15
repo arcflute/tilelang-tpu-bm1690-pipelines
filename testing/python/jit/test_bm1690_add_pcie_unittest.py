@@ -563,6 +563,50 @@ class RoPETraceManifestTests(ManifestTests):
             self.assertTrue(report["cleanup_complete"])
 
 
+class RoPEWindowManifestTests(RoPETraceManifestTests):
+    bundle_name = "rope-1024-window8-sources.json"
+
+    def test_window_receipt_is_bound_to_full_allocation_and_exact_coverage(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["shape"], [1024, 1024])
+        self.assertEqual(identity["diagnostic_window"], [0, 8, 0, 128])
+        self.assertNotEqual(identity["bundle_sha256"], runner.ROPE_TARGET_BUNDLE_SHA256)
+        self.assertNotEqual(identity["bundle_sha256"], runner.ROPE_TRACE_BUNDLE_SHA256)
+
+
+class RoPEWindowOutputTests(unittest.TestCase):
+    def setUp(self):
+        self.expected = struct.pack("<e", 1.0) * (1024 * 1024)
+        self.output = bytearray(b"\x00\x7e" * (1024 * 1024))
+        for row in range(8):
+            start, end = row * 1024 * 2, (row * 1024 + 128) * 2
+            self.output[start:end] = self.expected[start:end]
+
+    def test_checks_active_values_and_every_unwritten_region(self):
+        metrics = runner.check_rope_window_output(bytes(self.output), self.expected, runner.ROPE_WINDOW)
+        self.assertEqual(metrics["checked_elements"], 1024)
+        self.assertEqual(metrics["untouched_elements"], 1047552)
+        self.assertTrue(metrics["untouched_sentinel_preserved"])
+        self.assertTrue(metrics["bitwise_equal_to_reference"])
+        # Each row gap, next row and last element are outside the window.
+        for index in [row * 1024 + 128 for row in range(8)] + [8 * 1024, 1024 * 1024 - 1]:
+            changed = bytearray(self.output)
+            changed[index * 2:index * 2 + 2] = b"\x00\x00"
+            with self.subTest(index=index), self.assertRaisesRegex(ValueError, "outside"):
+                runner.check_rope_window_output(bytes(changed), self.expected, runner.ROPE_WINDOW)
+
+    def test_missing_write_wrong_value_or_wrong_scope_is_rejected(self):
+        for value in (b"\x00\x7e", struct.pack("<e", 2.0)):
+            changed = bytearray(self.output)
+            changed[(7 * 1024 + 127) * 2:(7 * 1024 + 128) * 2] = value
+            with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                runner.check_rope_window_output(bytes(changed), self.expected, runner.ROPE_WINDOW)
+        for actual, window in ((bytes(self.output[:-2]), runner.ROPE_WINDOW),
+                               (bytes(self.output), (0, 4, 0, 128))):
+            with self.assertRaisesRegex(ValueError, "Unexpected"):
+                runner.check_rope_window_output(actual, self.expected, window)
+
+
 class RoPEReferenceTests(unittest.TestCase):
     def test_target_rows_and_pairs_keep_four_quadrant_rotations(self):
         # Row and pair-dependent quarter turns have an exact analytic answer,

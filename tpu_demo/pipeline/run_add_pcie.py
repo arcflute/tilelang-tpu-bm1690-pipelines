@@ -106,6 +106,13 @@ ROPE_TRACE_BUNDLE_SHA256 = '815a4f6489da76aa3855da3899029f93008dd82ae6be92f2b103
 BUNDLES[ROPE_TRACE_BUNDLE_SHA256] = {"shape": [1024, 1024], "builders": (ROPE_TARGET_BUILDER_SHA256,),
                                      "timing": False, "operation": "rope", "diagnostic_only": True}
 
+ROPE_WINDOW_BUNDLE_SHA256 = 'dcf15b8d6480b05345d116619d3f8744de1da7657af937de0bbe9979d9500622'
+ROPE_WINDOW = (0, 8, 0, 128)  # Exclusive row/column bounds in the full 1024x1024 allocation.
+BUNDLES[ROPE_WINDOW_BUNDLE_SHA256] = {
+    "shape": [1024, 1024], "builders": (ROPE_TARGET_BUILDER_SHA256,),
+    "timing": False, "operation": "rope", "diagnostic_only": True,
+    "diagnostic_window": list(ROPE_WINDOW)}
+
 
 def digest(path):
     hasher = hashlib.sha256()
@@ -198,6 +205,7 @@ def validate_build(build):
         raise ValueError("Pinned operation/shape differs from bundle")
     return {"build_manifest_sha256": digest(build / "result.json"), "operation": operation,
             "diagnostic_only": contract.get("diagnostic_only", False),
+            "diagnostic_window": contract.get("diagnostic_window"),
             "bundle_sha256": bundle_hash, "shape": contract["shape"], "timing_supported": contract["timing"],
             "runtime_library": str(required[-2].resolve()),
             "runtime_sha256": report["sdk_inputs"][str(required[-2])],
@@ -357,6 +365,29 @@ def call_host(library, lhs, rhs, *, timing=None):
     if not lhs or len(lhs) != len(rhs) or len(lhs) % 2:
         raise ValueError("Invalid FP16 input lengths")
     return _call_host_buffers(library, (lhs, rhs), len(lhs), timing=timing)
+
+
+def check_rope_window_output(actual, expected, window):
+    """Check computed values and every untouched byte of the fixed diagnostic."""
+    if tuple(window) != ROPE_WINDOW or len(actual) != 1024 * 1024 * 2 or len(expected) != len(actual):
+        raise ValueError("Unexpected RoPE diagnostic window or buffer length")
+    row_start, row_end, col_start, col_end = window
+    selected_actual, selected_expected = [], []
+    cursor = 0
+    for row in range(row_start, row_end):
+        start, end = (row * 1024 + col_start) * 2, (row * 1024 + col_end) * 2
+        if actual[cursor:start] != b"\x00\x7e" * ((start - cursor) // 2):
+            raise ValueError("RoPE diagnostic changed output outside the active window")
+        selected_actual.append(actual[start:end])
+        selected_expected.append(expected[start:end])
+        cursor = end
+    if actual[cursor:] != b"\x00\x7e" * ((len(actual) - cursor) // 2):
+        raise ValueError("RoPE diagnostic changed output outside the active window")
+    count = (row_end - row_start) * (col_end - col_start)
+    metrics = check_output(b"".join(selected_actual), b"".join(selected_expected), count, "rope")
+    metrics.update(scope="active_window_only", window=list(window), checked_elements=count,
+                   untouched_elements=1024 * 1024 - count, untouched_sentinel_preserved=True)
+    return metrics
 
 
 def call_rope_host(library, source, cosine, sine, *, timing=None):
@@ -660,7 +691,9 @@ def worker(args):
         actual = launch(library, *inputs, timing=timing)
         result["host_call_returned_success"] = True
         checkpoint("compare_reference")
-        result["reference"] = check_output(actual, expected, count, operation)
+        result["reference"] = (check_rope_window_output(actual, expected, identity["diagnostic_window"])
+                               if identity.get("diagnostic_window") else
+                               check_output(actual, expected, count, operation))
         result["previous_variant_comparison"] = check_previous_output(
             actual, previous, count, operation, args.variant)
         result["previous_variant_bitwise_equal"] = (actual == previous) if previous is not None else None

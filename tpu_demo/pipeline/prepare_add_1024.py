@@ -22,7 +22,7 @@ FILES = {
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "f66aaa7c8f8f21c73c6e44b46d6a4aa1e1c0c0920f5c60733816a52a6b74c6a7"),
+                   "6558461c17004ea104a189c66e9268dbcf36708286aa4e10044b290fb5030a95"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -61,7 +61,11 @@ ROPE_TARGET_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-sources.json"
 
 ROPE_TRACE_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-host-trace-sources.json", '815a4f6489da76aa3855da3899029f93008dd82ae6be92f2b1033c0c9d6b9fcd')
 
+ROPE_WINDOW_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-window8-sources.json", 'dcf15b8d6480b05345d116619d3f8744de1da7657af937de0bbe9979d9500622')
+
 def source_files(case):
+    if case == "rope-target-window8":
+        return {**FILES, "add.json": ROPE_WINDOW_SOURCE}
     if case == "rope-target-trace":
         return {**FILES, "add.json": ROPE_TRACE_SOURCE}
     if case == "rope-target":
@@ -137,7 +141,7 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace"), default="target",
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8"), default="target",
                         help="Elementwise, Matmul, RMSNorm ordinary/Split-K or RoPE smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
@@ -195,7 +199,7 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace") else
+            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8") else
                       "MATMUL1024" if args.case == "matmul-target" else
                       "MATMUL128" if args.case == "matmul-smoke" else
                       (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")

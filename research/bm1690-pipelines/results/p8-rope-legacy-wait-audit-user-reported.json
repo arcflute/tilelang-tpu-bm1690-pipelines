@@ -1,0 +1,67 @@
+{
+  "schema": "bm1690-rope-legacy-wait-audit-v1",
+  "recorded_date": "2026-10-15",
+  "evidence_kind": "user_supplied_objdump_and_header_output",
+  "device_library": "/home/bokai/bm1690-rope-trace-lT2aoZ/work/build/original/libkernel.so",
+  "preceding_evidence": "p8-rope-1024-host-trace-board-user-reported.json",
+  "symbol_resolution": {
+    "multiple_same_named_local_wait_functions": true,
+    "first_name_based_dump_address": "0x1ff0a0",
+    "actual_tpu_poll_call_target": "0x21cdd0",
+    "actual_target_retrieved_by_address": true
+  },
+  "actual_internal_wait": {
+    "function": "poll_all_engine_done_internal",
+    "address": "0x21cdd0",
+    "calls_in_order": [
+      {"function": "poll_bd_engine_done", "address": "0x21cf90"},
+      {"function": "poll_gdma_engine_done", "address": "0x21cfe0"},
+      {"function": "poll_sdma_engine_done", "address": "0x21d030"},
+      {"function": "poll_hau_engine_done.constprop.0", "address": "0x21d190"}
+    ],
+    "bdc_and_gdma_bodies_inspected": true,
+    "bdc_expected_count_offset": 0,
+    "gdma_expected_count_offset": 4,
+    "completion_loop": "Load target count from id_node, repeatedly read mapped 32-bit completion register; unsigned-less-than branch continues while completion is below target",
+    "timeout_in_these_two_function_bodies": false,
+    "hardware_counter_width_or_wrap_policy_established": false,
+    "actual_failed_execution_reached_these_functions": "unknown"
+  },
+  "parallel_state": {
+    "getter": "tpu_is_parallel_state",
+    "address": "0x21e6c0",
+    "loads_byte_offset": 12,
+    "matches_tpu_poll_state_test": true,
+    "generated_original_explicit_parallel_calls": 0,
+    "conditional_spin_is_failure_root_cause": "not established"
+  },
+  "header_helper_difference": {
+    "header": "/home/bokai/ChunkScan-bm1690-deps/ppl_v1.4.195-geb2acdd0-20250220/runtime/kernel/common.h",
+    "source_members_before_optional_profiling": ["unsigned int bd_cmd_id", "unsigned int gdma_cmd_id", "bool in_parallel_state"],
+    "helper_source": "runtime/customize/src/ppl_helper.c",
+    "helper_reads_header_parallel_field": true,
+    "set_id_node_calls": ["tpu_set_parallel_id_node or tpu_set_id_node", "tpu_disable_check_id_node"],
+    "get_id_node_calls": ["tpu_get_parallel_id_node or tpu_get_id_node", "tpu_enable_check_id_node"],
+    "generated_rope_constructs_CMD_ID_NODE_or_calls_these_helpers": false,
+    "assessment": "Header layout and library getter offsets differ. This is a compatibility concern for direct CMD_ID_NODE/helper use, but does not by itself explain this generated kernel. No SDK header or library was patched."
+  },
+  "latest_device_check": {
+    "time": "2026-10-15T17:31:56+08:00",
+    "kernel_release": "7.0.0-34-generic",
+    "module_initstate": "live",
+    "module_refcount": 0,
+    "fuser_exit_code": 1,
+    "fuser_output": "empty",
+    "firmware_recovery_verified": false
+  },
+  "next_diagnostic": {
+    "case": "rope-target-window8",
+    "global_shape": [1024, 1024],
+    "active_window_rows_columns_exclusive": [0, 8, 0, 128],
+    "original_tiles": 8,
+    "local_cmodel_evidence": "p8-rope-1024-window8-cmodel.json",
+    "board_build_and_execution": "pending",
+    "before_dispatch": "Ordinary verified-module recovery, inspect initialization, then one previously passed smoke call; stop on failure",
+    "acceptance_scope": "Diagnostic only; neither full original correctness nor pipeline performance"
+  }
+}

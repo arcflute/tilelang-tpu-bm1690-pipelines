@@ -40,6 +40,13 @@ a bounded diagnostic, not an identical full-target retry. Evidence is
 `results/p8-rope-1024-host-trace-board-user-reported.json`; the preceding
 reinitialization remains recorded in `results/p8-driver-reload-20261015-user-reported.json`.
 
+The next prepared case is `rope-target-window8`: full 1024x1024 allocations and
+strides, with only eight original tiles computed. Its one-call CModel check and
+149 regression checks passed. Remote compilation is the next handoff; board
+dispatch requires recovery and a previously passed smoke check first. Evidence
+is `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
+does not count as full-target acceptance.
+
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
 cases. Div is the latest: all 18 build commands and six test processes passed.
@@ -1632,3 +1639,59 @@ byte offset 12, takes a self-branch if it is nonzero, otherwise calls
 the failed launch reached it. Inspect that internal wait and the meaning of the
 state byte before proposing a polling change. The library was read with
 `objdump`; no runtime was loaded or new kernel dispatched in this inspection.
+
+The first name-based dump of the internal wait resolved to 0x1ff0a0; the symbol
+table contains several local definitions with that name. A subsequent address
+range dump verified the actual call target 0x21cdd0. Its BDC/GDMA waits read
+target counts from offsets 0/4 and repeatedly compare mapped completion
+registers using an unsigned-less-than branch. These two function bodies have
+no timeout. This does not show that the failed kernel reached them, or establish
+hardware counter width, command overflow or a particular engine stall.
+`tpu_is_parallel_state` confirms byte offset 12 is the parallel flag. The
+installed `runtime/kernel/common.h` instead places its parallel member directly
+after two unsigned-int command IDs, and `ppl_helper.c` reads that header member
+when selecting the set/get-id helper. The frozen generated RoPE does not
+construct a `CMD_ID_NODE` or call those helpers. Preserve this compatibility
+concern without treating it as this failure's proven cause or rewriting the SDK.
+At 17:31:56 +0800 the driver was live, refcount zero and both device nodes had no
+detected users; firmware recovery remained unverified. Evidence:
+`results/p8-rope-legacy-wait-audit-user-reported.json`.
+
+### P8.15: eight-tile diagnostic with target allocation and strides
+
+`export_rope_window.py` derives a separately pinned bundle from the frozen host
+trace bundle. Only two original `kernel.c` loop bounds change: bx 256 to 2 and
+by 32 to 4. Full 1024x1024 shapes, table strides, argument bytes, local addresses,
+pair arithmetic, host call tracing and final poll remain unchanged. The
+diagnostic computes rows [0,8), columns [0,128), covering eight 4x32 tiles. No
+new poll, ID reset, SDK change or production-kernel change is introduced.
+
+`run_add_pcie.py::check_rope_window_output` compares the 1024 computed FP16
+elements to the existing independent reference and checks every other output
+byte for the original FP16 NaN sentinel. The receipt explicitly limits its
+reference scope to the active window. The source hash registry admits only
+original one-call diagnostic execution; timing, serial and pipeline are
+rejected before loading a runtime. Diagnostic receipts cannot be used as
+ordinary source-bundle correctness receipts.
+
+One bounded BM1690 CModel worker passed using the existing PPL 1.7 installation:
+two host CPUs, 4 GiB group RSS cap and 120-second deadline. All computed values
+matched the reference bitwise (zero error), and all 1047552 uncomputed elements
+retained their sentinel bytes. All 22 host calls returned, with exactly one
+launch. Source and native-library identities remained unchanged during the
+run. The unit suites passed all 149 checks in the existing `.risc` environment.
+An initial system-Python run had one Matmul-fixture failure and three skips
+because NumPy was absent; the error was reproduced without a vendor load, then
+resolved by reusing `.risc`, without dependency installation or weakening tests.
+The initial and successful logs are retained with the CModel artifacts.
+
+Prepare case `rope-target-window8` with the new pinned helper in a new remote
+directory; compilation alone never loads the board runtime. Before execution,
+perform the existing gated ordinary driver recovery and one previously passed
+smoke check. Run the window diagnostic once and stop on failure. A window pass
+would establish this low-address window with the target strides, not all target
+addresses or long-loop behavior. If it passes, separately investigate a window
+near the matrix end and increasing tile counts. If a recovered known smoke
+fails, investigate the runtime/device state before another RoPE target call.
+No board build or execution of window8 has yet been reported. Evidence:
+`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
