@@ -1619,3 +1619,16 @@ insert unvalidated polling as a production fix, or replace original results
 with candidate results. This turn changed evidence and documentation only;
 no new kernel tests or performance claims are included. Evidence:
 `results/p8-rope-1024-host-trace-board-user-reported.json`.
+
+The follow-up installed PPL 1.4 header declares `tpu_initialize`, `tpu_poll`,
+`tpu_poll_descriptor` and `tpu_poll_empty` (lines 226–234). Reading the actual
+RISC-V device library's symbol table confirms text definitions for initialize,
+poll, poll-empty and the enable/disable-id-check functions; the exact
+poll-descriptor name was not printed by that symbol filter. Declarations alone
+are therefore not treated as proof of a callable implementation. The supplied
+disassembly shows initialize clearing several `id_node` fields. Poll checks
+byte offset 12, takes a self-branch if it is nonzero, otherwise calls
+`poll_all_engine_done_internal`. This is a static code path, not evidence that
+the failed launch reached it. Inspect that internal wait and the meaning of the
+state byte before proposing a polling change. The library was read with
+`objdump`; no runtime was loaded or new kernel dispatched in this inspection.

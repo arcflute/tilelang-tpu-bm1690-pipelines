@@ -140,5 +140,63 @@
       "Prepare an isolated bounded-work diagnostic to separate tile-count scale from global stride/layout; preserve the failing original baseline",
       "Before any further dispatch, recover and validate device health with a previously passed small case; do not retry the full target or timing automatically"
     ]
+  },
+  "legacy_sdk_followup": {
+    "evidence_kind": "user_supplied_remote_terminal_output",
+    "recorded_date": "2026-10-15",
+    "sdk_root": "/home/bokai/ChunkScan-bm1690-deps/ppl_v1.4.195-geb2acdd0-20250220",
+    "header": "runtime/bm1690/TPU1686/kernel/include/tpu_kernel.h",
+    "declaration_lines": {
+      "tpu_set_id_node": 161,
+      "tpu_get_id_node": 162,
+      "tpu_set_parallel_id_node": 163,
+      "tpu_get_parallel_id_node": 164,
+      "tpu_enable_check_id_node": 165,
+      "tpu_disable_check_id_node": 166,
+      "tpu_initialize": 226,
+      "tpu_poll": 230,
+      "tpu_poll_descriptor": 232,
+      "tpu_poll_empty": 234
+    },
+    "cross_objdump": "/host-tools/gcc-riscv/gcc-riscv64-unknown-linux-gnu/bin/riscv64-unknown-linux-gnu-objdump",
+    "cross_objdump_executable_present": true,
+    "cross_objdump_size_bytes": 10736640,
+    "device_library": "/home/bokai/bm1690-rope-trace-lT2aoZ/work/build/original/libkernel.so",
+    "device_library_reported_size": "2.8M",
+    "implementation_inspected": "partial: user-supplied symbol table plus complete tpu_initialize and tpu_poll disassembly",
+    "finding": "The inspected binary contains the listed implementations, including a conditional spin and an internal engine wait. Actual execution of these device functions in the failed call remains unobserved. The offset-12 field meaning and internal engine wait implementation still need inspection; no root cause or capacity limit established.",
+    "defined_text_symbols": {
+      "tpu_initialize": {
+        "address": "0x21dea0",
+        "size": "0x120"
+      },
+      "tpu_poll": {
+        "address": "0x21e240",
+        "size": "0x3c"
+      },
+      "tpu_poll_empty": {
+        "address": "0x21e280",
+        "size": "0x3c"
+      },
+      "tpu_enable_check_id_node": {
+        "address": "0x21de60",
+        "size": "0x10"
+      },
+      "tpu_disable_check_id_node": {
+        "address": "0x21de80",
+        "size": "0xe"
+      }
+    },
+    "exact_symbol_not_printed_by_filter": [
+      "tpu_poll_descriptor"
+    ],
+    "tpu_initialize_observations": [
+      "Calls map_to_kaddr while reading/writing core-specific register addresses",
+      "Stores zero at id_node byte offsets 0, 8, 12, 16, 64, 72, 80, 88 before returning"
+    ],
+    "tpu_poll_observations": [
+      "Loads id_node byte offset 12; if nonzero, enters unconditional self-branch at 0x21e256",
+      "Otherwise calls profile_time_begin_wait_node, poll_all_engine_done_internal at 0x21cdd0, and profile_time_end"
+    ]
   }
 }
