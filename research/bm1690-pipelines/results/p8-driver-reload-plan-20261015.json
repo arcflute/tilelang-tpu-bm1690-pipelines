@@ -1,0 +1,68 @@
+{
+  "schema": "bm1690-driver-reload-plan-v1",
+  "evidence_kind": "user_supplied_driver_source_and_module_identity_in_chat",
+  "recorded_date": "2026-10-15",
+  "status": "prepared_not_executed",
+  "source_directory": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source",
+  "observed_close_path": {
+    "file": "sgdrv_fops.c",
+    "requested_excerpt_lines": [
+      445,
+      590
+    ],
+    "function": "sg_close",
+    "load_lib_mutex_warning_followed_by_unlock": true,
+    "force_quit_return_logged_but_context_cleanup_continues": true,
+    "host_contexts_and_memory_freed_after_quit_attempt": true,
+    "returns_zero_at_end": true,
+    "device_completion_established_by_close": false
+  },
+  "observed_unload_path": {
+    "file": "sgdrv_pcie.c",
+    "registered_module_exit": "pci_exit",
+    "calls": [
+      "pci_unregister_driver(&pci_dma_driver)",
+      "bmdrv_class_destroy()",
+      "sgdrv_proc_deinit()"
+    ],
+    "registered_pci_remove": "pci_remove",
+    "pci_remove_calls_release_core_resources_then_frees_hdev": true,
+    "release_core_resources_body_in_supplied_excerpt": false,
+    "successful_unload_or_hardware_reset_verified": false
+  },
+  "observed_load_path": {
+    "registered_module_init": "pci_init",
+    "registers_pci_driver": true,
+    "checks_probe_completion": true,
+    "probe_wait_ms_non_pld": 60000
+  },
+  "verified_module": {
+    "path": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source/sgcard.ko",
+    "sha256": "0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65",
+    "vermagic": "7.0.0-34-generic SMP preempt mod_unload modversions",
+    "running_card_num_parameter": 64,
+    "rebuild_needed_for_current_kernel": false
+  },
+  "proposed_recovery": {
+    "scope": "Ordinary unload and reload of verified sgcard module affecting both bound TPU PCI functions",
+    "before_unload": [
+      "Verify module checksum and running kernel",
+      "Recheck privileged fuser, accepting only exit 1 with empty output",
+      "Require module initstate live and reference count zero",
+      "Preserve logs and stop other new TPU launches"
+    ],
+    "unload": "rmmod sgcard, without force, bounded command and log capture",
+    "reload_condition": "Unload returns zero, module and both PCI driver links are absent",
+    "reload": "insmod verified module with card_num=64, two host CPUs, nice +10, bounded command and log capture",
+    "on_failure": "Stop sequence, preserve output and inspect state; no force unload, retry loop or automatic reboot",
+    "after_reload": "Read fresh initialization journal and device bindings before runtime/kernel diagnostics",
+    "kernel_test_launched_by_recovery_sequence": false
+  },
+  "actions_performed_by_assistant": {
+    "driver_unloaded": false,
+    "driver_loaded": false,
+    "board_kernel_dispatched": false,
+    "implementation_changed": false,
+    "dependencies_changed": false
+  }
+}

@@ -18,8 +18,11 @@ zero, both device nodes/PCI bindings exist, and privileged `fuser` reports no
 holders (empty output, exit 1). This establishes no detected host device users,
 not firmware recovery. The journal contains further FORCE_QUIT timeouts at
 Oct 14 20:05:47 and Oct 15 14:33:33, with preceding task-wait and close-time
-`load_lib_mutex` warnings. Inspect `sg_close` and the PCI driver unload path,
-and verify the existing matching module before choosing a recovery procedure.
+`load_lib_mutex` warnings. Follow-up source inspection shows that `sg_close`
+unlocks after that warning and continues host cleanup even after FORCE_QUIT
+fails. The normal `pci_exit`/`pci_remove` entries exist, and the existing module
+hash/vermagic and `card_num=64` were reverified. A gated, non-force unload/reload
+of that module is now prepared; its remote execution/recovery is not yet reported.
 The original-only RoPE host diagnostic remains prepared but unexecuted on board.
 Evidence is `results/p8-resume-20261015-driver-state-user-reported.json`.
 
@@ -1509,3 +1512,24 @@ the existing matching module rather than rebuild or use the incompatible
 installed module. No board dispatch, driver unload/reset, dependency change or
 termination of another workload was performed for this preflight.
 Evidence is `results/p8-resume-20261015-driver-state-user-reported.json`.
+
+The supplied `sg_close` excerpt subsequently confirms an explicit unlock after
+the `load_lib_mutex` warning. It logs the FORCE_QUIT result, then frees stream
+contexts, memory and the host handle regardless of the timeout. Successful host
+close therefore does not imply successful device task termination. The driver
+registers `pci_exit` as its module exit: it unregisters the PCI driver, destroys
+the class and removes proc entries. `pci_remove` releases core resources and
+frees the device object; the body of `release_core_resources` was not included
+in the excerpt. These observations identify the ordinary unload path, not a
+guarantee of recovery from the observed firmware/response state.
+
+The existing module's SHA256 remains
+`0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65`, with
+vermagic 7.0.0-34-generic and current `card_num=64`. Prepare a normal bounded
+unload/reload using this module: recheck holders/refcount immediately before
+unload, capture logs, and reload only after successful unload and disappearance
+of the module and both PCI bindings. Use no force option or automatic retry.
+On failure preserve state/output and stop; on success inspect fresh chip
+initialization before any diagnostic kernel. No rebuild or dependency change is
+needed for this planned attempt, and no board recovery has yet been reported.
+Evidence is `results/p8-driver-reload-plan-20261015.json`.

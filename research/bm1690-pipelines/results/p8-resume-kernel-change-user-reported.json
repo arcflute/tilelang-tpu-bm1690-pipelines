@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "User resumed Oct 15; no device holders reported but additional force-quit timeouts present; inspect close/unload path and verify existing module before recovery",
+  "pending_test": "Execute gated ordinary unload/reload of verified current-kernel module; review fresh initialization before original-only RoPE diagnostic",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "module live, both device nodes present, both PCI functions bound, both chips initialized; runtime and Mul correctness/latency execution verified after recovery",
@@ -155,7 +155,7 @@
       "original single diagnostic call only after device recovery assessment"
     ],
     "stop_on_first_failure": true,
-    "status": "Resume preflight: module live/refcount 0, no fuser holders; firmware health unverified after further Oct 15 force-quit timeout; original-only host diagnostic still pending",
+    "status": "sg_close/unload entry inspected and existing module reverified; bounded non-force reload sequence prepared, remote execution and recovery not yet reported",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "9773c91b57b9fdbca3e006f9d3568844b9435c16a0797776998b0d57f38373fb",
@@ -297,5 +297,6 @@
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-resume-20261015-driver-state-user-reported.json"
+  "latest_device_state_evidence": "p8-resume-20261015-driver-state-user-reported.json",
+  "latest_recovery_plan": "p8-driver-reload-plan-20261015.json"
 }
