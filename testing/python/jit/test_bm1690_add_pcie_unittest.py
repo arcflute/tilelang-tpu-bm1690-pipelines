@@ -574,6 +574,17 @@ class RoPEWindowManifestTests(RoPETraceManifestTests):
         self.assertNotEqual(identity["bundle_sha256"], runner.ROPE_TRACE_BUNDLE_SHA256)
 
 
+class RoPEWindowEndManifestTests(RoPETraceManifestTests):
+    bundle_name = "rope-1024-window8-end-sources.json"
+
+    def test_end_window_receipt_has_distinct_bundle_and_coverage(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["shape"], [1024, 1024])
+        self.assertEqual(identity["diagnostic_window"], [1016, 1024, 896, 1024])
+        self.assertEqual(identity["bundle_sha256"], runner.ROPE_WINDOW_END_BUNDLE_SHA256)
+        self.assertNotEqual(identity["bundle_sha256"], runner.ROPE_WINDOW_BUNDLE_SHA256)
+
+
 class RoPEWindowOutputTests(unittest.TestCase):
     def setUp(self):
         self.expected = struct.pack("<e", 1.0) * (1024 * 1024)
@@ -605,6 +616,38 @@ class RoPEWindowOutputTests(unittest.TestCase):
                                (bytes(self.output), (0, 4, 0, 128))):
             with self.assertRaisesRegex(ValueError, "Unexpected"):
                 runner.check_rope_window_output(actual, self.expected, window)
+
+
+class RoPEWindowEndOutputTests(unittest.TestCase):
+    def setUp(self):
+        self.expected = struct.pack("<e", 1.0) * (1024 * 1024)
+        self.output = bytearray(b"\x00\x7e" * (1024 * 1024))
+        for row in range(1016, 1024):
+            start, end = (row * 1024 + 896) * 2, (row + 1) * 1024 * 2
+            self.output[start:end] = self.expected[start:end]
+
+    def test_end_values_and_all_prefix_and_row_gaps_are_checked(self):
+        metrics = runner.check_rope_window_output(self.output, self.expected, runner.ROPE_WINDOW_END)
+        self.assertEqual(metrics["window"], [1016, 1024, 896, 1024])
+        self.assertEqual(metrics["checked_elements"], 1024)
+        self.assertEqual(metrics["untouched_elements"], 1047552)
+        self.assertTrue(metrics["untouched_sentinel_preserved"])
+        self.assertTrue(metrics["bitwise_equal_to_reference"])
+        for index in [0, 1016 * 1024 - 1] + [row * 1024 + 895 for row in range(1016, 1024)]:
+            changed = bytearray(self.output)
+            changed[index * 2:index * 2 + 2] = b"\x00\x00"
+            with self.subTest(index=index), self.assertRaisesRegex(ValueError, "outside"):
+                runner.check_rope_window_output(changed, self.expected, runner.ROPE_WINDOW_END)
+
+    def test_end_missing_write_wrong_value_and_wrong_window_are_rejected(self):
+        for index in (1016 * 1024 + 896, 1024 * 1024 - 1):
+            for value in (b"\x00\x7e", struct.pack("<e", 2.0)):
+                changed = bytearray(self.output)
+                changed[index * 2:index * 2 + 2] = value
+                with self.subTest(index=index, value=value), self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                    runner.check_rope_window_output(changed, self.expected, runner.ROPE_WINDOW_END)
+        with self.assertRaises(ValueError):
+            runner.check_rope_window_output(self.output, self.expected, runner.ROPE_WINDOW)
 
 
 class RoPEReferenceTests(unittest.TestCase):

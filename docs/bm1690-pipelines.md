@@ -35,12 +35,12 @@ reports task-wait interruption and a FORCE_QUIT timeout. Thus driver
 reinitialization did not resolve this target case, and its failure cannot be
 explained solely by the earlier concurrent P10. No users were detected before
 dispatch or at the 17:03:58 follow-up; this is not continuous exclusivity or
-firmware health evidence. Further board dispatch awaits recovery assessment and
+firmware health evidence. At that point further board dispatch awaited recovery assessment and
 a bounded diagnostic, not an identical full-target retry. Evidence is
 `results/p8-rope-1024-host-trace-board-user-reported.json`; the preceding
 reinitialization remains recorded in `results/p8-driver-reload-20261015-user-reported.json`.
 
-The next prepared case is `rope-target-window8`: full 1024x1024 allocations and
+The first bounded case is `rope-target-window8`: full 1024x1024 allocations and
 strides, with only eight original tiles computed. Its one-call CModel check and
 149 regression checks passed. The user has now built all three variants at
 revision `c3e7ee870d3254eabcf79b045e19a494425918b5`: 18 build steps, prepare exit
@@ -61,9 +61,22 @@ reinitialization. A fresh 8x128 original smoke call subsequently passed at
 host call returned, reference matched bitwise with zero error, and input/output
 hashes matched the prior smoke. Worker and runner exited zero. The console's
 1.095 ms is one host-call value, not a performance acceptance result. Evidence
-is `results/p8-rope-smoke-post-reload-20261016-user-reported.json`. Next is one
-window8 original diagnostic after checking device occupation. No window8 board
-execution or full-target correctness is established by this smoke pass.
+is `results/p8-rope-smoke-post-reload-20261016-user-reported.json`. The subsequent
+window8 original diagnostic passed on the board in
+`/home/bokai/bm1690-window8-run-cUiK43/run-original`: all 22 traced runtime calls
+returned, the 1024 active elements matched reference bitwise, and all 1047552
+unwritten elements retained their sentinels. Input/output hashes matched CModel.
+This is partial-window acceptance; full-target correctness and the cause of the
+long-loop timeout remain unresolved. Evidence is
+`results/p8-rope-1024-window8-board-user-reported.json`.
+
+Next is `rope-target-window8-end`, with the same allocation, strides and eight
+tiles, now at rows [1016,1024), columns [896,1024). Its 172 regression checks and
+one bounded local CModel call passed. No production kernel, SDK, synchronization
+sequence or native compiler library was changed. Compile it in a fresh remote
+directory, then run original once after file/occupation checks; stop on failure.
+No end-window board execution is reported. This separates the iteration-count
+change from the change in addressed input/table/output locations.
 Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
 `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
 does not count as full-target acceptance.
@@ -1718,9 +1731,44 @@ The user subsequently reported successful remote compilation of all three
 variants (18 build steps, no runtime load or kernel launches), plus the Oct 16
 read-only preflight. The Oct 16 ordinary reload and both-chip initialization
 subsequently passed, followed by a fresh small original smoke pass with zero
-reference error and the prior output hash. The next step is one window8
-diagnostic. The smoke evidence is
+reference error and the prior output hash. The window8 diagnostic then passed
+with zero active-window error, all sentinels preserved and 22 matched runtime
+CALL/RETURN pairs. The smoke evidence is
 `results/p8-rope-smoke-post-reload-20261016-user-reported.json`.
 Evidence: `results/p8-rope-window8-build-and-preflight-user-reported.json`,
 `results/p8-driver-reload-20261016-user-reported.json` and
-`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
+`results/p8-rope-1024-window8-{cmodel,handoff-validation,board-user-reported}.json`.
+
+### P8.16: eight-tile end-window diagnostic
+
+`export_rope_window_end.py` derives a separate bundle from the frozen, now
+board-validated beginning-window bundle. Only the original kernel's two tile
+loop headers change: bx [0,2) to [254,256), by [0,4) to [28,32). Eight 4x32 tiles,
+full target allocations and strides, local addresses, pair arithmetic, host
+traces and final poll are preserved. The active output region is rows
+[1016,1024), columns [896,1024). Every preceding output byte and row gap must
+retain its original sentinel; the last output element is now actively checked.
+
+The runner admits only these two explicitly registered diagnostic windows;
+bundle hashes determine their coverage. Serial/pipeline and timing requests are
+rejected before runtime loading. Existing bundles and the previously validated
+beginning-window exporter are unchanged. Tests check source derivation,
+manifest separation, blocked dispatch modes, missing/incorrect first and last
+writes, and corruption outside the end window.
+
+All 172 selected regression checks passed in the existing `.risc` environment.
+One BM1690 CModel call passed with two host CPUs, a 4 GiB group RSS limit and a
+120-second deadline: zero active-window error, all 1047552 outside elements
+unchanged, and 22 returned runtime calls including one launch. Input hash is
+unchanged from the target; output SHA256 is
+`6455bb71bc61bc96afb2eab980bc7ee260a131f4215f9a06bcd456487d140757`.
+Native libraries and source identity stayed unchanged during the run. Evidence:
+`results/p8-rope-1024-window8-end-{cmodel,handoff-validation}.json`.
+
+The board handoff is one original call, no timing, with the same 30-second
+supervisor bound. A pass would establish two small windows at different matrix
+locations, not complete address coverage or long-loop correctness. The next
+diagnostic would increase tile count separately. No counter width, overflow,
+SDK incompatibility or missing synchronization has been established as the
+timeout's cause; do not alter the production synchronization based on this
+partial evidence.

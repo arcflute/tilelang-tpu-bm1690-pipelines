@@ -1,0 +1,24 @@
+{
+  "schema": "bm1690-rope-window8-end-handoff-validation-v1",
+  "case": "rope-target-window8-end",
+  "files": {
+    "tilelang/jit/adapter/legacy_pcie.py": "8234fdc245476f93becd3ca86f945f911507527dc89990a92a435d7e43191f64",
+    "tpu_demo/pipeline/run_add_pcie.py": "4ef923ffa4a80ca198ee864893c4a079810e419b303713b26f652d6ddfad2fdf",
+    "tpu_demo/pipeline/prepare_add_1024.py": "77ac364cdb2c11b97709e066ef0d40dd1fbdffed8beec20a9e4f2c2088c6e24b",
+    "tpu_demo/pipeline/export_rope_window_end.py": "5663fbf1485f6ed0554c746586ee2cd0377409045ec73c48dc44a734208f8ed8",
+    "research/bm1690-pipelines/handoff/rope-1024-window8-end-sources.json": "3e62b95c1a772f1c2e33f9648ea84db283cf98a136da72697535dc7bad8fb654"
+  },
+  "unit_tests": {
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "tests": 172,
+    "passed": true,
+    "log": "/home/admin3/tilelang-tpu/research/artifacts/bm1690-pipelines/p8-rope1024-window8-end-rwap1x15/unit-tests.log",
+    "log_sha256": "75dcf8b564f02046f7a67010641654822814fc332b3bc82c248e53136d1d8f88"
+  },
+  "cmodel_evidence": "p8-rope-1024-window8-end-cmodel.json",
+  "board_build_performed": false,
+  "board_kernel_dispatches": 0,
+  "dependencies_installed_or_upgraded": false,
+  "compiler_native_libraries_changed": false,
+  "existing_source_bundles_changed": false
+}

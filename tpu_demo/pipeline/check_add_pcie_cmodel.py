@@ -26,6 +26,7 @@ def main():
                                                MATMUL_TARGET_BUNDLE_SHA256, RMSNORM_BUNDLES,
                                                RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256, ROPE_TARGET_BUNDLE_SHA256,
                                                ROPE_TRACE_BUNDLE_SHA256, ROPE_WINDOW_BUNDLE_SHA256, ROPE_WINDOW,
+                                               ROPE_WINDOW_END_BUNDLE_SHA256, ROPE_WINDOW_END,
                                                check_rope_window_output,
                                                rope_test_vectors, call_rope_host)
 
@@ -34,8 +35,11 @@ def main():
     parser.add_argument("--coarse-tiles", action="store_true")
     parser.add_argument("--trace-host-runtime", action="store_true",
                         help="one original RoPE target call with flushed diagnostic host logs; no timing")
-    parser.add_argument("--rope-window8", action="store_true",
+    windows = parser.add_mutually_exclusive_group()
+    windows.add_argument("--rope-window8", action="store_true",
                         help="eight original tiles with target allocations/strides; diagnostic only")
+    windows.add_argument("--rope-window8-end", action="store_true",
+                         help="eight original tiles at the matrix end; diagnostic only")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
@@ -50,8 +54,9 @@ def main():
     target_worker = matmul_target or rmsnorm_target or rope_target
     if args.trace_host_runtime and not (rope_target and args.variant == "original"):
         parser.error("Host tracing is limited to the RoPE target original one-call check")
-    if args.rope_window8 and not args.trace_host_runtime:
-        parser.error("--rope-window8 requires --trace-host-runtime")
+    if (args.rope_window8 or args.rope_window8_end) and not args.trace_host_runtime:
+        parser.error("RoPE window diagnostics require --trace-host-runtime")
+    diagnostic_window = ROPE_WINDOW_END if args.rope_window8_end else ROPE_WINDOW if args.rope_window8 else None
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
     if args.operation.startswith("rmsnorm") and args.coarse_tiles:
@@ -86,6 +91,9 @@ def main():
         if args.rope_window8:
             bundle_path = bundle_path.with_name("rope-1024-window8-sources.json")
             bundle_hash = ROPE_WINDOW_BUNDLE_SHA256
+        if args.rope_window8_end:
+            bundle_path = bundle_path.with_name("rope-1024-window8-end-sources.json")
+            bundle_hash = ROPE_WINDOW_END_BUNDLE_SHA256
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
@@ -135,7 +143,7 @@ def main():
         library = build.load_lib()
         owners.append((build,library))
         output = launch(library, *inputs)
-        comparison = (check_rope_window_output(output, expected, ROPE_WINDOW) if args.rope_window8 else
+        comparison = (check_rope_window_output(output, expected, diagnostic_window) if diagnostic_window else
                       check_output(output, expected, count, args.operation))
         records[variant] = {"reference":comparison,
                             "output_sha256":hashlib.sha256(output).hexdigest(),
@@ -160,7 +168,7 @@ def main():
         original_comparison = {"bitwise_equal_to_reference": True, "passed": True}
     report = {"status":"passed", "runtime_mode":"cmodel", "launch_cores":1,
               "diagnostic_only":args.trace_host_runtime,
-              "diagnostic_window":list(ROPE_WINDOW) if args.rope_window8 else None,
+              "diagnostic_window":list(diagnostic_window) if diagnostic_window else None,
               "operation":args.operation,
               "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
               "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],

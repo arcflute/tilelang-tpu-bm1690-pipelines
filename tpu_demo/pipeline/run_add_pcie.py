@@ -113,6 +113,13 @@ BUNDLES[ROPE_WINDOW_BUNDLE_SHA256] = {
     "timing": False, "operation": "rope", "diagnostic_only": True,
     "diagnostic_window": list(ROPE_WINDOW)}
 
+ROPE_WINDOW_END_BUNDLE_SHA256 = "3e62b95c1a772f1c2e33f9648ea84db283cf98a136da72697535dc7bad8fb654"
+ROPE_WINDOW_END = (1016, 1024, 896, 1024)
+BUNDLES[ROPE_WINDOW_END_BUNDLE_SHA256] = {
+    "shape": [1024, 1024], "builders": (ROPE_TARGET_BUILDER_SHA256,),
+    "timing": False, "operation": "rope", "diagnostic_only": True,
+    "diagnostic_window": list(ROPE_WINDOW_END)}
+
 
 def digest(path):
     hasher = hashlib.sha256()
@@ -369,7 +376,8 @@ def call_host(library, lhs, rhs, *, timing=None):
 
 def check_rope_window_output(actual, expected, window):
     """Check computed values and every untouched byte of the fixed diagnostic."""
-    if tuple(window) != ROPE_WINDOW or len(actual) != 1024 * 1024 * 2 or len(expected) != len(actual):
+    if (tuple(window) not in (ROPE_WINDOW, ROPE_WINDOW_END) or
+            len(actual) != 1024 * 1024 * 2 or len(expected) != len(actual)):
         raise ValueError("Unexpected RoPE diagnostic window or buffer length")
     row_start, row_end, col_start, col_end = window
     selected_actual, selected_expected = [], []

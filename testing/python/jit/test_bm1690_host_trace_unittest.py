@@ -12,6 +12,9 @@ spec.loader.exec_module(trace)
 window_spec = importlib.util.spec_from_file_location("window_export", ROOT / "tpu_demo/pipeline/export_rope_window.py")
 window = importlib.util.module_from_spec(window_spec)
 window_spec.loader.exec_module(window)
+end_spec = importlib.util.spec_from_file_location("window_end_export", ROOT / "tpu_demo/pipeline/export_rope_window_end.py")
+window_end = importlib.util.module_from_spec(end_spec)
+end_spec.loader.exec_module(window_end)
 
 
 class TraceSourceTests(unittest.TestCase):
@@ -54,6 +57,26 @@ class TraceSourceTests(unittest.TestCase):
                     self.assertEqual(after, before)
         self.assertEqual(derived["host_diagnostic"]["tile_count"], 8)
         self.assertFalse(derived["host_diagnostic"]["timing_allowed"])
+
+    def test_end_window_preserves_tile_count_and_changes_only_iteration_coordinates(self):
+        base = json.loads(window_end.BASE.read_text())
+        derived = window_end.export()
+        recorded = json.loads((ROOT / "research/bm1690-pipelines/handoff/rope-1024-window8-end-sources.json").read_text())
+        self.assertEqual(derived, recorded)
+        for variant in ("original", "serial", "pipeline"):
+            for name, before in base["variants"][variant]["sources"].items():
+                after = derived["variants"][variant]["sources"][name]
+                if variant == "original" and name == "kernel.c":
+                    restored = after.replace("bx = 254; bx < 256;", "bx = 0; bx < 2;")
+                    restored = restored.replace("by = 28; by < 32;", "by = 0; by < 4;")
+                    self.assertEqual(restored, before)
+                    self.assertNotEqual(after, before)
+                else:
+                    self.assertEqual(after, before)
+        diagnostic = derived["host_diagnostic"]
+        self.assertEqual(diagnostic["window_rows_columns_exclusive"], [1016, 1024, 896, 1024])
+        self.assertEqual(diagnostic["tile_count"], 8)
+        self.assertFalse(diagnostic["timing_allowed"])
 
 
 if __name__ == "__main__":

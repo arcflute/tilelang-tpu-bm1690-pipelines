@@ -26,10 +26,10 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Fresh original RoPE 8x128 smoke passed after Oct 16 reload; run existing original-only window8 diagnostic once",
+  "pending_test": "Beginning window passed on BM1690; compile then run one original end-window diagnostic",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
-  "driver_recovery_scope": "Oct 16 reload, both-chip initialization, fresh runtime mapping and original RoPE 8x128 correctness passed; larger RoPE target remains unresolved",
+  "driver_recovery_scope": "Oct 16 reload, small RoPE smoke and first eight-tile target-stride window passed; full target remains unresolved",
   "current_environment_correctness_rechecked": true,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
@@ -145,28 +145,28 @@
   },
   "next_handoff": {
     "operation": "rope",
-    "case": "rope-target-window8",
+    "case": "rope-target-window8-end",
     "reuse_existing_sdk_and_runtime": true,
-    "new_pinned_prepare_helper_required": false,
+    "new_pinned_prepare_helper_required": true,
     "variant_order": [
       "original"
     ],
     "per_variant_steps": [
-      "original-only diagnostic, after device recovery and one previously passed smoke call"
+      "One original-only end-window diagnostic after verified build and occupation check"
     ],
     "stop_on_first_failure": true,
-    "status": "Local CModel, 149 checks, remote build, Oct 16 driver recovery and fresh smoke passed; original window8 dispatch pending",
+    "status": "172 checks and one bounded CModel call passed; end-window board build and execution pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
-    "prepare_helper_sha256": "36a23e00e419d7cf9b156b296b69ebba37ebbd257185fedccf239a7103434853",
+    "prepare_helper_sha256": "77ac364cdb2c11b97709e066ef0d40dd1fbdffed8beec20a9e4f2c2088c6e24b",
     "numpy_required": false,
     "timeout_seconds": 30,
     "automatic_retry": false,
     "diagnostic_only": true,
-    "source_revision": "c3e7ee870d3254eabcf79b045e19a494425918b5",
-    "source_revision_note": "Remote build reported at this revision; exact files remain pinned in p8-rope-1024-window8-handoff-validation.json",
-    "remote_work_directory": "/home/bokai/bm1690-rope-window8-BTILGy/work",
-    "remote_build_passed": true
+    "source_revision": null,
+    "source_revision_note": "Use the pushed commit containing the end-window handoff; file identities in p8-rope-1024-window8-end-handoff-validation.json",
+    "remote_work_directory": null,
+    "remote_build_passed": false
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -294,14 +294,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "fresh_smoke_passed_ready_for_one_window8_diagnostic",
+    "status": "beginning_window_passed_end_window_handoff_ready",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-rope-smoke-post-reload-20261016-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-1024-window8-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -316,5 +316,16 @@
     "serial_pipeline_started": false,
     "driver_force_quit_timeout_reported": true,
     "firmware_health_after_failure_verified": false
+  },
+  "subsequent_rope_window8_validation": {
+    "evidence": "p8-rope-1024-window8-board-user-reported.json",
+    "remote_run_directory": "/home/bokai/bm1690-window8-run-cUiK43/run-original",
+    "status": "passed",
+    "active_window_only": true,
+    "maximum_active_reference_absolute_error": 0.0,
+    "outside_sentinel_preserved": true,
+    "trace_call_return_pairs": 22,
+    "full_target_acceptance": false,
+    "hardware_overlap_verified": false
   }
 }
