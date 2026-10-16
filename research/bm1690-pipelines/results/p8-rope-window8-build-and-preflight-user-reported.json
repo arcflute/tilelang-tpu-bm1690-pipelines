@@ -1,0 +1,63 @@
+{
+  "schema": "bm1690-rope-window8-board-preflight-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output_in_chat",
+  "recorded_date": "2026-10-16",
+  "case": "rope-target-window8",
+  "source_revision": "c3e7ee870d3254eabcf79b045e19a494425918b5",
+  "prepare_helper_sha256": "36a23e00e419d7cf9b156b296b69ebba37ebbd257185fedccf239a7103434853",
+  "build": {
+    "status": "compile_only_passed",
+    "remote_work_directory": "/home/bokai/bm1690-rope-window8-BTILGy/work",
+    "remote_handoff_receipt": "/home/bokai/bm1690-rope-window8-BTILGy/work/handoff.json",
+    "download_transport": "github-api",
+    "download_exit_code": 0,
+    "prepare_helper_checksum_passed": true,
+    "verified_downloads": ["build.py", "add.json", "run_add.py"],
+    "variants_built": ["original", "serial", "pipeline"],
+    "completed_build_steps_per_variant": 6,
+    "completed_build_steps_total": 18,
+    "prepare_exit_code": 0,
+    "board_runtime_loaded": false,
+    "kernel_launches": 0,
+    "full_manifest_and_compiled_artifacts_received": false
+  },
+  "remote_preflight": {
+    "observed_at": "2026-10-16T09:48:29+08:00",
+    "kernel_release": "7.0.0-34-generic",
+    "uptime": "7 days, 19:18",
+    "load_averages": [3.79, 4.05, 4.04],
+    "module_initstate": "live",
+    "module_refcount": 0,
+    "card_num": 64,
+    "device_nodes_present": ["/dev/sg-host-drv-0", "/dev/sg-host-drv-1"],
+    "pci_bindings": {
+      "0000:01:00.0": "sg-host-drv",
+      "0000:01:00.1": "sg-host-drv"
+    },
+    "privileged_fuser_exit_code": 1,
+    "privileged_fuser_output": "empty",
+    "module_path": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source/sgcard.ko",
+    "module_vermagic": "7.0.0-34-generic SMP preempt mod_unload modversions",
+    "module_sha256": "0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65",
+    "firmware_health_established": false,
+    "new_driver_reload_reported": false
+  },
+  "reusable_smoke": {
+    "remote_work_directory": "/home/bokai/bm1690-rope-BMzRZC/work",
+    "files_present": ["run_add.py", "build/result.json", "run-original/result.json"],
+    "runner_sha256": "223d39c082336f12e5d5813698d897f8a47b8776b73f4bb6abc410e1485c5897",
+    "runner_matches_previous_passed_handoff": true,
+    "fresh_execution_reported": false
+  },
+  "next_steps": [
+    "Recheck occupation immediately before gated ordinary unload/reload of the verified module; preserve fresh logs",
+    "Inspect new initialization logs and bindings",
+    "Run one original small RoPE smoke call in a fresh output directory",
+    "Only after smoke passes, run one original window8 diagnostic; no timing or automatic retry"
+  ],
+  "window8_board_dispatch_reported": false,
+  "full_target_correctness_established": false,
+  "device_performance_measured": false,
+  "hardware_overlap_verified": false,
+  "dependencies_changed": false
+}

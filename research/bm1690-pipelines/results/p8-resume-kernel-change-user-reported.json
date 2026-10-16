@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Build pinned eight-tile RoPE diagnostic; before dispatch recover device and validate a previously passed small case",
+  "pending_test": "Remote window8 build passed; gated recovery, fresh small smoke, then one window diagnostic pending",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Historical Oct 14 recovery and Mul correctness/latency passed; Oct 15 module reload and both-chip initialization passed, but subsequent original-only RoPE target diagnostic timed out and firmware health is again unverified",
@@ -155,7 +155,7 @@
       "original-only diagnostic, after device recovery and one previously passed smoke call"
     ],
     "stop_on_first_failure": true,
-    "status": "Local CModel and 149 regression checks passed; remote build and post-recovery smoke/window diagnostic pending",
+    "status": "Local CModel and 149 regression checks passed; remote 18-step build passed; recovery and smoke/window execution pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "36a23e00e419d7cf9b156b296b69ebba37ebbd257185fedccf239a7103434853",
@@ -163,8 +163,10 @@
     "timeout_seconds": 30,
     "automatic_retry": false,
     "diagnostic_only": true,
-    "source_revision": null,
-    "source_revision_note": "Use the pushed commit containing the window8 handoff; exact files are pinned in p8-rope-1024-window8-handoff-validation.json"
+    "source_revision": "c3e7ee870d3254eabcf79b045e19a494425918b5",
+    "source_revision_note": "Remote build reported at this revision; exact files remain pinned in p8-rope-1024-window8-handoff-validation.json",
+    "remote_work_directory": "/home/bokai/bm1690-rope-window8-BTILGy/work",
+    "remote_build_passed": true
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -292,14 +294,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "resumed_bounded_diagnostic_ready_pending_recovery_and_remote_build",
+    "status": "remote_diagnostic_build_passed_pending_recovery_and_smoke",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-rope-legacy-wait-audit-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-window8-build-and-preflight-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261015-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {

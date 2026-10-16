@@ -10,7 +10,7 @@ The source owner reports that ChunkScan stages other than P10 have completed
 validation. This project migrates those mechanisms; it does not restart that
 project's environment bring-up. P10 is not complete performance evidence.
 
-## Current test handoff (2026-10-15)
+## Current test handoff (2026-10-16)
 
 The user requested resumption after the P10-related deferral. At 15:19:40 +0800,
 the board still runs kernel 7.0.0-34-generic, sgcard is live with reference count
@@ -42,9 +42,18 @@ reinitialization remains recorded in `results/p8-driver-reload-20261015-user-rep
 
 The next prepared case is `rope-target-window8`: full 1024x1024 allocations and
 strides, with only eight original tiles computed. Its one-call CModel check and
-149 regression checks passed. Remote compilation is the next handoff; board
-dispatch requires recovery and a previously passed smoke check first. Evidence
-is `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
+149 regression checks passed. The user has now built all three variants at
+revision `c3e7ee870d3254eabcf79b045e19a494425918b5`: 18 build steps, prepare exit
+zero, runtime not loaded and zero kernel launches. The remote work directory is
+`/home/bokai/bm1690-rope-window8-BTILGy/work`. At Oct 16 09:48:29 +0800 the kernel
+and module hash still match, both bindings exist, sgcard is live with reference
+count zero, and privileged fuser finds no users. The prior small RoPE runner
+hash and saved artifact paths are intact. These checks do not establish firmware
+health after the Oct 15 FORCE_QUIT timeout. Next are gated ordinary recovery,
+fresh initialization inspection, one previously passed smoke call, then one
+window diagnostic if smoke passes. No window8 board execution is reported.
+Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
+`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
 does not count as full-target acceptance.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
@@ -1693,5 +1702,8 @@ would establish this low-address window with the target strides, not all target
 addresses or long-loop behavior. If it passes, separately investigate a window
 near the matrix end and increasing tile counts. If a recovered known smoke
 fails, investigate the runtime/device state before another RoPE target call.
-No board build or execution of window8 has yet been reported. Evidence:
-`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
+The user subsequently reported successful remote compilation of all three
+variants (18 build steps, no runtime load or kernel launches), plus the Oct 16
+read-only preflight. Execution remains pending recovery and the small smoke
+check. Evidence: `results/p8-rope-window8-build-and-preflight-user-reported.json`
+and `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
