@@ -593,7 +593,7 @@ class RoPEPrefix128ManifestTests(RoPETraceManifestTests):
         identity = runner.validate_build(self.build)
         self.assertEqual(identity["bundle_sha256"], runner.ROPE_PREFIX_BUNDLES[self.prefix_tiles])
         self.assertEqual(identity["diagnostic_window"], [0, self.prefix_tiles // 8, 0, 1024])
-        self.assertEqual(len(set(runner.ROPE_PREFIX_BUNDLES.values())), 3)
+        self.assertEqual(len(set(runner.ROPE_PREFIX_BUNDLES.values())), 6)
 
 
 class RoPEPrefix256ManifestTests(RoPEPrefix128ManifestTests):
@@ -606,10 +606,25 @@ class RoPEPrefix512ManifestTests(RoPEPrefix128ManifestTests):
     prefix_tiles = 512
 
 
+class RoPEPrefix1024ManifestTests(RoPEPrefix128ManifestTests):
+    bundle_name = "rope-1024-prefix1024-sources.json"
+    prefix_tiles = 1024
+
+
+class RoPEPrefix2048ManifestTests(RoPEPrefix128ManifestTests):
+    bundle_name = "rope-1024-prefix2048-sources.json"
+    prefix_tiles = 2048
+
+
+class RoPEPrefix4096ManifestTests(RoPEPrefix128ManifestTests):
+    bundle_name = "rope-1024-prefix4096-sources.json"
+    prefix_tiles = 4096
+
+
 class RoPEPrefixOutputTests(unittest.TestCase):
     def test_prefix_boundary_requires_written_values_and_preserves_every_later_byte(self):
         expected = struct.pack("<e", 1.0) * (1024 * 1024)
-        for tiles in (128, 256, 512):
+        for tiles in runner.ROPE_PREFIX_BUNDLES:
             count = tiles * 128
             output = bytearray(expected[:count * 2] + b"\x00\x7e" * (1024 * 1024 - count))
             window = runner.ROPE_PREFIX_WINDOWS[tiles]

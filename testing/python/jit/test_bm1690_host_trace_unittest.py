@@ -18,6 +18,9 @@ end_spec.loader.exec_module(window_end)
 prefix_spec = importlib.util.spec_from_file_location("prefix_export", ROOT / "tpu_demo/pipeline/export_rope_prefix.py")
 prefix = importlib.util.module_from_spec(prefix_spec)
 prefix_spec.loader.exec_module(prefix)
+large_spec = importlib.util.spec_from_file_location("large_export", ROOT / "tpu_demo/pipeline/export_rope_prefix_large.py")
+large = importlib.util.module_from_spec(large_spec)
+large_spec.loader.exec_module(large)
 
 
 class TraceSourceTests(unittest.TestCase):
@@ -80,6 +83,30 @@ class TraceSourceTests(unittest.TestCase):
         self.assertEqual(diagnostic["window_rows_columns_exclusive"], [1016, 1024, 896, 1024])
         self.assertEqual(diagnostic["tile_count"], 8)
         self.assertFalse(diagnostic["timing_allowed"])
+
+    def test_larger_prefix_preserves_512_source_except_outer_bound(self):
+        base = json.loads(large.BASE.read_text())
+        full = json.loads(prefix.BASE.read_text())
+        for tiles in large.TILE_COUNTS:
+            derived = large.export(tiles)
+            recorded = json.loads((ROOT / f"research/bm1690-pipelines/handoff/rope-1024-prefix{tiles}-sources.json").read_text())
+            self.assertEqual(derived, recorded)
+            for variant in ("original", "serial", "pipeline"):
+                for name, before in base["variants"][variant]["sources"].items():
+                    after = derived["variants"][variant]["sources"][name]
+                    if (variant, name) == ("original", "kernel.c"):
+                        self.assertEqual(after.replace(f"bx < {tiles // 32};", "bx < 16;"), before)
+                        self.assertEqual(after.replace(f"bx < {tiles // 32};", "bx < 256;"),
+                                         full["variants"][variant]["sources"][name])
+                    else:
+                        self.assertEqual(after, before)
+            self.assertEqual(derived["host_diagnostic"]["window_rows_columns_exclusive"],
+                             [0, tiles // 8, 0, 1024])
+            self.assertEqual(derived["host_diagnostic"]["tile_count"], tiles)
+            self.assertFalse(derived["host_diagnostic"]["timing_allowed"])
+        for unsupported in (0, 512, 1023, 8192):
+            with self.assertRaises(ValueError):
+                large.export(unsupported)
 
     def test_prefix_changes_only_outer_loop_extent_and_keeps_full_inner_loop_order(self):
         base = json.loads(prefix.BASE.read_text())

@@ -46,7 +46,7 @@ else:
 
 
 class PrefixSequenceTests(unittest.TestCase):
-    def run_sequence(self, **extra):
+    def run_sequence(self, larger=False, **extra):
         with tempfile.TemporaryDirectory() as temp:
             work = Path(temp)
             commands = work / 'bin'
@@ -63,7 +63,10 @@ class PrefixSequenceTests(unittest.TestCase):
             environment = dict(os.environ, PATH=str(commands) + os.pathsep + os.environ['PATH'],
                                PREFIX_TEST_REPO=str(ROOT), PREFIX_TEST_EVENTS=str(work / 'events'))
             environment.update(extra)
-            result = subprocess.run(['bash', str(SCRIPT), '--allow-pcie', 'a' * 40, str(work / 'output')],
+            command = ['bash', str(SCRIPT), '--allow-pcie', 'a' * 40, str(work / 'output')]
+            if larger:
+                command.append('--larger')
+            result = subprocess.run(command,
                                     env=environment, capture_output=True, text=True, timeout=15)
             events = (work / 'events').read_text().splitlines()
             return result, events
@@ -79,6 +82,20 @@ class PrefixSequenceTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(events, ['build:128', 'run:128', 'build:256', 'run:256'])
         self.assertNotIn('PREFIX_SUITE_PASSED', result.stdout)
+
+    def test_larger_cases_run_in_order(self):
+        result, events = self.run_sequence(larger=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(events, ['build:1024', 'run:1024', 'build:2048', 'run:2048', 'build:4096', 'run:4096'])
+        self.assertIn('PREFIX_SUITE_PASSED', result.stdout)
+
+    def test_larger_failure_or_bad_receipt_stops_before_next_case(self):
+        for variable in ('PREFIX_TEST_FAIL', 'PREFIX_TEST_BAD_RECEIPT'):
+            with self.subTest(variable=variable):
+                result, events = self.run_sequence(larger=True, **{variable: '2048'})
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(events, ['build:1024', 'run:1024', 'build:2048', 'run:2048'])
+                self.assertNotIn('PREFIX_SUITE_PASSED', result.stdout)
 
     def test_wrong_receipt_stops_even_if_process_returns_zero(self):
         result, events = self.run_sequence(PREFIX_TEST_BAD_RECEIPT='128')

@@ -41,7 +41,7 @@ def main():
                         help="eight original tiles with target allocations/strides; diagnostic only")
     windows.add_argument("--rope-window8-end", action="store_true",
                          help="eight original tiles at the matrix end; diagnostic only")
-    windows.add_argument("--rope-prefix-tiles", type=int, choices=(128, 256, 512),
+    windows.add_argument("--rope-prefix-tiles", type=int, choices=tuple(ROPE_PREFIX_BUNDLES),
                          help="bounded original-order prefix; one diagnostic call only")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),

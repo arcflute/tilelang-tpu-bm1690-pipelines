@@ -1,0 +1,54 @@
+{
+  "schema": "bm1690-rope-prefix-large-handoff-validation-v1",
+  "recorded_date": "2026-10-16",
+  "cases": [
+    "rope-target-prefix1024",
+    "rope-target-prefix2048",
+    "rope-target-prefix4096"
+  ],
+  "files": {
+    "tilelang/jit/adapter/legacy_pcie.py": "8234fdc245476f93becd3ca86f945f911507527dc89990a92a435d7e43191f64",
+    "tpu_demo/pipeline/run_add_pcie.py": "06baf81deeae3249c5c9249c2067381798396c7fe9bc62869579564750d7a135",
+    "tpu_demo/pipeline/prepare_add_1024.py": "1a7b88e70f8026d84539986794b8cde61acb2db15596bec05ef4811c0a1cc6ae",
+    "tpu_demo/pipeline/export_rope_prefix_large.py": "337ce43f102c0e325c246cca96d05f57c4d58ab1395c35c08cc892fced7f60ab",
+    "tpu_demo/pipeline/check_add_pcie_cmodel.py": "8806dc2a292de5ecc448c03d6f32a64b19030f3dea9feceab2b801577c237172",
+    "tpu_demo/pipeline/run_rope_prefixes.sh": "86eba0c7f11db6012e3330ea0e6b58d8ae0ff3f3bf93007fe47388836d2a9ec0",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix1024-sources.json": "db56264dba14cb7638e6de460fa01cc47ead29af5565a235fcda3e3978bfa9c7",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix2048-sources.json": "93295b5757b75d9cbfc8700f1a249bb2ce2b887667bd9563b2de026ba84bc9af",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix4096-sources.json": "f82b0521a49c83e2e410d337ffca6b215ef4cf62933b11da869e505eeea6ed06"
+  },
+  "unit_tests": {
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "tests": 229,
+    "passed": true,
+    "log": "/home/admin3/tilelang-tpu/research/artifacts/bm1690-pipelines/p8-rope1024-prefix-large-zxzix_fq/unit-tests.log",
+    "log_sha256": "4f80855a19c54c88f552583b7b34a238128b624a468e45879560b7b49da8242f"
+  },
+  "cmodel_evidence": "p8-rope-1024-prefix-large-cmodel.json",
+  "board_execution_performed": false,
+  "board_kernel_dispatches": 0,
+  "dependencies_changed": false,
+  "native_libraries_changed": false,
+  "existing_bundles_changed": false,
+  "board_sequence": {
+    "selector": "--larger",
+    "order": [
+      1024,
+      2048,
+      4096
+    ],
+    "calls_per_case": 1,
+    "launch_cores": 1,
+    "host_cpu_count": 2,
+    "max_group_rss_bytes": 4294967296,
+    "supervisor_timeout_seconds": 30,
+    "outer_timeout_seconds": 40,
+    "stop_on_first_error": true,
+    "correctness_receipt_required": true,
+    "timing_allowed": false,
+    "automatic_retry": false,
+    "driver_changes": false,
+    "maximum_fraction_of_original_workload": 0.5
+  },
+  "acceptance_scope": "Bounded original prefixes only; full target remains unresolved"
+}

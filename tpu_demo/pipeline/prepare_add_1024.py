@@ -22,7 +22,7 @@ FILES = {
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "5ac36dcd6bf0efd6be06ed6a03f1855049051576e900de188a4a9d2416e1c342"),
+                   "06baf81deeae3249c5c9249c2067381798396c7fe9bc62869579564750d7a135"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -66,6 +66,9 @@ ROPE_WINDOW_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-window8-sourc
 ROPE_WINDOW_END_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-window8-end-sources.json", "3e62b95c1a772f1c2e33f9648ea84db283cf98a136da72697535dc7bad8fb654")
 
 ROPE_PREFIX_SOURCES = {
+    "rope-target-prefix1024": ("research/bm1690-pipelines/handoff/rope-1024-prefix1024-sources.json", "db56264dba14cb7638e6de460fa01cc47ead29af5565a235fcda3e3978bfa9c7"),
+    "rope-target-prefix2048": ("research/bm1690-pipelines/handoff/rope-1024-prefix2048-sources.json", "93295b5757b75d9cbfc8700f1a249bb2ce2b887667bd9563b2de026ba84bc9af"),
+    "rope-target-prefix4096": ("research/bm1690-pipelines/handoff/rope-1024-prefix4096-sources.json", "f82b0521a49c83e2e410d337ffca6b215ef4cf62933b11da869e505eeea6ed06"),
     "rope-target-prefix128": ("research/bm1690-pipelines/handoff/rope-1024-prefix128-sources.json", "9111d5d05d45165d7ef2ef579c7f2b6dc7303f3d2be85abf22aa2e0e7fa22880"),
     "rope-target-prefix256": ("research/bm1690-pipelines/handoff/rope-1024-prefix256-sources.json", "b5533f1490f80e5c74f60b929db9ad28f7e1fb597c2224c9a0bb4ad7737952aa"),
     "rope-target-prefix512": ("research/bm1690-pipelines/handoff/rope-1024-prefix512-sources.json", "9b9250c5828bd25d6f5cd315f4b5aca919a93b7d2b36cac3b3cf80e66972e962"),

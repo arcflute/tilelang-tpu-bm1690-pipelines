@@ -77,19 +77,25 @@ runtime CALL/RETURN pairs. Its input/output hashes match CModel. Evidence is
 `results/p8-rope-1024-window8-end-board-user-reported.json`. Thus both small
 beginning/end windows execute correctly; full-target correctness is still open.
 
-Next are original-order prefixes of 128, 256 and 512 tiles, covering the first
-16, 32 and 64 full rows. All three bounded CModel calls and 202 selected checks
-passed. `run_rope_prefixes.sh` downloads a pinned preparation helper, then builds
-and runs these cases sequentially. Each case rechecks file hashes and device
-occupation, performs one original call with a 30-second supervisor limit, and
-validates the matching correctness receipt before proceeding. It stops on the
-first error, without timing, retries, driver changes or concurrent launches.
-No board execution of these prefixes is yet reported. The generated sources
-change only the original outer-loop extent; SDK, production synchronization
-and native compiler libraries remain unchanged.
-Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
-`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
-does not count as full-target acceptance.
+The original-order prefixes of 128, 256 and 512 tiles have now passed on the
+board at revision `368d7f5473a0a2df7c6f96267c865e6ab0eda60c`, under
+`/home/bokai/bm1690-rope-prefix-AwTbR3/work`. Each returned all 22 traced runtime
+calls, matched its reference bitwise and preserved every outside sentinel.
+All three input/output hashes match CModel. The largest prefix covers the
+first 64 full rows, 6.25% of the original target computation. This is no timing
+or full-target acceptance; the original 8192-tile failure remains unexplained.
+Evidence is `results/p8-rope-1024-prefixes-board-user-reported.json`.
+
+Next are original-order prefixes of 1024, 2048 and 4096 tiles, covering the
+first 128, 256 and 512 full rows. All three bounded CModel calls and 229 selected
+checks passed. Invoke `run_rope_prefixes.sh` with `--larger` to select this
+sequence; its default remains 128/256/512. Every case checks file hashes and
+device occupation, makes one original call with a 30-second supervisor limit,
+and requires the matching correctness receipt before proceeding. It stops on
+first failure. No board execution of these larger prefixes is yet reported.
+Only the outer-loop extent changes; old bundles, SDK and production
+synchronization remain unchanged. Local evidence is
+`results/p8-rope-1024-prefix-large-{cmodel,handoff-validation}.json`.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
@@ -1816,3 +1822,35 @@ terminates another task. Per-case host-call timeouts remain 30 seconds with a
 40-second outer bound; no failed case is retried automatically. The maximum
 workload is 512 of the full target's 8192 tiles. These diagnostic bounds are
 workload choices, not claims about hardware command-counter width or overflow.
+
+### P8.18: larger prefixes following three board passes
+
+The 128/256/512 board sequence completed all 54 build steps and three diagnostic
+calls. Active reference errors were zero, all outside sentinel bytes were
+preserved, and input/output hashes matched local CModel in every case. The
+receipt and console output establish only these bounded original prefixes.
+
+`export_rope_prefix_large.py` derives 1024/2048/4096-tile bundles from the frozen,
+board-validated 512-tile bundle. Only bx's upper bound changes from 16 to
+32/64/128. The by and pair loops, global allocations/strides, local buffers,
+arithmetic, host ABI and synchronization are preserved. Old source bundles and
+the old prefix exporter remain byte-identical. The runner registers distinct
+hashes and windows for each new case; serial/pipeline dispatch and timing are
+still blocked for diagnostic bundles. No counter-overflow or SDK explanation
+has been established by these workload choices.
+
+The existing environment passed 229 selected checks and three sequential,
+one-launch BM1690 CModel workers, with two host CPUs, 4 GiB RSS cap and 120
+seconds per worker. Each matched reference bitwise, preserved all unwritten
+bytes and returned all 22 traced runtime calls. Source and native library
+identities stayed unchanged. These emulator results do not establish board
+correctness or performance. Board builds/execution of the larger prefixes
+remain pending.
+
+The sequence script's explicit `--larger` selector preserves the previous
+small default. Tests cover both orders and stop before the next case after a
+failed call or incorrect receipt. The larger board sequence remains single-core,
+one call per case, 30-second supervisor and 40-second outer run bound, with
+privileged occupation checks before each dispatch. It has no automatic retry,
+driver operation or performance measurement. Maximum work is 4096/8192 tiles;
+only a future complete-target reference match can close full-target correctness.
