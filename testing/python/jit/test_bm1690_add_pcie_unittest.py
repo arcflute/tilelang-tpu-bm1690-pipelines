@@ -585,6 +585,48 @@ class RoPEWindowEndManifestTests(RoPETraceManifestTests):
         self.assertNotEqual(identity["bundle_sha256"], runner.ROPE_WINDOW_BUNDLE_SHA256)
 
 
+class RoPEPrefix128ManifestTests(RoPETraceManifestTests):
+    bundle_name = "rope-1024-prefix128-sources.json"
+    prefix_tiles = 128
+
+    def test_prefix_coverage_is_bound_to_its_distinct_bundle(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["bundle_sha256"], runner.ROPE_PREFIX_BUNDLES[self.prefix_tiles])
+        self.assertEqual(identity["diagnostic_window"], [0, self.prefix_tiles // 8, 0, 1024])
+        self.assertEqual(len(set(runner.ROPE_PREFIX_BUNDLES.values())), 3)
+
+
+class RoPEPrefix256ManifestTests(RoPEPrefix128ManifestTests):
+    bundle_name = "rope-1024-prefix256-sources.json"
+    prefix_tiles = 256
+
+
+class RoPEPrefix512ManifestTests(RoPEPrefix128ManifestTests):
+    bundle_name = "rope-1024-prefix512-sources.json"
+    prefix_tiles = 512
+
+
+class RoPEPrefixOutputTests(unittest.TestCase):
+    def test_prefix_boundary_requires_written_values_and_preserves_every_later_byte(self):
+        expected = struct.pack("<e", 1.0) * (1024 * 1024)
+        for tiles in (128, 256, 512):
+            count = tiles * 128
+            output = bytearray(expected[:count * 2] + b"\x00\x7e" * (1024 * 1024 - count))
+            window = runner.ROPE_PREFIX_WINDOWS[tiles]
+            metrics = runner.check_rope_window_output(output, expected, window)
+            self.assertEqual(metrics["checked_elements"], count)
+            self.assertEqual(metrics["untouched_elements"], 1024 * 1024 - count)
+            self.assertTrue(metrics["untouched_sentinel_preserved"])
+            for index, value in ((count - 1, b"\x00\x7e"), (0, struct.pack("<e", 2.0)),
+                                 (count, b"\x00\x00"), (1024 * 1024 - 1, b"\x00\x00")):
+                changed = bytearray(output)
+                changed[index * 2:index * 2 + 2] = value
+                with self.subTest(tiles=tiles, index=index), self.assertRaises(ValueError):
+                    runner.check_rope_window_output(changed, expected, window)
+            with self.assertRaises(ValueError):
+                runner.check_rope_window_output(output, expected, (0, 1024, 0, 1024))
+
+
 class RoPEWindowOutputTests(unittest.TestCase):
     def setUp(self):
         self.expected = struct.pack("<e", 1.0) * (1024 * 1024)

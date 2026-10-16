@@ -27,6 +27,7 @@ def main():
                                                RMSNORM_TARGET_BUNDLES, ROPE_BUNDLE_SHA256, ROPE_TARGET_BUNDLE_SHA256,
                                                ROPE_TRACE_BUNDLE_SHA256, ROPE_WINDOW_BUNDLE_SHA256, ROPE_WINDOW,
                                                ROPE_WINDOW_END_BUNDLE_SHA256, ROPE_WINDOW_END,
+                                               ROPE_PREFIX_BUNDLES, ROPE_PREFIX_WINDOWS,
                                                check_rope_window_output,
                                                rope_test_vectors, call_rope_host)
 
@@ -40,6 +41,8 @@ def main():
                         help="eight original tiles with target allocations/strides; diagnostic only")
     windows.add_argument("--rope-window8-end", action="store_true",
                          help="eight original tiles at the matrix end; diagnostic only")
+    windows.add_argument("--rope-prefix-tiles", type=int, choices=(128, 256, 512),
+                         help="bounded original-order prefix; one diagnostic call only")
     parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
@@ -54,9 +57,11 @@ def main():
     target_worker = matmul_target or rmsnorm_target or rope_target
     if args.trace_host_runtime and not (rope_target and args.variant == "original"):
         parser.error("Host tracing is limited to the RoPE target original one-call check")
-    if (args.rope_window8 or args.rope_window8_end) and not args.trace_host_runtime:
+    if (args.rope_window8 or args.rope_window8_end or args.rope_prefix_tiles) and not args.trace_host_runtime:
         parser.error("RoPE window diagnostics require --trace-host-runtime")
     diagnostic_window = ROPE_WINDOW_END if args.rope_window8_end else ROPE_WINDOW if args.rope_window8 else None
+    if args.rope_prefix_tiles:
+        diagnostic_window = ROPE_PREFIX_WINDOWS[args.rope_prefix_tiles]
     if args.operation == "matmul" and args.coarse_tiles:
         parser.error("Matmul does not use elementwise --coarse-tiles")
     if args.operation.startswith("rmsnorm") and args.coarse_tiles:
@@ -94,6 +99,9 @@ def main():
         if args.rope_window8_end:
             bundle_path = bundle_path.with_name("rope-1024-window8-end-sources.json")
             bundle_hash = ROPE_WINDOW_END_BUNDLE_SHA256
+        if args.rope_prefix_tiles:
+            bundle_path = bundle_path.with_name(f"rope-1024-prefix{args.rope_prefix_tiles}-sources.json")
+            bundle_hash = ROPE_PREFIX_BUNDLES[args.rope_prefix_tiles]
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation

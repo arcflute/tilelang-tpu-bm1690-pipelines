@@ -1,0 +1,133 @@
+{
+  "schema": "bm1690-rope-window8-end-board-evidence-v1",
+  "recorded_date": "2026-10-16",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "attachment_sha256": "7cb445caea0c81b8c8daf53ad32c42a505ac19ad9633a709848eb9607e498d8b",
+  "source_revision": "d52ee2a2d56663ae8f55280271f9364861a30667",
+  "prepare_helper_sha256": "77ac364cdb2c11b97709e066ef0d40dd1fbdffed8beec20a9e4f2c2088c6e24b",
+  "runner_sha256": "4ef923ffa4a80ca198ee864893c4a079810e419b303713b26f652d6ddfad2fdf",
+  "bundle_sha256": "3e62b95c1a772f1c2e33f9648ea84db283cf98a136da72697535dc7bad8fb654",
+  "remote_work_directory": "/home/bokai/bm1690-rope-end8-XmD4lQ/work",
+  "build": {
+    "download_exit_code": 0,
+    "prepare_exit_code": 0,
+    "verified_files": [
+      "build.py",
+      "add.json",
+      "run_add.py"
+    ],
+    "completed_build_steps": 18,
+    "variants_built": [
+      "original",
+      "serial",
+      "pipeline"
+    ],
+    "board_runtime_loaded_during_build": false,
+    "kernel_launches_during_build": 0
+  },
+  "pre_dispatch_fuser": {
+    "exit_code": 1,
+    "output": "empty"
+  },
+  "status": "passed",
+  "worker_exit_code": 0,
+  "runner_exit_code": 0,
+  "numeric": {
+    "dtype": "float16",
+    "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+    "launch_cores": 1,
+    "mapping": {
+      "character_device": "/dev/sg-host-drv-0",
+      "device_count": 2,
+      "device_id": 0,
+      "pci_function": "0000:01:00.0"
+    },
+    "operation": "rope",
+    "output_sha256": "6455bb71bc61bc96afb2eab980bc7ee260a131f4215f9a06bcd456487d140757",
+    "previous_variant_bitwise_equal": null,
+    "reference": {
+      "atol": 0.005,
+      "bitwise_equal_to_reference": true,
+      "checked_elements": 1024,
+      "finite": true,
+      "max_abs_error": 0.0,
+      "mismatched_elements": 0,
+      "passed": true,
+      "rtol": 0.005,
+      "scope": "active_window_only",
+      "untouched_elements": 1047552,
+      "untouched_sentinel_preserved": true,
+      "window": [
+        1016,
+        1024,
+        896,
+        1024
+      ]
+    },
+    "shape": [
+      1024,
+      1024
+    ],
+    "variant": "original"
+  },
+  "trace_validation": {
+    "calls": 22,
+    "returns": 22,
+    "matching_order": true,
+    "launch_calls": 1,
+    "all_return_statuses_success": true
+  },
+  "trace_lines": [
+    "TPU_RUNTIME_TRACE CALL tpuRtInit /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:212",
+    "TPU_RUNTIME_TRACE RETURN tpuRtInit rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtSetDevice /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:216",
+    "TPU_RUNTIME_TRACE RETURN tpuRtSetDevice rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtStreamCreate /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:220",
+    "TPU_RUNTIME_TRACE RETURN tpuRtStreamCreate rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtKernelLoadModuleFile /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:231",
+    "TPU_RUNTIME_TRACE RETURN tpuRtKernelLoadModuleFile nonnull=1",
+    "TPU_RUNTIME_TRACE CALL tpuRtMalloc /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:287",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMalloc rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMalloc /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:288",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMalloc rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMalloc /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:289",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMalloc rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMalloc /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:290",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMalloc rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMemcpyS2D /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:294",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMemcpyS2D rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMemcpyS2D /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:295",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMemcpyS2D rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMemcpyS2D /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:296",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMemcpyS2D rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMemcpyS2D /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:297",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMemcpyS2D rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtKernelLaunch /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/kernel.cpp:79",
+    "TPU_RUNTIME_TRACE RETURN tpuRtKernelLaunch rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtStreamSynchronize /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/kernel.cpp:84",
+    "TPU_RUNTIME_TRACE RETURN tpuRtStreamSynchronize rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtStreamSynchronize /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:388",
+    "TPU_RUNTIME_TRACE RETURN tpuRtStreamSynchronize rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtMemcpyD2S /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:392",
+    "TPU_RUNTIME_TRACE RETURN tpuRtMemcpyD2S rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtFree /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:398",
+    "TPU_RUNTIME_TRACE RETURN tpuRtFree rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtFree /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:399",
+    "TPU_RUNTIME_TRACE RETURN tpuRtFree rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtFree /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:400",
+    "TPU_RUNTIME_TRACE RETURN tpuRtFree rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtFree /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:401",
+    "TPU_RUNTIME_TRACE RETURN tpuRtFree rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtKernelUnloadModule /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:242",
+    "TPU_RUNTIME_TRACE RETURN tpuRtKernelUnloadModule rc=0",
+    "TPU_RUNTIME_TRACE CALL tpuRtStreamDestroy /home/bokai/bm1690-rope-end8-XmD4lQ/work/build/original/main.cpp:246",
+    "TPU_RUNTIME_TRACE RETURN tpuRtStreamDestroy rc=0"
+  ],
+  "matches_cmodel_input_and_output_hashes": true,
+  "full_result_json_received": false,
+  "device_performance_measured": false,
+  "hardware_overlap_verified": false,
+  "full_target_correctness_established": false,
+  "acceptance_scope": "Eight tiles at rows [1016,1024), columns [896,1024); remaining output sentinel bytes preserved",
+  "next_action": "Validate bounded original-order prefixes of 128, 256 and 512 tiles; stop at first failure"
+}

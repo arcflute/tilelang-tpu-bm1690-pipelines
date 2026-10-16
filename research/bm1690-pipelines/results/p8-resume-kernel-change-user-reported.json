@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Beginning window passed on BM1690; compile then run one original end-window diagnostic",
+  "pending_test": "Both eight-tile windows passed on BM1690; run original-order prefixes 128, 256, 512 sequentially, stopping at first failure",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 reload, small RoPE smoke and first eight-tile target-stride window passed; full target remains unresolved",
@@ -145,28 +145,35 @@
   },
   "next_handoff": {
     "operation": "rope",
-    "case": "rope-target-window8-end",
+    "case": "rope-target-prefix128",
     "reuse_existing_sdk_and_runtime": true,
     "new_pinned_prepare_helper_required": true,
     "variant_order": [
       "original"
     ],
     "per_variant_steps": [
-      "One original-only end-window diagnostic after verified build and occupation check"
+      "Sequential 128/256/512 original-only calls, each after file and occupation checks; require matching receipt before continuing"
     ],
     "stop_on_first_failure": true,
-    "status": "172 checks and one bounded CModel call passed; end-window board build and execution pending",
+    "status": "202 checks and all three bounded CModel calls passed; prefix board builds and execution pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
-    "prepare_helper_sha256": "77ac364cdb2c11b97709e066ef0d40dd1fbdffed8beec20a9e4f2c2088c6e24b",
+    "prepare_helper_sha256": "44e8db9211a92033150ccf2c23a21efaa1317dba87d8a3ef214564dfbb8e114a",
     "numpy_required": false,
     "timeout_seconds": 30,
     "automatic_retry": false,
     "diagnostic_only": true,
     "source_revision": null,
-    "source_revision_note": "Use the pushed commit containing the end-window handoff; file identities in p8-rope-1024-window8-end-handoff-validation.json",
+    "source_revision_note": "Use the pushed commit containing the prefix handoff; identities in p8-rope-1024-prefixes-handoff-validation.json",
     "remote_work_directory": null,
-    "remote_build_passed": false
+    "remote_build_passed": false,
+    "cases": [
+      "rope-target-prefix128",
+      "rope-target-prefix256",
+      "rope-target-prefix512"
+    ],
+    "sequence_script": "tpu_demo/pipeline/run_rope_prefixes.sh",
+    "sequence_script_sha256": "dc2325f863932c5a7a54d52f09ed82553117d5a6bfe1b62dab81049ea61a213f"
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -294,14 +301,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "beginning_window_passed_end_window_handoff_ready",
+    "status": "both_small_windows_passed_prefix_sequence_ready",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-rope-1024-window8-board-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-1024-window8-end-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -320,6 +327,17 @@
   "subsequent_rope_window8_validation": {
     "evidence": "p8-rope-1024-window8-board-user-reported.json",
     "remote_run_directory": "/home/bokai/bm1690-window8-run-cUiK43/run-original",
+    "status": "passed",
+    "active_window_only": true,
+    "maximum_active_reference_absolute_error": 0.0,
+    "outside_sentinel_preserved": true,
+    "trace_call_return_pairs": 22,
+    "full_target_acceptance": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_rope_window8_end_validation": {
+    "evidence": "p8-rope-1024-window8-end-board-user-reported.json",
+    "remote_work_directory": "/home/bokai/bm1690-rope-end8-XmD4lQ/work",
     "status": "passed",
     "active_window_only": true,
     "maximum_active_reference_absolute_error": 0.0,

@@ -70,13 +70,23 @@ This is partial-window acceptance; full-target correctness and the cause of the
 long-loop timeout remain unresolved. Evidence is
 `results/p8-rope-1024-window8-board-user-reported.json`.
 
-Next is `rope-target-window8-end`, with the same allocation, strides and eight
-tiles, now at rows [1016,1024), columns [896,1024). Its 172 regression checks and
-one bounded local CModel call passed. No production kernel, SDK, synchronization
-sequence or native compiler library was changed. Compile it in a fresh remote
-directory, then run original once after file/occupation checks; stop on failure.
-No end-window board execution is reported. This separates the iteration-count
-change from the change in addressed input/table/output locations.
+The subsequent `rope-target-window8-end` also passed on the board, at
+`/home/bokai/bm1690-rope-end8-XmD4lQ/work/run-original`: 18 build steps, one
+original call, zero reference error, unchanged outside sentinels and 22 matched
+runtime CALL/RETURN pairs. Its input/output hashes match CModel. Evidence is
+`results/p8-rope-1024-window8-end-board-user-reported.json`. Thus both small
+beginning/end windows execute correctly; full-target correctness is still open.
+
+Next are original-order prefixes of 128, 256 and 512 tiles, covering the first
+16, 32 and 64 full rows. All three bounded CModel calls and 202 selected checks
+passed. `run_rope_prefixes.sh` downloads a pinned preparation helper, then builds
+and runs these cases sequentially. Each case rechecks file hashes and device
+occupation, performs one original call with a 30-second supervisor limit, and
+validates the matching correctness receipt before proceeding. It stops on the
+first error, without timing, retries, driver changes or concurrent launches.
+No board execution of these prefixes is yet reported. The generated sources
+change only the original outer-loop extent; SDK, production synchronization
+and native compiler libraries remain unchanged.
 Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
 `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
 does not count as full-target acceptance.
@@ -1749,7 +1759,7 @@ traces and final poll are preserved. The active output region is rows
 [1016,1024), columns [896,1024). Every preceding output byte and row gap must
 retain its original sentinel; the last output element is now actively checked.
 
-The runner admits only these two explicitly registered diagnostic windows;
+At this stage the runner admitted only the two explicitly registered diagnostic windows;
 bundle hashes determine their coverage. Serial/pipeline and timing requests are
 rejected before runtime loading. Existing bundles and the previously validated
 beginning-window exporter are unchanged. Tests check source derivation,
@@ -1765,10 +1775,44 @@ unchanged from the target; output SHA256 is
 Native libraries and source identity stayed unchanged during the run. Evidence:
 `results/p8-rope-1024-window8-end-{cmodel,handoff-validation}.json`.
 
-The board handoff is one original call, no timing, with the same 30-second
-supervisor bound. A pass would establish two small windows at different matrix
-locations, not complete address coverage or long-loop correctness. The next
-diagnostic would increase tile count separately. No counter width, overflow,
+The board subsequently passed the one original call with the same 30-second
+supervisor bound: zero active error, all outside sentinels preserved, and all
+22 runtime calls returned. Both CModel hashes matched. This establishes two
+small windows at different matrix locations, not complete address coverage or
+long-loop correctness. Evidence is
+`results/p8-rope-1024-window8-end-board-user-reported.json`. No counter width, overflow,
 SDK incompatibility or missing synchronization has been established as the
 timeout's cause; do not alter the production synchronization based on this
 partial evidence.
+
+### P8.17: bounded original-loop prefixes
+
+`export_rope_prefix.py` starts from the frozen full-target host-trace bundle.
+For 128/256/512 tiles, it changes only bx's upper bound from 256 to 4/8/16;
+the full 32-iteration by loop and pair loop remain unchanged. These are actual
+prefixes of the original iteration order. They cover 16384/32768/65536 elements
+while retaining the original 1024x1024 allocation, input bytes, local buffers,
+arithmetic and synchronization. Separate source hashes bind each diagnostic to
+its exact reference window; every remaining output byte must retain its NaN
+sentinel. All cases remain original-only with no timing acceptance.
+
+The existing Python environment passed 202 selected tests, including source
+derivation, manifest binding, boundary corruption, and shell sequencing checks
+with fake download/build/launch tools. The sequencing checks verify ordered
+execution and no next-case build/launch after a failed call, a wrong receipt,
+device occupation or an occupation-check error. They do not launch a TPU.
+Three sequential BM1690 CModel workers then passed with two host CPUs, 4 GiB
+group RSS cap and 120 seconds per case. Each produced zero active reference
+error, preserved all outside bytes and returned all 22 traced runtime calls.
+Source/native identities remained unchanged. Evidence is
+`results/p8-rope-1024-prefixes-{cmodel,handoff-validation}.json`.
+
+The board sequence requires a new output directory and an explicit
+`--allow-pcie` invocation. It uses the observed SDK/runtime through the pinned
+prepare helper, checks privileged fuser immediately before each launch, and
+requires a passed receipt with the expected prefix coverage. Permission errors
+or nonempty fuser output stop the sequence. It neither unloads the driver nor
+terminates another task. Per-case host-call timeouts remain 30 seconds with a
+40-second outer bound; no failed case is retried automatically. The maximum
+workload is 512 of the full target's 8192 tiles. These diagnostic bounds are
+workload choices, not claims about hardware command-counter width or overflow.

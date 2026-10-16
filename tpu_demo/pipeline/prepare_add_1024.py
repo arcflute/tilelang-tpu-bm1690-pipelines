@@ -22,7 +22,7 @@ FILES = {
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "4ef923ffa4a80ca198ee864893c4a079810e419b303713b26f652d6ddfad2fdf"),
+                   "5ac36dcd6bf0efd6be06ed6a03f1855049051576e900de188a4a9d2416e1c342"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -65,7 +65,15 @@ ROPE_WINDOW_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-window8-sourc
 
 ROPE_WINDOW_END_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-window8-end-sources.json", "3e62b95c1a772f1c2e33f9648ea84db283cf98a136da72697535dc7bad8fb654")
 
+ROPE_PREFIX_SOURCES = {
+    "rope-target-prefix128": ("research/bm1690-pipelines/handoff/rope-1024-prefix128-sources.json", "9111d5d05d45165d7ef2ef579c7f2b6dc7303f3d2be85abf22aa2e0e7fa22880"),
+    "rope-target-prefix256": ("research/bm1690-pipelines/handoff/rope-1024-prefix256-sources.json", "b5533f1490f80e5c74f60b929db9ad28f7e1fb597c2224c9a0bb4ad7737952aa"),
+    "rope-target-prefix512": ("research/bm1690-pipelines/handoff/rope-1024-prefix512-sources.json", "9b9250c5828bd25d6f5cd315f4b5aca919a93b7d2b36cac3b3cf80e66972e962"),
+}
+
 def source_files(case):
+    if case in ROPE_PREFIX_SOURCES:
+        return {**FILES, "add.json": ROPE_PREFIX_SOURCES[case]}
     if case == "rope-target-window8-end":
         return {**FILES, "add.json": ROPE_WINDOW_END_SOURCE}
     if case == "rope-target-window8":
@@ -145,7 +153,7 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end"), default="target",
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *ROPE_PREFIX_SOURCES), default="target",
                         help="Elementwise, Matmul, RMSNorm ordinary/Split-K or RoPE smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
@@ -203,7 +211,7 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end") else
+            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case in ROPE_PREFIX_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end") else
                       "MATMUL1024" if args.case == "matmul-target" else
                       "MATMUL128" if args.case == "matmul-smoke" else
                       (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")

@@ -15,6 +15,9 @@ window_spec.loader.exec_module(window)
 end_spec = importlib.util.spec_from_file_location("window_end_export", ROOT / "tpu_demo/pipeline/export_rope_window_end.py")
 window_end = importlib.util.module_from_spec(end_spec)
 end_spec.loader.exec_module(window_end)
+prefix_spec = importlib.util.spec_from_file_location("prefix_export", ROOT / "tpu_demo/pipeline/export_rope_prefix.py")
+prefix = importlib.util.module_from_spec(prefix_spec)
+prefix_spec.loader.exec_module(prefix)
 
 
 class TraceSourceTests(unittest.TestCase):
@@ -77,6 +80,26 @@ class TraceSourceTests(unittest.TestCase):
         self.assertEqual(diagnostic["window_rows_columns_exclusive"], [1016, 1024, 896, 1024])
         self.assertEqual(diagnostic["tile_count"], 8)
         self.assertFalse(diagnostic["timing_allowed"])
+
+    def test_prefix_changes_only_outer_loop_extent_and_keeps_full_inner_loop_order(self):
+        base = json.loads(prefix.BASE.read_text())
+        for tiles in (128, 256, 512):
+            derived = prefix.export(tiles)
+            recorded = json.loads((ROOT / f"research/bm1690-pipelines/handoff/rope-1024-prefix{tiles}-sources.json").read_text())
+            self.assertEqual(derived, recorded)
+            for variant in ("original", "serial", "pipeline"):
+                for name, before in base["variants"][variant]["sources"].items():
+                    after = derived["variants"][variant]["sources"][name]
+                    if variant == "original" and name == "kernel.c":
+                        self.assertEqual(after.replace(f"bx < {tiles // 32};", "bx < 256;"), before)
+                        self.assertNotEqual(after, before)
+                    else:
+                        self.assertEqual(after, before)
+            self.assertEqual(derived["host_diagnostic"]["tile_count"], tiles)
+            self.assertEqual(derived["host_diagnostic"]["window_rows_columns_exclusive"], [0, tiles // 8, 0, 1024])
+        for unsupported in (0, 8, 255, 8192):
+            with self.assertRaises(ValueError):
+                prefix.export(unsupported)
 
 
 if __name__ == "__main__":

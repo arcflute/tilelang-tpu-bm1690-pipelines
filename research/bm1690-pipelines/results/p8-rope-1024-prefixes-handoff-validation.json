@@ -1,0 +1,49 @@
+{
+  "schema": "bm1690-rope-prefix-handoff-validation-v1",
+  "cases": [
+    "rope-target-prefix128",
+    "rope-target-prefix256",
+    "rope-target-prefix512"
+  ],
+  "files": {
+    "tilelang/jit/adapter/legacy_pcie.py": "8234fdc245476f93becd3ca86f945f911507527dc89990a92a435d7e43191f64",
+    "tpu_demo/pipeline/run_add_pcie.py": "5ac36dcd6bf0efd6be06ed6a03f1855049051576e900de188a4a9d2416e1c342",
+    "tpu_demo/pipeline/prepare_add_1024.py": "44e8db9211a92033150ccf2c23a21efaa1317dba87d8a3ef214564dfbb8e114a",
+    "tpu_demo/pipeline/export_rope_prefix.py": "c7b11b6b2719ab587d83765ef0ded2675dc046816175045dc7c6c28600043606",
+    "tpu_demo/pipeline/run_rope_prefixes.sh": "dc2325f863932c5a7a54d52f09ed82553117d5a6bfe1b62dab81049ea61a213f",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix128-sources.json": "9111d5d05d45165d7ef2ef579c7f2b6dc7303f3d2be85abf22aa2e0e7fa22880",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix256-sources.json": "b5533f1490f80e5c74f60b929db9ad28f7e1fb597c2224c9a0bb4ad7737952aa",
+    "research/bm1690-pipelines/handoff/rope-1024-prefix512-sources.json": "9b9250c5828bd25d6f5cd315f4b5aca919a93b7d2b36cac3b3cf80e66972e962"
+  },
+  "unit_tests": {
+    "python": "/home/admin3/tilelang-tpu/.risc/bin/python",
+    "tests": 202,
+    "passed": true,
+    "log": "/home/admin3/tilelang-tpu/research/artifacts/bm1690-pipelines/p8-rope1024-prefixes-jb0rbqty/unit-tests.log",
+    "log_sha256": "2cc1238e1c9d5fe74ce8c33ddef287acecc7c1ac67c7b3c3442eebf4473f34ff"
+  },
+  "cmodel_evidence": "p8-rope-1024-prefixes-cmodel.json",
+  "board_build_performed": false,
+  "board_kernel_dispatches": 0,
+  "dependencies_changed": false,
+  "native_libraries_changed": false,
+  "existing_bundles_changed": false,
+  "board_sequence": {
+    "order": [
+      128,
+      256,
+      512
+    ],
+    "calls_per_case": 1,
+    "host_cpu_count": 2,
+    "worker_rss_mib": 4096,
+    "supervisor_timeout_seconds": 30,
+    "outer_timeout_seconds": 40,
+    "stop_on_first_failure": true,
+    "requires_matching_correctness_receipt": true,
+    "device_occupation_check_before_each_call": true,
+    "automatic_retry": false,
+    "timing": false,
+    "driver_changes": false
+  }
+}
