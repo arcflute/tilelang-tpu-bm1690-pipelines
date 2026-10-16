@@ -26,11 +26,11 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Oct 16 11:49 driver reload passed. Run one small recovery smoke, then existing full-target serial and pipeline with original-failure provenance; no further prefix diagnostics.",
+  "pending_test": "Full RoPE serial/pipeline correctness passed. Next: five warmups and twenty resident synchronous-call samples per tiled variant; preserve full original timeout as unresolved.",
   "board_kernels_launched_in_this_preflight": 0,
-  "driver_recovery_complete": false,
-  "driver_recovery_scope": "Ordinary driver reload completed at Oct 16 11:49:59; fresh post-reload kernel correctness is still pending",
-  "current_environment_correctness_rechecked": false,
+  "driver_recovery_complete": true,
+  "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
+  "current_environment_correctness_rechecked": true,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
   "current_kernel_matching_module_availability": "new module built in isolated user directory and temporarily loaded; no permanent installation performed",
@@ -408,6 +408,18 @@
     "chip0_initialized_at": "2026-10-16T11:49:49+08:00",
     "chip1_initialized_at": "2026-10-16T11:49:59+08:00",
     "all_devices_probed": 2,
-    "post_reload_kernel_run_verified": false
+    "post_reload_kernel_run_verified": true
+  },
+  "post_prefix4096_tiled_validation": {
+    "evidence": "p8-rope-1024-tiled-board-user-reported.json",
+    "remote_result_root": "/home/bokai/bm1690-rope-tiled-w214OT/results",
+    "passed_cases": [
+      "smoke",
+      "serial",
+      "pipeline"
+    ],
+    "full_target_serial_pipeline_correctness": true,
+    "full_original_still_failed": true,
+    "latency_matrix_complete": false
   }
 }

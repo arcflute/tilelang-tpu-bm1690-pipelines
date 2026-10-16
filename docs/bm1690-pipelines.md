@@ -12,6 +12,19 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-16)
 
+**Latest result:** recovery smoke and full FP16 1024x1024 RoPE serial/pipeline
+correctness passed on BM1690 at revision
+`763a36e690c92b65a72dd6a8370151e90a93d435`. Both tiled outputs match the independent
+reference bitwise (zero error), each other, and prior CModel output hashes.
+The result root is `/home/bokai/bm1690-rope-tiled-w214OT/results`.
+Next: five warmups and twenty resident synchronous-call samples per tiled
+variant using the existing runner/builds. The full original timeout remains
+unresolved; three-variant acceptance is incomplete. Single-call console values
+123.790/105.902 ms are not a repeated latency comparison. Evidence:
+`results/p8-rope-1024-tiled-board-user-reported.json`; see P8.21 below.
+
+### Earlier recovery and diagnostic history
+
 The user requested resumption after the P10-related deferral. At Oct 15 15:19:40 +0800,
 the board still runs kernel 7.0.0-34-generic, sgcard is live with reference count
 zero, both device nodes/PCI bindings exist, and privileged `fuser` reports no
@@ -1964,3 +1977,32 @@ including nine new failure-continuation checks and five new sequence checks.
 Shell syntax and diff whitespace checks passed. Evidence:
 `results/p8-rope-tiled-continuation-validation.json`. No CModel rerun was needed
 for this runner-only change; the frozen kernels retain the prior evidence above.
+
+### P8.21: full tiled RoPE board correctness passes
+
+The user ran the pinned continuation script at revision `763a36e` under
+`/home/bokai/bm1690-rope-tiled-w214OT/results`. The 8x128 smoke, full 1024x1024
+serial and full pipeline calls all returned successfully. Each checked its
+complete output against the independent reference with zero error and bitwise
+equality; pipeline additionally matched serial bitwise. Full-target input and
+output SHA256 values match the previously recorded CModel results. All calls
+used FP16 I/O, FP32 sin/cos tables, one TPU core and verified device 0 / PCI
+0000:01:00.0. The script reused the original build locations and performed no
+compilation. Evidence is user-supplied console output, not separately retrieved
+full remote result files.
+
+This closes full-target tiled correctness and verifies useful execution after
+the latest driver reload. It does not close the failed full original baseline
+or establish its root cause. The printed one-call values (smoke 1.132 ms,
+serial 123.790 ms, pipeline 105.902 ms) are retained as observations only.
+No repeated-sample speedup or physical overlap is claimed.
+
+Next, reuse the same runner and binaries for serial then pipeline timing:
+five warmups and twenty samples per variant, same shape/dtype/tiling/core count,
+and a passed correctness receipt before each timed worker. Serial supplies the
+preserved `--original-failure`; pipeline supplies `--previous` pointing to the
+passed serial correctness result. Timing covers launch plus stream sync with
+resident buffers; allocation, module loading, transfers and reference checks
+are outside the samples. Retain all raw samples, median, IQR and p95, and
+recheck final output. Keep the existing two-host-CPU, 4 GiB RSS and 30-second
+worker bounds, check device occupation before each case, and stop on failure.
