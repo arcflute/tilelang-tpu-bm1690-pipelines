@@ -26,11 +26,11 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Oct 16 ordinary reload and both-chip initialization passed; fresh small RoPE original call, then window8 if smoke passes",
+  "pending_test": "Fresh original RoPE 8x128 smoke passed after Oct 16 reload; run existing original-only window8 diagnostic once",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
-  "driver_recovery_scope": "Oct 16 ordinary module unload/reload and both-chip initialization passed after the Oct 15 RoPE launch timeout; fresh runtime/kernel validation remains pending",
-  "current_environment_correctness_rechecked": false,
+  "driver_recovery_scope": "Oct 16 reload, both-chip initialization, fresh runtime mapping and original RoPE 8x128 correctness passed; larger RoPE target remains unresolved",
+  "current_environment_correctness_rechecked": true,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
   "current_kernel_matching_module_availability": "new module built in isolated user directory and temporarily loaded; no permanent installation performed",
@@ -147,7 +147,7 @@
     "operation": "rope",
     "case": "rope-target-window8",
     "reuse_existing_sdk_and_runtime": true,
-    "new_pinned_prepare_helper_required": true,
+    "new_pinned_prepare_helper_required": false,
     "variant_order": [
       "original"
     ],
@@ -155,7 +155,7 @@
       "original-only diagnostic, after device recovery and one previously passed smoke call"
     ],
     "stop_on_first_failure": true,
-    "status": "Local CModel and 149 checks plus remote 18-step build passed; Oct 16 driver reinitialization passed; smoke/window execution pending",
+    "status": "Local CModel, 149 checks, remote build, Oct 16 driver recovery and fresh smoke passed; original window8 dispatch pending",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "36a23e00e419d7cf9b156b296b69ebba37ebbd257185fedccf239a7103434853",
@@ -294,14 +294,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "driver_reinitialized_pending_fresh_smoke_then_window8",
+    "status": "fresh_smoke_passed_ready_for_one_window8_diagnostic",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-driver-reload-20261016-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-smoke-post-reload-20261016-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {

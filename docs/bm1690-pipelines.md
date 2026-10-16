@@ -56,9 +56,14 @@ probed successfully. Both nodes/bindings were restored, with sgcard live and
 reference count zero. The recovery log directory is
 `/home/bokai/sgcard-reload-h7ezio`; evidence is
 `results/p8-driver-reload-20261016-user-reported.json`. This establishes driver
-reinitialization; the fresh runtime/kernel check remains pending. Next is one
-previously passed 8x128 original smoke call, then one window diagnostic if smoke
-passes. No window8 board execution is reported.
+reinitialization. A fresh 8x128 original smoke call subsequently passed at
+`/home/bokai/bm1690-rope-recheck-4r1ONZ/run-original`: device 0 mapping verified,
+host call returned, reference matched bitwise with zero error, and input/output
+hashes matched the prior smoke. Worker and runner exited zero. The console's
+1.095 ms is one host-call value, not a performance acceptance result. Evidence
+is `results/p8-rope-smoke-post-reload-20261016-user-reported.json`. Next is one
+window8 original diagnostic after checking device occupation. No window8 board
+execution or full-target correctness is established by this smoke pass.
 Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
 `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
 does not count as full-target acceptance.
@@ -1712,7 +1717,10 @@ fails, investigate the runtime/device state before another RoPE target call.
 The user subsequently reported successful remote compilation of all three
 variants (18 build steps, no runtime load or kernel launches), plus the Oct 16
 read-only preflight. The Oct 16 ordinary reload and both-chip initialization
-subsequently passed. Execution remains pending the fresh small smoke check.
+subsequently passed, followed by a fresh small original smoke pass with zero
+reference error and the prior output hash. The next step is one window8
+diagnostic. The smoke evidence is
+`results/p8-rope-smoke-post-reload-20261016-user-reported.json`.
 Evidence: `results/p8-rope-window8-build-and-preflight-user-reported.json`,
 `results/p8-driver-reload-20261016-user-reported.json` and
 `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
