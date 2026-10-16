@@ -12,7 +12,7 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-16)
 
-The user requested resumption after the P10-related deferral. At 15:19:40 +0800,
+The user requested resumption after the P10-related deferral. At Oct 15 15:19:40 +0800,
 the board still runs kernel 7.0.0-34-generic, sgcard is live with reference count
 zero, both device nodes/PCI bindings exist, and privileged `fuser` reports no
 holders (empty output, exit 1). This establishes no detected host device users,
@@ -49,9 +49,16 @@ zero, runtime not loaded and zero kernel launches. The remote work directory is
 and module hash still match, both bindings exist, sgcard is live with reference
 count zero, and privileged fuser finds no users. The prior small RoPE runner
 hash and saved artifact paths are intact. These checks do not establish firmware
-health after the Oct 15 FORCE_QUIT timeout. Next are gated ordinary recovery,
-fresh initialization inspection, one previously passed smoke call, then one
-window diagnostic if smoke passes. No window8 board execution is reported.
+health after the Oct 15 FORCE_QUIT timeout. The user then completed another
+gated ordinary unload/reload, both returning zero. Fresh logs show Chip 0
+initialized at Oct 16 09:56:04 and Chip 1 at 09:56:14, followed by all two devices
+probed successfully. Both nodes/bindings were restored, with sgcard live and
+reference count zero. The recovery log directory is
+`/home/bokai/sgcard-reload-h7ezio`; evidence is
+`results/p8-driver-reload-20261016-user-reported.json`. This establishes driver
+reinitialization; the fresh runtime/kernel check remains pending. Next is one
+previously passed 8x128 original smoke call, then one window diagnostic if smoke
+passes. No window8 board execution is reported.
 Evidence is `results/p8-rope-window8-build-and-preflight-user-reported.json` and
 `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`. This diagnostic
 does not count as full-target acceptance.
@@ -1704,6 +1711,8 @@ near the matrix end and increasing tile counts. If a recovered known smoke
 fails, investigate the runtime/device state before another RoPE target call.
 The user subsequently reported successful remote compilation of all three
 variants (18 build steps, no runtime load or kernel launches), plus the Oct 16
-read-only preflight. Execution remains pending recovery and the small smoke
-check. Evidence: `results/p8-rope-window8-build-and-preflight-user-reported.json`
-and `results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
+read-only preflight. The Oct 16 ordinary reload and both-chip initialization
+subsequently passed. Execution remains pending the fresh small smoke check.
+Evidence: `results/p8-rope-window8-build-and-preflight-user-reported.json`,
+`results/p8-driver-reload-20261016-user-reported.json` and
+`results/p8-rope-1024-window8-{cmodel,handoff-validation}.json`.
