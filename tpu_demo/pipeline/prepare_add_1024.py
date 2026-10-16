@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "8cae763a2a4c07a022f639714657019622898f39dd910841e1f0403f376fd9a5"),
+                 "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "82a5e7799d0f034d9eb5f9edb3b5789fde030fa2bc321c36508f6acbf912e7d6"),
+                   "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -81,7 +81,11 @@ ROPE_PREFIX_SOURCES = {
     "rope-target-prefix512": ("research/bm1690-pipelines/handoff/rope-1024-prefix512-sources.json", "9b9250c5828bd25d6f5cd315f4b5aca919a93b7d2b36cac3b3cf80e66972e962"),
 }
 
+FLASHATTN_SOURCES = {'flashattn-smoke': ('research/bm1690-pipelines/handoff/flashattn-smoke-sources.json', '0095597052395485977eed13b60bda8a458787fb5a6af52b72ba34cbc9172a44'), 'flashattn-target': ('research/bm1690-pipelines/handoff/flashattn-1024-sources.json', '0a0bc116ad3ef055590892889f82f889f4254b6547d101015f6b9d76b3f680e7'), 'flashattn-causal-smoke': ('research/bm1690-pipelines/handoff/flashattn-causal-smoke-sources.json', '18be1e38f81e4659aef58b13bc17257eeaed9b0f89277a079bb7ca06deb8947a'), 'flashattn-causal-target': ('research/bm1690-pipelines/handoff/flashattn-causal-1024-sources.json', '18d07660d190e997f823db7c879450c781ccd3c2e97aa0ec7171e3d6f560beff')}
+
 def source_files(case):
+    if case in FLASHATTN_SOURCES:
+        return {**FILES, "add.json": FLASHATTN_SOURCES[case]}
     if case in SWIGLU_SOURCES:
         return {**FILES, "add.json": SWIGLU_SOURCES[case]}
     if case in ROPE_PREFIX_SOURCES:
@@ -165,7 +169,7 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *ROPE_PREFIX_SOURCES, *SWIGLU_SOURCES), default="target",
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *ROPE_PREFIX_SOURCES, *SWIGLU_SOURCES, *FLASHATTN_SOURCES), default="target",
                         help="Elementwise, Matmul, RMSNorm ordinary/Split-K or RoPE smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",

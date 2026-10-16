@@ -1,0 +1,668 @@
+{
+  "schema": "bm1690-swiglu-board-user-reported-v1",
+  "recorded_date": "2026-10-16",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "transcript_sha256": "90b95419303dc6d9c83a2d28b114fefea764aa3a8b8d9e3ca62b616ec552af8a",
+  "revision": "b50af103efa9784019aa350ebcf08c06531eeaea",
+  "remote_root": "/home/bokai/bm1690-swiglu-CEoWQy/results",
+  "status": "passed",
+  "suite_exit": 0,
+  "cases": {
+    "smoke:run:original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "original"
+      },
+      "passed": true
+    },
+    "smoke:run:serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "serial"
+      },
+      "passed": true
+    },
+    "smoke:run:pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "pipeline"
+      },
+      "passed": true
+    },
+    "smoke:timing:original": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.804750000000013,
+        "max_us": 187.332,
+        "median_us": 155.8315,
+        "min_us": 151.012,
+        "p95_us": 179.53345,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          157.748,
+          158.115,
+          155.978,
+          155.251,
+          157.949,
+          187.332,
+          161.635,
+          155.541,
+          165.678,
+          155.655,
+          152.37,
+          156.118,
+          153.349,
+          151.711,
+          153.576,
+          154.395,
+          151.012,
+          155.685,
+          179.123,
+          167.18
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "original"
+      },
+      "passed": true
+    },
+    "smoke:timing:serial": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.905249999999967,
+        "max_us": 164.633,
+        "median_us": 154.305,
+        "min_us": 147.102,
+        "p95_us": 161.2301,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          154.834,
+          151.959,
+          152.61,
+          154.24,
+          161.051,
+          156.387,
+          164.633,
+          155.906,
+          158.872,
+          154.37,
+          151.22,
+          156.289,
+          157.243,
+          152.888,
+          154.475,
+          147.102,
+          147.896,
+          147.901,
+          151.471,
+          148.614
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "serial"
+      },
+      "passed": true
+    },
+    "smoke:timing:pipeline": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 7.70150000000001,
+        "max_us": 205.466,
+        "median_us": 150.476,
+        "min_us": 143.386,
+        "p95_us": 182.07035000000002,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          150.193,
+          180.839,
+          164.45,
+          149.597,
+          148.64,
+          143.72,
+          148.267,
+          144.145,
+          148.651,
+          143.386,
+          205.466,
+          160.634,
+          147.958,
+          155.066,
+          158.055,
+          155.646,
+          154.706,
+          150.759,
+          150.1,
+          154.553
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "3fafa7a8e4a2a669a0ed53b21099627b0fcc829740fca1092f9b04d4a0822b65",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "c5c9031b6dfdca47fd31f65cbefacc30745da7cf2800b4c0b315b28ce22b67a9",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": true,
+          "finite": true,
+          "max_abs_error": 0.0,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          8,
+          128
+        ],
+        "variant": "pipeline"
+      },
+      "passed": true
+    },
+    "target:run:original": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "passed": true
+    },
+    "target:run:serial": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "passed": true
+    },
+    "target:run:pipeline": {
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "passed": true
+    },
+    "target:timing:original": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 520.6900000000023,
+        "max_us": 96391.241,
+        "median_us": 95842.994,
+        "min_us": 94383.109,
+        "p95_us": 96262.91975,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          95328.048,
+          94523.082,
+          95964.464,
+          95694.762,
+          95451.991,
+          96256.166,
+          96216.379,
+          96391.241,
+          95840.139,
+          96059.452,
+          94383.109,
+          96060.551,
+          95824.678,
+          95589.554,
+          96120.312,
+          95963.113,
+          96004.041,
+          95568.052,
+          95845.849,
+          94510.062
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": null,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "original"
+      },
+      "passed": true
+    },
+    "target:timing:serial": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 15.173249999999825,
+        "max_us": 3257.127,
+        "median_us": 3223.1679999999997,
+        "min_us": 3188.604,
+        "p95_us": 3244.6744,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          3257.127,
+          3215.361,
+          3228.833,
+          3223.174,
+          3237.105,
+          3219.164,
+          3241.606,
+          3206.187,
+          3221.156,
+          3222.023,
+          3211.002,
+          3244.019,
+          3232.147,
+          3223.726,
+          3224.319,
+          3243.373,
+          3219.53,
+          3188.604,
+          3199.652,
+          3223.162
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "serial"
+      },
+      "passed": true
+    },
+    "target:timing:pipeline": {
+      "timing": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 10.068249999999807,
+        "max_us": 2938.591,
+        "median_us": 2912.1625,
+        "min_us": 2882.948,
+        "p95_us": 2931.51825,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          2888.699,
+          2908.333,
+          2908.688,
+          2912.939,
+          2917.484,
+          2911.386,
+          2921.027,
+          2917.553,
+          2924.458,
+          2910.801,
+          2918.993,
+          2891.719,
+          2907.608,
+          2918.374,
+          2938.591,
+          2931.146,
+          2908.503,
+          2882.948,
+          2909.55,
+          2917.565
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "correctness": {
+        "dtype": "float16",
+        "input_sha256": "f87c02fe246252ba63dcf4da4a04ad5fc1fc80c23f7bc52ca276450a9da47482",
+        "launch_cores": 1,
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "operation": "swiglu",
+        "output_sha256": "96c6dac7792effd776ff966aec635dafec0a0805222af3a73eac576a1cc1dbe3",
+        "previous_variant_bitwise_equal": true,
+        "reference": {
+          "atol": 0.01,
+          "bitwise_equal_to_reference": false,
+          "finite": true,
+          "max_abs_error": 0.0001220703125,
+          "mismatched_elements": 0,
+          "passed": true,
+          "rtol": 0.01
+        },
+        "shape": [
+          1024,
+          1024
+        ],
+        "variant": "pipeline"
+      },
+      "passed": true
+    }
+  },
+  "comparisons": {
+    "smoke": {
+      "median_us": {
+        "original": 155.8315,
+        "serial": 154.305,
+        "pipeline": 150.476
+      },
+      "pipeline_vs_serial_reduction_percent": 2.481449078124498,
+      "serial_over_pipeline": 1.0254459182859725,
+      "original_over_pipeline_includes_tiling": 1.0355903931523964
+    },
+    "target": {
+      "median_us": {
+        "original": 95842.994,
+        "serial": 3223.1679999999997,
+        "pipeline": 2912.1625
+      },
+      "pipeline_vs_serial_reduction_percent": 9.649062661331953,
+      "serial_over_pipeline": 1.1067953797221137,
+      "original_over_pipeline_includes_tiling": 32.91127950449194
+    }
+  },
+  "statistics_recomputed": true,
+  "repeatability_verified": false,
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "notes": [
+    "One fixed original/serial/pipeline timing round per size.",
+    "Original target tiling 4x32; serial and pipeline 32x128.",
+    "All three outputs bitwise equal at each size; target reference is tolerance-aligned, not bitwise exact.",
+    "Both three-variant source-only board builds reported passed."
+  ]
+}

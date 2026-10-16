@@ -145,6 +145,15 @@ for _bundle, _shape in ((SWIGLU_BUNDLE_SHA256, [8, 128]),
                        "timing": True, "operation": "swiglu"}
 
 
+FLASHATTN_BUILDER_SHA256 = '595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2'
+FLASHATTN_BUNDLES = {('flashattn', False): '0095597052395485977eed13b60bda8a458787fb5a6af52b72ba34cbc9172a44', ('flashattn', True): '0a0bc116ad3ef055590892889f82f889f4254b6547d101015f6b9d76b3f680e7', ('flashattn-causal', False): '18be1e38f81e4659aef58b13bc17257eeaed9b0f89277a079bb7ca06deb8947a', ('flashattn-causal', True): '18d07660d190e997f823db7c879450c781ccd3c2e97aa0ec7171e3d6f560beff'}
+for _contract in BUNDLES.values():
+    _contract["builders"] += (FLASHATTN_BUILDER_SHA256,)
+for (_operation, _target), _bundle in FLASHATTN_BUNDLES.items():
+    BUNDLES[_bundle] = {"shape": [1, 1024, 1, 64] if _target else [1, 64, 1, 16],
+                       "builders": (FLASHATTN_BUILDER_SHA256,), "timing": True, "operation": _operation}
+
+
 def digest(path):
     hasher = hashlib.sha256()
     with Path(path).open("rb") as source:
@@ -285,6 +294,66 @@ def rmsnorm_reference(lhs, rhs, *, shape=(16, 128)):
     return struct.pack("<" + "e" * len(output), *output)
 
 
+def flashattn_reference(q, k, v, mask, *, shape):
+    """Independent full-matrix FP32 softmax; no online state or probability cast."""
+    import numpy as np
+    if list(shape) not in ([1, 64, 1, 16], [1, 1024, 1, 64]):
+        raise ValueError("Unsupported FlashAttention shape")
+    _, sequence, _, head_dim = shape
+    if any(len(x) != sequence * head_dim * 2 for x in (q, k, v)) or len(mask) != sequence**2 * 4:
+        raise ValueError("Invalid FlashAttention input/mask lengths")
+    qf, kf, vf = [np.frombuffer(x, dtype='<f2').reshape(sequence, head_dim).astype(np.float32)
+                  for x in (q, k, v)]
+    mf = np.frombuffer(mask, dtype='<f4').reshape(sequence, sequence)
+    if not all(np.isfinite(x).all() for x in (qf, kf, vf)) or np.isnan(mf).any() or np.isposinf(mf).any():
+        raise ValueError("Invalid FlashAttention reference inputs")
+    if not np.isfinite(mf).any(axis=1).all():
+        raise ValueError("Each attention row needs an unmasked key")
+    scores = (qf @ kf.T) * np.float32(1.0 / math.sqrt(head_dim)) + mf
+    probabilities = np.exp(scores - scores.max(axis=1, keepdims=True))
+    probabilities /= probabilities.sum(axis=1, keepdims=True)
+    return (probabilities @ vf).astype('<f2').tobytes()
+
+
+def flashattn_test_vectors(*, shape, is_causal):
+    import numpy as np
+    if type(is_causal) is not bool or list(shape) not in ([1, 64, 1, 16], [1, 1024, 1, 64]):
+        raise ValueError("Unsupported FlashAttention test contract")
+    _, sequence, _, head_dim = shape
+    # A fixed integer generator is identical across NumPy versions. Signed,
+    # key-dependent values and nonuniform logits expose dropped/stale tiles.
+    state = 0x1690
+    tensors = []
+    for argument in range(3):
+        values = []
+        for index in range(sequence * head_dim):
+            state = (1664525 * state + 1013904223) & 0xffffffff
+            random = ((state >> 16) % 2049 - 1024) / 1024
+            key = index // head_dim
+            position = key / (sequence - 1)
+            if argument == 0:
+                value = random * 0.125 + 0.5 * (0.75 + 0.75 * position)
+            elif argument == 1:
+                value = random * 0.125 + 0.5 * (2 * position - 1)
+            else:
+                value = (0.75 + 0.5 * (2 * position - 1) + random * 0.125) * (1 if index % 2 == 0 else -1)
+            values.append(value)
+        tensors.append(np.asarray(values, dtype='<f2').tobytes())
+    mask = np.zeros((sequence, sequence), dtype='<f4')
+    if is_causal:
+        mask[np.triu_indices(sequence, 1)] = -np.inf
+    tensors.append(mask.tobytes())
+    return (*tensors, flashattn_reference(*tensors, shape=shape))
+
+
+def call_flashattn_host(library, q, k, v, mask, *, timing=None):
+    shapes = {64 * 16 * 2: 64, 1024 * 64 * 2: 1024}
+    sequence = shapes.get(len(q))
+    if sequence is None or len(k) != len(q) or len(v) != len(q) or len(mask) != sequence**2 * 4:
+        raise ValueError("Invalid FlashAttention ABI input lengths")
+    return _call_host_buffers(library, (q, k, v, mask), len(q), timing=timing)
+
+
 def swiglu_reference(gate, up):
     """Independent FP32 exp/reciprocal/products, with only the final FP16 cast."""
     if len(gate) != len(up) or len(gate) not in (8 * 128 * 2, 1024 * 1024 * 2):
@@ -396,7 +465,7 @@ def test_vectors(count=COUNT, operation="add"):
 
 
 def check_output(actual, expected, count=COUNT, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu", "flashattn", "flashattn-causal"):
         raise ValueError("Unsupported reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
         raise ValueError("Unexpected output length")
@@ -405,6 +474,8 @@ def check_output(actual, expected, count=COUNT, operation="add"):
     finite = all(math.isfinite(v) for v in a + b)
     errors = [abs(x-y) for x,y in zip(a,b)]
     atol = rtol = 0.01 if operation in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "swiglu") else 0.005
+    if operation.startswith("flashattn"):
+        atol = rtol = 0.02
     mismatches = sum(not math.isfinite(x) or abs(x-y) > atol + rtol*abs(y) for x,y in zip(a,b))
     metrics = {"passed": finite and mismatches == 0, "finite": finite,
                "atol": atol, "rtol": rtol, "mismatched_elements": mismatches,
@@ -646,7 +717,7 @@ def check_correctness_receipt(args, identity, input_hash, expected, baseline_con
             raise ValueError("Timing original-baseline provenance differs from the correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
-    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
+    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu", "flashattn", "flashattn-causal"):
         # Retain each demo's tolerance rather than requiring exact reference bits.
         check_output(actual, expected, len(expected) // 2, identity["operation"])
     elif actual != expected:
@@ -658,7 +729,7 @@ def check_previous_output(actual, previous, count, operation, variant):
     if previous is None:
         return None
     if actual != previous:
-        if variant == "serial" and (operation == "matmul" or
+        if variant == "serial" and (operation == "matmul" or operation.startswith("flashattn") or
                                      (operation == "rmsnorm-splitk" and count == 1024 * 1024)):
             # Original uses 16-cubed tiles, serial 32-cubed: reduction grouping
             # can differ. Target Split-K similarly changes K tiles 32 -> 128.
@@ -734,7 +805,18 @@ def worker(args):
             raise ValueError("Diagnostic bundle permits original one-call execution only; no timing")
         count = math.prod(identity["shape"])
         operation = identity["operation"]
-        if operation == "rope":
+        if operation.startswith("flashattn"):
+            for variable in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "BLIS_NUM_THREADS"):
+                os.environ[variable] = "1"
+            import numpy as np
+            *inputs, expected = flashattn_test_vectors(shape=identity["shape"], is_causal=operation.endswith("-causal"))
+            launch = call_flashattn_host
+            result.update(layout="BSHD", mask_shape=[identity["shape"][1]] * 2, mask_dtype="float32",
+                          is_causal=operation.endswith("-causal"), output_index=4,
+                          accumulation_dtype="float32", probability_dtype="float16",
+                          reference_backend={"name":"numpy ideal FP32 softmax", "version":np.__version__,
+                                             "module_path":np.__file__, "requested_blas_threads":1})
+        elif operation == "rope":
             *inputs, expected = rope_test_vectors(shape=tuple(identity["shape"]))
             launch = call_rope_host
             result.update(table_shape=[identity["shape"][0], identity["shape"][1] // 2],

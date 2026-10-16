@@ -200,7 +200,9 @@ def validate_source_bundle(bundle):
                "bm1690-rope-source-check-v1": [8, 128],
                "bm1690-rope-source-check-v2": [1024, 1024],
                "bm1690-swiglu-source-check-v1": [8, 128],
-               "bm1690-swiglu-source-check-v2": [1024, 1024]}
+               "bm1690-swiglu-source-check-v2": [1024, 1024],
+               "bm1690-flashattn-source-check-v1": [1, 64, 1, 16],
+               "bm1690-flashattn-source-check-v2": [1, 1024, 1, 64]}
     if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     target = {"chip": "bm1690", "programming_model": "tpukernel",
@@ -219,6 +221,14 @@ def validate_source_bundle(bundle):
     if bundle["schema"].startswith("bm1690-swiglu-"):
         target.update(operation="swiglu", layout="row-major", intermediate_dtype="float32",
                       formula="up * (gate * sigmoid(gate))", output_index=2, buffer_reuse=False)
+    if bundle["schema"].startswith("bm1690-flashattn-"):
+        operation = bundle.get("target", {}).get("operation")
+        if operation not in ("flashattn", "flashattn-causal"):
+            raise ValueError("FlashAttention requires a pinned causal/non-causal operation")
+        target.update(operation=operation, layout="BSHD", mask_dtype="float32",
+                      mask_shape=[target["shape"][1]] * 2, output_index=4,
+                      is_causal=operation.endswith("-causal"), accumulation_dtype="float32",
+                      probability_dtype="float16", reference="ideal-fp32-softmax")
     if bundle["schema"].startswith("bm1690-rmsnorm-"):
         operation = bundle.get("target", {}).get("operation")
         if operation not in ("rmsnorm", "rmsnorm-splitk"):
@@ -231,6 +241,11 @@ def validate_source_bundle(bundle):
     if set(variants) != {"original", "serial", "pipeline"}:
         raise ValueError("Source bundle must preserve original/serial/pipeline variants")
     for name, variant in variants.items():
+        if bundle["schema"].startswith("bm1690-flashattn-"):
+            block = 32 if target["shape"][1] == 1024 and name != "original" else 16
+            if (variant.get("tiling") != [block, block] or
+                    variant.get("num_stages") != (2 if name == "pipeline" else 0)):
+                raise ValueError("FlashAttention requires its original/candidate tiles and depth 0/0/2")
         if bundle["schema"].startswith("bm1690-swiglu-"):
             tile = [32, 128] if target["shape"] == [1024, 1024] and name != "original" else [4, 32]
             if (variant.get("tiling") != tile or

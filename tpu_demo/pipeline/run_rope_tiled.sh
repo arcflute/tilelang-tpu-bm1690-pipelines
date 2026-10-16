@@ -30,7 +30,7 @@ with urllib.request.urlopen(request, timeout=45) as response:
 with pathlib.Path(sys.argv[2]).open('xb') as output:
     output.write(payload)
 PY
-printf '%s  %s\n' 82a5e7799d0f034d9eb5f9edb3b5789fde030fa2bc321c36508f6acbf912e7d6 "$rope_root/run_add.py" | sha256sum -c -
+printf '%s  %s\n' b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1 "$rope_root/run_add.py" | sha256sum -c -
 uname -a > "$rope_root/environment.txt"
 for rope_case in smoke serial pipeline; do
   rope_variant=$rope_case

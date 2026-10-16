@@ -1,0 +1,348 @@
+{
+  "schema": "bm1690-flashattn-handoff-validation-v1",
+  "recorded_date": "2026-10-16",
+  "selected_unittests": {
+    "passed": 293,
+    "elapsed_seconds": 38.596,
+    "log_sha256": "ff8abd3611c53928086a5689f38fa4fa7ee8b34d5afaea7a5c75566ba284c3e3",
+    "initial_attempt": "292 checks: two existing no-vendor subprocess tests exceeded their 10-second deadline while CModel ran on the same host CPUs; full serialized rerun on final sources passed"
+  },
+  "cases": {
+    "flashattn-smoke": {
+      "bundle_sha256": "0095597052395485977eed13b60bda8a458787fb5a6af52b72ba34cbc9172a44",
+      "shape": [
+        1,
+        64,
+        1,
+        16
+      ],
+      "original_tiling": [
+        16,
+        16
+      ],
+      "serial_pipeline_tiling": [
+        16,
+        16
+      ],
+      "lowered_statements": 19,
+      "depth": 2,
+      "extent": 4,
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "order": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "buffer_versions": {
+        "k_compute": [
+          "k_compute",
+          "k_compute_pipeline_v1"
+        ],
+        "mask": [
+          "mask",
+          "mask_pipeline_v1"
+        ],
+        "v_compute": [
+          "v_compute",
+          "v_compute_pipeline_v1"
+        ]
+      },
+      "compute_state": "single-version ordered recurrence",
+      "generated_parallel_boundaries": true,
+      "timed_host_abi": true
+    },
+    "flashattn-1024": {
+      "bundle_sha256": "0a0bc116ad3ef055590892889f82f889f4254b6547d101015f6b9d76b3f680e7",
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "original_tiling": [
+        16,
+        16
+      ],
+      "serial_pipeline_tiling": [
+        32,
+        32
+      ],
+      "lowered_statements": 19,
+      "depth": 2,
+      "extent": 32,
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "order": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "buffer_versions": {
+        "k_compute": [
+          "k_compute",
+          "k_compute_pipeline_v1"
+        ],
+        "mask": [
+          "mask",
+          "mask_pipeline_v1"
+        ],
+        "v_compute": [
+          "v_compute",
+          "v_compute_pipeline_v1"
+        ]
+      },
+      "compute_state": "single-version ordered recurrence",
+      "generated_parallel_boundaries": true,
+      "timed_host_abi": true
+    },
+    "flashattn-causal-smoke": {
+      "bundle_sha256": "18be1e38f81e4659aef58b13bc17257eeaed9b0f89277a079bb7ca06deb8947a",
+      "shape": [
+        1,
+        64,
+        1,
+        16
+      ],
+      "original_tiling": [
+        16,
+        16
+      ],
+      "serial_pipeline_tiling": [
+        16,
+        16
+      ],
+      "lowered_statements": 19,
+      "depth": 2,
+      "extent": 4,
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "order": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "buffer_versions": {
+        "k_compute": [
+          "k_compute",
+          "k_compute_pipeline_v1"
+        ],
+        "mask": [
+          "mask",
+          "mask_pipeline_v1"
+        ],
+        "v_compute": [
+          "v_compute",
+          "v_compute_pipeline_v1"
+        ]
+      },
+      "compute_state": "single-version ordered recurrence",
+      "generated_parallel_boundaries": true,
+      "timed_host_abi": true
+    },
+    "flashattn-causal-1024": {
+      "bundle_sha256": "18d07660d190e997f823db7c879450c781ccd3c2e97aa0ec7171e3d6f560beff",
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "original_tiling": [
+        16,
+        16
+      ],
+      "serial_pipeline_tiling": [
+        32,
+        32
+      ],
+      "lowered_statements": 19,
+      "depth": 2,
+      "extent": 32,
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "order": [
+        0,
+        1,
+        3,
+        4,
+        2,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "buffer_versions": {
+        "k_compute": [
+          "k_compute",
+          "k_compute_pipeline_v1"
+        ],
+        "mask": [
+          "mask",
+          "mask_pipeline_v1"
+        ],
+        "v_compute": [
+          "v_compute",
+          "v_compute_pipeline_v1"
+        ]
+      },
+      "compute_state": "single-version ordered recurrence",
+      "generated_parallel_boundaries": true,
+      "timed_host_abi": true
+    }
+  },
+  "files": {
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/prepare_add_1024.py": "bd6b9174f96c50a3388cfd2ebbf25a7634a7ffc7c08d9ad4094f4fd804f65745",
+    "tpu_demo/pipeline/run_flashattn_board.sh": "e5a4cb1f7680cd27b537b44b5a7784fefe588a239edf00c8b99ffa6179eecaf9"
+  },
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "native_libraries_changed": false,
+  "hardware_overlap_verified": false,
+  "reference_shortcut_rejection_tests": [
+    "zero output",
+    "uniform attention",
+    "identity V output"
+  ],
+  "cmodel_evidence": "p8-flashattn-handoff-cmodel.json",
+  "status": "passed",
+  "cmodel_workers_passed": 8,
+  "source_unchanged_during_cmodel": true
+}

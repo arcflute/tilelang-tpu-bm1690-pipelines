@@ -12,18 +12,23 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-16)
 
-**Latest result:** recovery smoke and full FP16 1024x1024 RoPE serial/pipeline
-correctness passed on BM1690 at revision
-`763a36e690c92b65a72dd6a8370151e90a93d435`. Both tiled outputs match the independent
-reference bitwise (zero error), each other, and prior CModel output hashes.
-The result root is `/home/bokai/bm1690-rope-tiled-w214OT/results`.
-The first latency round subsequently passed: five warmups and twenty samples
-each, serial median 128.154439 ms and pipeline median 106.877073 ms, a 16.6029%
-reduction for the same tiling/core count. This measures launch plus sync, not
-pure device time or physical overlap. The full original timeout remains
-unresolved; three-variant acceptance is incomplete. Next is the pinned SwiGLU
-smoke/target sequence (P8.23). Correctness evidence:
-`results/p8-rope-1024-tiled-board-user-reported.json`; see P8.21 below.
+**Latest result:** SwiGLU FP16 8x128 and 1024x1024 completed all three variants'
+board builds, correctness and five-warmup/twenty-sample synchronous-call timing
+at revision `b50af103efa9784019aa350ebcf08c06531eeaea`. All twelve workers passed
+in `/home/bokai/bm1690-swiglu-CEoWQy/results`. Target original/serial/pipeline
+medians are 95.842994 / 3.223168 / 2.9121625 ms. Pipeline is 9.6491% below
+same-tile serial; the original comparison also includes a tiling change.
+Outputs are bitwise equal across variants and match CModel hashes. Maximum
+target reference error is 0.0001220703125 under the retained 0.01/0.01 contract.
+See P8.24 and `results/p8-swiglu-board-user-reported.json`.
+
+RoPE full tiled serial/pipeline correctness and first latency round passed
+(128.154439 / 106.877073 ms, 16.6029% lower). Its full original timeout remains
+unresolved and three-variant acceptance is incomplete. Four of six families
+have first target three-variant board acceptance: elementwise, Matmul, RMSNorm
+(ordinary and Split-K), and SwiGLU. RoPE has the stated baseline exception;
+FlashAttention is the next board handoff. These are first single-core rounds;
+repeatability, physical overlap, multicore and the wider matrix remain open.
 
 ### Earlier recovery and diagnostic history
 
@@ -234,8 +239,8 @@ Pipeline is 1.581% below same-tile serial in this one fixed-order round. The
 32x128. Evidence and all 60 raw samples are in
 `results/p8-rmsnorm-splitk-1024-{build,three-variants-board,latency}-user-reported.json`.
 
-Three of the six operator families have completed their first single-core board
-target correctness and synchronous-call latency acceptance: elementwise,
+At that earlier checkpoint, three of the six operator families had completed
+first single-core board target correctness and synchronous-call latency acceptance: elementwise,
 Matmul and RMSNorm (ordinary and Split-K). This is not completion of the entire
 performance/multicore matrix. Next is RoPE smoke, followed by RoPE target,
 SwiGLU and FlashAttention. Repeated varied-order rounds and multicore board
@@ -2078,3 +2083,95 @@ There are twelve worker processes and 156 kernel calls if all cases finish
 No automatic driver operations or failed-call retries are performed. The board
 compile, numerical and latency results remain pending; do not promote local
 CModel evidence to board acceptance.
+
+### P8.24: SwiGLU first board acceptance
+
+The user supplied a complete successful console transcript for the b50af10
+handoff, ending in `SWIGLU_SUITE_PASSED` and `SWIGLU_EXIT=0`. Both sizes passed
+three source-only builds, then original/serial/pipeline one-call correctness,
+then resident timing in that order. The machine used device 0 / PCI
+0000:01:00.0 and one TPU launch core. No driver recovery was needed.
+
+| FP16 target 1024x1024 | Median ms | IQR ms | p95 ms |
+|---|---:|---:|---:|
+| Original 4x32 | 95.842994 | 0.520690 | 96.262920 |
+| Serial 32x128 | 3.223168 | 0.015173 | 3.244674 |
+| Pipeline 32x128 | 2.912163 | 0.010068 | 2.931518 |
+
+Pipeline reduces the matched-tiling median by 9.6490627% (1.1067954 ratio).
+Original/pipeline is 32.9113, including tiling and scheduling changes; it must
+not be attributed entirely to software pipelining. Smoke medians are
+155.8315 / 154.305 / 150.476 us and are only functional-scale measurements.
+Each variant used five warmups and twenty samples; all 120 raw samples and
+post-timing correctness results are retained in
+`results/p8-swiglu-board-user-reported.json`, with statistics independently
+recomputed from the samples. The boundary includes launch plus stream sync
+and excludes compile, load, allocation, transfers and reference. This is one
+fixed-order round per size; repeated-round stability and hardware overlap
+have not been established.
+
+All variant outputs are bitwise equal within each size and match local
+CModel outputs. Smoke is exact to reference; target maximum error is
+0.0001220703125, with zero tolerance mismatches at atol=rtol=0.01. Optional
+buffer reuse and multicore are not enabled. Next is FlashAttention with
+causal and non-causal masks, preserving its FP32 state and FP16 probability
+cast, with an independent ideal FP32 softmax oracle.
+
+### P8.25: FlashAttention causal/non-causal handoff
+
+Four bundles preserve `build_flashattn` arithmetic and its BSHD layout:
+FP16 Q/K/V/output, FP32 mask and online max/sum/accumulator, and the existing
+FP16 probability cast before the probability/value GEMM. Smoke has shape
+[1,64,1,16], with 16x16 Q/K tiles (four K iterations). Target has shape
+[1,1024,1,64], i.e. a 1024x1024 attention score matrix, not a 1024-dimensional
+head. Original target keeps 16x16 tiles; serial/pipeline use the previously
+CModel-validated 32x32 tiles (32 K iterations). Neither the kernel's numerical
+operations nor the compiler passes were changed for this handoff.
+
+The lowered loop has nineteen statements; K/V/mask loads at indices 0/1/4
+move to stage zero. All compute statements remain in ordered stage one.
+K, V and mask each have two local versions; row_max, row_sum and accumulator
+remain single-version recurrence state. Generated C includes parallel start/end
+and initialization/final polling. Sources and schedule reports are frozen in
+`handoff/flashattn{,-causal}-{smoke,1024}-sources.json`.
+
+The independent NumPy reference computes the complete FP32 score matrix,
+stable softmax and value product, then converts the result to FP16. It does
+not reproduce online state updates or probability rounding. The existing
+atol=rtol=0.02 contract is retained. Integer-generated deterministic inputs
+combine weighted logits, small random perturbations and signed key-dependent
+values. CPU checks reject zero output, uniform attention and identity-V
+shortcuts for both masks and both sizes. Additional oracle checks cover
+causal future-value exclusion, zero-logit means, and ascending/descending
+large logits. Local workers also cross-check the NumPy oracle against Torch.
+
+The standalone runner validates five ordered ABI arguments (Q,K,V,mask,output),
+source/build/runtime hashes and matching input receipts before launch. Mask
+bytes are included in the input hash, so causal and non-causal receipts cannot
+be interchanged. Original versus target serial uses the existing tolerance
+because K tile grouping changes; pipeline must match its same-tile serial
+bitwise. Every timing process requires a passed one-call receipt and rechecks
+output afterward. The retained build/run interfaces remain available for prior
+operators; their source bundle hashes and old revision artifacts remain intact.
+
+All 293 selected regression checks passed in the final serialized run. Eight
+bounded CModel workers verified these exact frozen sources, final input vectors,
+all twelve size/mask/variant combinations and their resident timing ABI. Smoke
+maximum reference error is 0.00048828125; target maximum is 0.0009765625. Same-tile
+serial and pipeline are bitwise equal for both masks and sizes. Target original
+and serial differ within tolerance due to their K grouping. Every timed ABI check
+preserved the output; emulator wall times are not device performance evidence.
+Source/native identities stayed unchanged during the final verification.
+Evidence is `results/p8-flashattn-handoff-{cmodel,validation}.json`.
+
+`run_flashattn_board.sh --allow-pcie FULL_REVISION NEW_OUTPUT_DIR` sequences
+smoke non-causal, smoke causal, target non-causal and target causal. Each case
+builds, checks all three variants, then times all three with five warmups and
+twenty samples. It reuses the inspected ChunkScan venv with NumPy, first checking
+its executable and import; it does not install anything. Reference/BLAS uses
+one thread; each worker uses two host CPUs, one TPU launch core, 4 GiB group
+RSS and a 30-second process-group deadline. Device occupation is checked before
+every worker. Any failure stops the sequence without retries or driver changes.
+A complete run has 24 worker processes / 312 kernel calls. Board build,
+correctness and synchronous latency remain pending. Wider dtype/head/batch,
+repeated-order rounds, multicore and physical overlap are later acceptance.

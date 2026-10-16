@@ -7,6 +7,7 @@ import hashlib
 import argparse
 import json
 import os
+import math
 from pathlib import Path
 
 
@@ -30,7 +31,8 @@ def main():
                                                ROPE_PREFIX_BUNDLES, ROPE_PREFIX_WINDOWS,
                                                SWIGLU_BUNDLE_SHA256, SWIGLU_TARGET_BUNDLE_SHA256,
                                                check_rope_window_output,
-                                               rope_test_vectors, call_rope_host)
+                                               rope_test_vectors, call_rope_host,
+                                               FLASHATTN_BUNDLES, flashattn_test_vectors, call_flashattn_host)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-size", action="store_true")
@@ -44,7 +46,7 @@ def main():
                          help="eight original tiles at the matrix end; diagnostic only")
     windows.add_argument("--rope-prefix-tiles", type=int, choices=tuple(ROPE_PREFIX_BUNDLES),
                          help="bounded original-order prefix; one diagnostic call only")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu", "flashattn", "flashattn-causal"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
     args = parser.parse_args()
@@ -56,7 +58,8 @@ def main():
     rmsnorm_target = args.operation.startswith("rmsnorm") and args.target_size
     rope_target = args.operation == "rope" and args.target_size
     swiglu_target = args.operation == "swiglu" and args.target_size
-    target_worker = matmul_target or rmsnorm_target or rope_target or swiglu_target
+    flash = args.operation.startswith("flashattn")
+    target_worker = matmul_target or rmsnorm_target or rope_target or swiglu_target or (flash and args.target_size)
     if args.trace_host_runtime and not (rope_target and args.variant == "original"):
         parser.error("Host tracing is limited to the RoPE target original one-call check")
     if (args.rope_window8 or args.rope_window8_end or args.rope_prefix_tiles) and not args.trace_host_runtime:
@@ -70,7 +73,7 @@ def main():
         parser.error("RMSNorm does not use elementwise --coarse-tiles")
     if args.operation == "rope" and args.coarse_tiles:
         parser.error("RoPE does not use elementwise --coarse-tiles")
-    if args.operation == "swiglu" and args.coarse_tiles:
+    if (args.operation == "swiglu" or flash) and args.coarse_tiles:
         parser.error("SwiGLU does not use elementwise --coarse-tiles")
     if bool(args.variant) != target_worker:
         parser.error("--variant is required only for target Matmul/RMSNorm/RoPE; compare worker outputs afterward")
@@ -109,19 +112,32 @@ def main():
         if args.rope_prefix_tiles:
             bundle_path = bundle_path.with_name(f"rope-1024-prefix{args.rope_prefix_tiles}-sources.json")
             bundle_hash = ROPE_PREFIX_BUNDLES[args.rope_prefix_tiles]
+    if flash:
+        bundle_path = bundle_path.with_name(args.operation + ("-1024-sources.json" if args.target_size else "-smoke-sources.json"))
+        bundle_hash = FLASHATTN_BUNDLES[(args.operation, args.target_size)]
     check_hash(bundle_path, bundle_hash)
     bundle = json.loads(bundle_path.read_text())
     assert bundle["target"].get("operation", "add") == args.operation
-    rows, width = bundle["target"]["shape"]
-    count = rows * width
-    if args.operation == "rope":
+    shape = bundle["target"]["shape"]
+    rows, width = (shape[1], shape[3]) if flash else shape
+    count = math.prod(shape)
+    if flash:
+        *inputs, expected = flashattn_test_vectors(shape=shape, is_causal=args.operation.endswith("-causal"))
+        launch = call_flashattn_host
+    elif args.operation == "rope":
         *inputs, expected = rope_test_vectors(shape=(rows, width))
         launch = call_rope_host
     else:
         *inputs, expected = test_vectors(count, args.operation)
         launch = call_host
     # Independent Torch check of the scalar/NumPy FP32 reference.
-    if args.operation == "rope":
+    if flash:
+        from tpu_demo.flashattn.flashattn import _reference, _attention_mask
+        q, k, v = [torch.frombuffer(bytearray(x), dtype=torch.float16).reshape(shape) for x in inputs[:3]]
+        mask = torch.frombuffer(bytearray(inputs[3]), dtype=torch.float32).reshape(rows, rows)
+        assert torch.equal(mask, _attention_mask(rows, args.operation.endswith("-causal")))
+        independent = check_output(expected, _reference(q, k, v, mask, "float16").numpy().tobytes(), count, args.operation)
+    elif args.operation == "rope":
         from tpu_demo.rope.rope import _reference, _cosine_sine
         source = torch.frombuffer(bytearray(inputs[0]), dtype=torch.float16).reshape(rows, width)
         cosine, sine = [torch.frombuffer(bytearray(data), dtype=torch.float32).reshape(rows, width//2) for data in inputs[1:]]
@@ -146,7 +162,7 @@ def main():
     elif args.operation == "swiglu":
         torch_reference = (b.float() * torch.nn.functional.silu(a.float())).half()
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, "swiglu")
-    elif args.operation != "rope":
+    elif args.operation != "rope" and not flash:
         calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[args.operation]
         assert calculate(a.float(), b.float()).half().numpy().tobytes() == expected
         independent = {"bitwise_equal_to_reference": True, "passed": True}
@@ -167,7 +183,7 @@ def main():
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
-        if not args.trace_host_runtime and (args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu")):
+        if not args.trace_host_runtime and (args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu", "flashattn", "flashattn-causal")):
             timing = {"warmups": 1, "samples": 1 if target_worker else 2}
             repeated = launch(library, *inputs, timing=timing)
             assert repeated == output
@@ -178,9 +194,9 @@ def main():
     if args.variant:
         Path("output.f16").write_bytes(outputs[0])
         original_comparison = None
-    elif args.operation == "matmul":
+    elif args.operation == "matmul" or flash:
         assert outputs[1] == outputs[2]
-        original_comparison = check_output(outputs[1], outputs[0], count, "matmul")
+        original_comparison = check_output(outputs[1], outputs[0], count, args.operation)
     else:
         assert outputs[0] == outputs[1] == outputs[2]
         original_comparison = {"bitwise_equal_to_reference": True, "passed": True}
@@ -188,7 +204,7 @@ def main():
               "diagnostic_only":args.trace_host_runtime,
               "diagnostic_window":list(diagnostic_window) if diagnostic_window else None,
               "operation":args.operation,
-              "dtype":"float16", "shape":[rows,width], "bundle_sha256":bundle_hash,
+              "dtype":"float16", "shape":shape, "bundle_sha256":bundle_hash,
               "serial_and_pipeline_tiling":bundle["variants"]["serial"]["tiling"],
               "input_sha256":hashlib.sha256(b"".join(inputs)).hexdigest(), "variants":records,
               "reference_matches_torch":True, "independent_reference_comparison":independent,
@@ -196,6 +212,10 @@ def main():
               "all_variants_bitwise_equal":outputs[0] == outputs[1] == outputs[2] if not args.variant else None,
               "serial_pipeline_bitwise_equal":True if not args.variant else None,
               "device_performance_measured":False,"hardware_overlap_verified":False}
+    if flash:
+        report.update(selected_variant=args.variant, is_causal=args.operation.endswith("-causal"),
+                      layout="BSHD", mask_dtype="float32", mask_shape=[rows, rows], output_index=4,
+                      accumulation_dtype="float32", probability_dtype="float16")
     if matmul_target:
         import numpy as np
         report.update(selected_variant=args.variant, matrix_dimensions=[rows] * 3,

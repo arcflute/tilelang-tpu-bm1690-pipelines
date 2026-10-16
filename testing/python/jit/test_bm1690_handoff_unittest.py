@@ -23,7 +23,7 @@ REVISION = "7c0efb8e36b3058a51b1aa1fb948ca67676e45f8"
 class HandoffTests(unittest.TestCase):
     def test_all_case_files_match_pinned_repository_bytes(self):
         for case in ("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target",
-                     "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *prepare.ROPE_PREFIX_SOURCES, *prepare.SWIGLU_SOURCES):
+                     "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *prepare.ROPE_PREFIX_SOURCES, *prepare.SWIGLU_SOURCES, *prepare.FLASHATTN_SOURCES):
             for name, (path, expected) in prepare.source_files(case).items():
                 with self.subTest(case=case, name=name):
                     self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
