@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "4096 worker timeout verified; await current occupation and driver journal before recovery or further dispatch",
+  "pending_test": "No device holders at Oct 16 11:22:50, but FORCE_QUIT timed out. Reuse gated ordinary driver reload; after fresh small smoke, validate full serial/pipeline while retaining original failure.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": false,
   "driver_recovery_scope": "Prior Oct 16 recovery and prefixes through 2048 passed; device health after latest 4096 failure is unverified",
@@ -155,7 +155,7 @@
       "Sequential 1024/2048/4096 original-only calls after file/occupation checks; require matching receipt before continuing"
     ],
     "stop_on_first_failure": true,
-    "status": "Board 1024/2048 passed; 4096 hit 30-second worker deadline. Host cleanup complete, device health unverified. Await state/journal; do not rerun.",
+    "status": "No immediate kernel dispatch: ordinary module reload and fresh small smoke first, then full tiled variants. Do not rerun the failed prefix sequence.",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "1a7b88e70f8026d84539986794b8cde61acb2db15596bec05ef4811c0a1cc6ae",
@@ -302,7 +302,7 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "prefix4096_timeout_verified_awaiting_health_checks",
+    "status": "prefix4096_timeout_and_force_quit_confirmed_recovery_required",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
@@ -377,6 +377,9 @@
     "supervisor_reason": "timeout",
     "worker_returncode": -9,
     "supervisor_cleanup_complete": true,
-    "supervisor_timeout_seconds": 30
+    "supervisor_timeout_seconds": 30,
+    "driver_force_quit_timeout_reported": true,
+    "device_state_at": "2026-10-16T11:22:50+08:00",
+    "device_holders_detected": false
   }
 }

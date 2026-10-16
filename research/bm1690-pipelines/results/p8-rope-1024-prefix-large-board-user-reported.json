@@ -104,7 +104,19 @@
         "variant": "original"
       },
       "matches_cmodel_input_and_output_hashes": true,
-      "kernel_calls_completed": 1
+      "kernel_calls_completed": 1,
+      "supervisor_receipt_fields": {
+        "cleanup_complete": true,
+        "limits": {
+          "cpu_count": 2,
+          "max_group_rss_bytes": 4294967296,
+          "timeout_seconds": 30
+        },
+        "peak_group_rss_bytes": 263032832,
+        "reason": null,
+        "returncode": 0,
+        "status": "passed"
+      }
     },
     "2048": {
       "status": "passed",
@@ -202,7 +214,19 @@
         "variant": "original"
       },
       "matches_cmodel_input_and_output_hashes": true,
-      "kernel_calls_completed": 1
+      "kernel_calls_completed": 1,
+      "supervisor_receipt_fields": {
+        "cleanup_complete": true,
+        "limits": {
+          "cpu_count": 2,
+          "max_group_rss_bytes": 4294967296,
+          "timeout_seconds": 30
+        },
+        "peak_group_rss_bytes": 273989632,
+        "reason": null,
+        "returncode": 0,
+        "status": "passed"
+      }
     },
     "4096": {
       "status": "failed",
@@ -327,7 +351,7 @@
   "hardware_overlap_verified": false,
   "full_target_correctness_established": false,
   "firmware_health_after_failure_verified": false,
-  "next_action": "Read current occupation and recent kernel journal before any further dispatch; omit previous duration query because this runner does not save elapsed wall time",
+  "next_action": "Reuse previously successful ordinary module reload after rechecking module/kernel and both-device occupation; then one known small smoke, followed by full tiled serial/pipeline one-call checks. Preserve original timeout as unresolved; no repeated failed prefix or longer timeout.",
   "source_comparison": {
     "difference": "Only original/kernel.c outer bx upper bound changes from 64 to 128",
     "diff": "--- \n+++ \n@@ -15,7 +15,7 @@\n   __tilelang_tpu_tensor_info v6 = {.shape = {1, 1024, 1, 512} , .stride = {0}, .addr = v2, .default_stride = true};\n   __tilelang_tpu_tensor_info v7 = {.shape = {1, 1024, 1, 512} , .stride = {0}, .addr = v3, .default_stride = true};\n   __tilelang_tpu_tensor_info v8 = {.shape = {1, 1024, 1, 1024} , .stride = {0}, .addr = v4, .default_stride = true};\n-  for (int32_t bx = 0; bx < 64; ++bx) {\n+  for (int32_t bx = 0; bx < 128; ++bx) {\n     for (int32_t by = 0; by < 32; ++by) {\n       __tilelang_tpu_tensor_info x = {.shape = { 1, 4, 1, 32}, .stride = {0}, .addr = 256, .default_stride = false};\n       tpu_aligned_stride(&x.stride, 0, &x.shape, DT_FP16);\n",
@@ -342,12 +366,59 @@
     "case": 4096,
     "received_full_failed_case_result_json": true,
     "extracts_stored_in_case": true,
-    "current_device_state_received": false,
-    "current_kernel_journal_received": false
+    "current_device_state_received": true,
+    "current_kernel_journal_received": true
   },
   "elapsed_time_evidence": {
     "successful_case_elapsed_seconds_recorded": false,
     "source": "tpu_demo/pipeline/run_add_pcie.py::supervise",
     "note": "Uses time.monotonic for overall worker deadline but does not serialize elapsed wall time. The earlier requested result.json filter cannot recover those durations; do not rerun to obtain them."
+  },
+  "followup_device_state": {
+    "observed_at": "2026-10-16T11:22:50+08:00",
+    "initstate": "live",
+    "module_refcount": 0,
+    "privileged_fuser_exit_code": 1,
+    "privileged_fuser_output": "empty",
+    "device_paths": [
+      "/dev/sg-host-drv-0",
+      "/dev/sg-host-drv-1"
+    ],
+    "firmware_health_established": false
+  },
+  "followup_kernel_journal": [
+    {
+      "local_time": "2026-10-16T11:07:31+08:00",
+      "function": "rt_task_done_response_sync",
+      "line": 2416,
+      "message": "wait task done force exit! task id 0x6c in stream 0x12!"
+    },
+    {
+      "local_time": "2026-10-16T11:07:31+08:00",
+      "function": "handle_ioctl_result",
+      "line": 1266,
+      "message": "ioctl result wrong! type is 0x11; request_id: 0x6c!"
+    },
+    {
+      "local_time": "2026-10-16T11:08:34+08:00",
+      "function": "send_quit_request",
+      "line": 379,
+      "message": "FORCE_QUIT default timeout! request_id:0x6e pid is:0xabd6b stream_num: 2"
+    }
+  ],
+  "device_force_quit_timeout_reported": true,
+  "planned_full_tiled_validation": {
+    "remote_build_directory": "/home/bokai/bm1690-rope1024-ehiG4z/work/build",
+    "source_bundle_sha256": "c45a7e3a2676f59be6808d940938a4618bab1f7e78f5fb5ceb58112b5ed8eb87",
+    "variants": [
+      "serial",
+      "pipeline"
+    ],
+    "existing_artifacts_revalidated_before_dispatch": true,
+    "reference": "independent scalar FP32 RoPE with FP16 output; additionally compare pipeline against serial",
+    "timing_in_first_calls": false,
+    "board_passed": false,
+    "original_target_issue_remains_open": true,
+    "note": "Plan only; wait for verified driver recovery and fresh small smoke before issuing full tiled launches"
   }
 }

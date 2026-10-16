@@ -103,8 +103,12 @@ follow-up result.json confirms `reason=timeout`, worker `returncode=-9`, and
 RSS was 274128896 bytes, below the 4 GiB cap; the recorded stop reason was not
 RSS. The partial worker checkpoint still says running because the process did
 not complete the host call. Host cleanup does not establish device completion
-or firmware recovery. Current occupation and kernel journal are still needed
-before further dispatch. This runner does not save elapsed wall time, so the
+or firmware recovery. At Oct 16 11:22:50 +0800, the user reported sgcard live with reference count
+zero and empty privileged fuser output (exit 1) for both device nodes. The
+journal reports task-wait interruption at 11:07:31 and FORCE_QUIT timeout at
+11:08:34. No holders were detected, but firmware recovery is unverified.
+Reuse the previously successful gated ordinary module reload before a fresh
+small correctness call and any full tiled-variant dispatch. This runner does not save elapsed wall time, so the
 previous request to extract successful-case durations from result.json is
 withdrawn. The deadline is not a measured device execution time.
 The original 2048/4096 sources differ only in bx's upper bound, 64 versus 128.
@@ -1885,8 +1889,10 @@ bytes. The 4096 trace stops after the launch CALL: 13 calls, 12 returns. The
 sequence exited one and did not proceed to another case. A subsequent full
 failed-case result.json confirms timeout at the 30-second worker limit,
 returncode -9 and completed host process cleanup. Its runner/bundle hashes
-match the pinned handoff and its input hash matches the passing cases. Current
-device state and the post-timeout journal remain unreported. The code's
+match the pinned handoff and its input hash matches the passing cases. The later
+11:22:50 device check found no holders, but the journal confirms a FORCE_QUIT
+timeout at 11:08:34. This requires recovery assessment; host cleanup alone
+did not establish firmware recovery. The code's
 supervisor measures its deadline over the complete worker, not exclusively
 the kernel, and does not store an elapsed-time field. Do not infer device
 latency or recovery from these receipt fields.
@@ -1900,3 +1906,13 @@ a counter limit or the device-side instruction where this call stopped. Keep
 production synchronization, SDK files and preserved baselines unchanged while
 collecting the remaining device-state and recovery evidence. The handoff script issues no additional kernel
 launch or driver operation after its failure.
+
+The next correctness path will reuse the existing full-target serial and
+pipeline builds after ordinary driver recovery and one known small smoke.
+Both process all 1024x1024 elements with 32x64 tiling and have prior local
+CModel evidence; neither has yet passed the full target on this board. Their
+checks use the independent reference even though the original full-target
+baseline remains failed. Pipeline must additionally match serial. No full
+three-variant performance or original correctness completion can be claimed
+from these checks. The failed original artifacts and diagnostics remain
+preserved for root-cause work; this path does not replace their status.
