@@ -26,10 +26,10 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "No device holders at Oct 16 11:22:50, but FORCE_QUIT timed out. Reuse gated ordinary driver reload; after fresh small smoke, validate full serial/pipeline while retaining original failure.",
+  "pending_test": "Oct 16 11:49 driver reload passed. Run one small recovery smoke, then existing full-target serial and pipeline with original-failure provenance; no further prefix diagnostics.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": false,
-  "driver_recovery_scope": "Prior Oct 16 recovery and prefixes through 2048 passed; device health after latest 4096 failure is unverified",
+  "driver_recovery_scope": "Ordinary driver reload completed at Oct 16 11:49:59; fresh post-reload kernel correctness is still pending",
   "current_environment_correctness_rechecked": false,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
@@ -381,5 +381,33 @@
     "driver_force_quit_timeout_reported": true,
     "device_state_at": "2026-10-16T11:22:50+08:00",
     "device_holders_detected": false
+  },
+  "post_prefix4096_driver_reload": {
+    "evidence_kind": "user_supplied_remote_terminal_output",
+    "remote_directory": "/home/bokai/sgcard-reload-N3jbQk",
+    "kernel": "7.0.0-34-generic",
+    "module": "/home/bokai/sgcard-build-7.0.0-34-C6NGFW/source/sgcard.ko",
+    "module_sha256": "0c66f5a553c903d8bfdf31061e06be7d20fbde7b617f6765dec5a8dadfb7ad65",
+    "module_checksum_passed": true,
+    "fuser_exit_before_unload": 1,
+    "fuser_output_empty": true,
+    "preflight_exit": 0,
+    "unload_exit": 0,
+    "reload_preflight_exit": 0,
+    "load_exit": 0,
+    "initstate": "live",
+    "refcnt": 0,
+    "device_nodes_restored": [
+      0,
+      1
+    ],
+    "pci_bindings_restored": [
+      "0000:01:00.0",
+      "0000:01:00.1"
+    ],
+    "chip0_initialized_at": "2026-10-16T11:49:49+08:00",
+    "chip1_initialized_at": "2026-10-16T11:49:59+08:00",
+    "all_devices_probed": 2,
+    "post_reload_kernel_run_verified": false
   }
 }

@@ -22,7 +22,7 @@ FILES = {
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "06baf81deeae3249c5c9249c2067381798396c7fe9bc62869579564750d7a135"),
+                   "d11dac8c7d8d2689ace4df8318bd641eb02389666b135bccd3f7908ee1df3b9c"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"

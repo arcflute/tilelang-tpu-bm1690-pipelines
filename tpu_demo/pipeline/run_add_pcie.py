@@ -513,7 +513,45 @@ def verify_device(runtime, device_id, expected_pci, checkpoint):
             "character_device": os.readlink(f"/proc/self/fd/{descriptor.value}")}
 
 
-def check_previous(args, identity, input_hash):
+def check_original_failure(directory, args, identity, input_hash):
+    """Keep a failed full RoPE baseline visible while testing unchanged tiled kernels."""
+    if (identity.get("operation") != "rope" or identity.get("shape") != [1024, 1024] or
+            identity.get("bundle_sha256") != ROPE_TARGET_BUNDLE_SHA256 or
+            identity.get("diagnostic_only")):
+        raise ValueError("Original failure continuation is limited to the pinned full RoPE target")
+    path = directory.resolve() / "result.json"
+    raw = path.read_bytes()
+    report = json.loads(raw)
+    numeric = report.get("numeric") or {}
+    required = {"variant": "original", "operation": "rope", "shape": [1024, 1024],
+                "dtype": "float16", "launch_cores": 1, "requested_host_calls": 1,
+                "requested_kernel_calls": 1, "dispatch_attempted": True,
+                "last_stage": "tilelang_tpu_run_once", "status": "running",
+                "build_manifest_sha256": identity["build_manifest_sha256"],
+                "bundle_sha256": identity["bundle_sha256"], "input_sha256": input_hash,
+                "device_id": args.device_id, "expected_pci": args.expected_pci,
+                "runtime_library": identity["runtime_library"],
+                "runtime_sha256": identity["runtime_sha256"]}
+    if (report.get("status") != "failed" or report.get("reason") != "timeout" or
+            report.get("cleanup_complete") is not True or report.get("returncode") != -9 or
+            numeric.get("reference", {}).get("passed") or numeric.get("diagnostic_only") or
+            any(numeric.get(key) != value for key, value in required.items())):
+        raise ValueError("Requires the matching original one-call timeout receipt with completed process cleanup")
+    return {"original_baseline_status": "failed",
+            "original_baseline_failure": {"receipt_path": str(path),
+                                          "receipt_sha256": hashlib.sha256(raw).hexdigest(),
+                                          "reason": "timeout"},
+            "three_variant_acceptance_complete": False}
+
+
+def check_previous(args, identity, input_hash, context=None):
+    if getattr(args, "original_failure", None):
+        if args.variant != "serial" or args.previous:
+            raise ValueError("--original-failure is only for serial without --previous")
+        evidence = check_original_failure(args.original_failure, args, identity, input_hash)
+        if context is not None:
+            context.update(evidence)
+        return None
     if args.variant == "original":
         if args.previous:
             raise ValueError("Original variant does not take a previous result")
@@ -530,6 +568,16 @@ def check_previous(args, identity, input_hash):
                 "device_id": args.device_id, "expected_pci": args.expected_pci}
     if any(numeric.get(key) != value for key,value in expected.items()):
         raise ValueError("Previous stage uses different sources, inputs or hardware")
+    if "original_baseline_failure" in numeric:
+        if (args.variant != "pipeline" or numeric.get("status") != "passed" or
+                numeric.get("reference", {}).get("passed") is not True):
+            raise ValueError("Continuation requires a passed serial independent-reference check")
+        failure = numeric["original_baseline_failure"]
+        evidence = check_original_failure(Path(failure["receipt_path"]).parent, args, identity, input_hash)
+        if any(numeric.get(key) != value for key, value in evidence.items()):
+            raise ValueError("Original failure provenance changed since the serial check")
+        if context is not None:
+            context.update(evidence)
     check_hash(args.previous / "output.f16", numeric["output_sha256"])
     return (args.previous / "output.f16").read_bytes()
 
@@ -546,7 +594,7 @@ def arm_parent_death(parent_pid, death_signal=signal.SIGKILL):
         raise RuntimeError("Could not arm the worker parent-death signal")
 
 
-def check_correctness_receipt(args, identity, input_hash, expected):
+def check_correctness_receipt(args, identity, input_hash, expected, baseline_context=None):
     receipt = json.loads((args.correctness / "result.json").read_text())
     numeric = receipt.get("numeric") or {}
     required = {"variant": args.variant, "shape": identity["shape"],
@@ -558,6 +606,9 @@ def check_correctness_receipt(args, identity, input_hash, expected):
             not numeric.get("reference", {}).get("passed") or numeric.get("timing") or
             any(numeric.get(key) != value for key, value in required.items())):
         raise ValueError("Timing requires a matching passed one-call correctness receipt")
+    for key in ("original_baseline_status", "original_baseline_failure", "three_variant_acceptance_complete"):
+        if numeric.get(key) != (baseline_context or {}).get(key):
+            raise ValueError("Timing original-baseline provenance differs from the correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
     if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
@@ -588,6 +639,8 @@ def child_command(args):
                "--device-id", str(args.device_id), "--expected-pci", args.expected_pci]
     if args.previous:
         command += ["--previous", str(args.previous)]
+    if getattr(args, "original_failure", None):
+        command += ["--original-failure", str(args.original_failure)]
     if getattr(args, "measure", False):
         command += ["--measure", "--correctness", str(args.correctness)]
     command += ["--timeout-seconds", str(getattr(args, "timeout_seconds", 30))]
@@ -671,13 +724,15 @@ def worker(args):
                           reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
         result["input_sha256"] = hashlib.sha256(b"".join(inputs)).hexdigest()
         result["input_sha256_by_argument"] = [hashlib.sha256(data).hexdigest() for data in inputs]
-        previous = check_previous(args, identity, result["input_sha256"])
+        baseline_context = {}
+        previous = check_previous(args, identity, result["input_sha256"], baseline_context)
+        result.update(baseline_context)
         timing = None
         if args.measure:
             if not identity["timing_supported"]:
                 raise ValueError("This pinned source bundle has no validated timing ABI")
             result["correctness_receipt_sha256"] = check_correctness_receipt(
-                args, identity, result["input_sha256"], expected)
+                args, identity, result["input_sha256"], expected, baseline_context)
             timing = {"warmups": 5, "samples": 20}
         # These settings are local to this dedicated worker. The generic JIT
         # and demo-profiler authorization/identity checks remain unchanged.
@@ -808,7 +863,10 @@ def main():
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--variant", choices=VARIANTS, required=True)
-    parser.add_argument("--previous", type=Path)
+    comparison = parser.add_mutually_exclusive_group()
+    comparison.add_argument("--previous", type=Path)
+    comparison.add_argument("--original-failure", type=Path,
+                            help="matching failed full RoPE original receipt; serial still checks an independent reference")
     parser.add_argument("--measure", action="store_true", help="5 warmups, 20 resident synchronous calls")
     parser.add_argument("--correctness", type=Path, help="passed one-call receipt for this variant")
     parser.add_argument("--timeout-seconds", type=int, choices=(30, 90), default=30,
@@ -824,6 +882,10 @@ def main():
         parser.error("--allow-pcie is required for this supervised board execution")
     if args.measure != (args.correctness is not None):
         parser.error("--measure and --correctness must be supplied together")
+    if args.original_failure:
+        if args.variant != "serial":
+            parser.error("--original-failure is only supported for the serial variant")
+        args.original_failure = args.original_failure.resolve()
     if args.correctness:
         args.correctness = args.correctness.resolve()
     args.build, args.output = args.build.resolve(), args.output.resolve()

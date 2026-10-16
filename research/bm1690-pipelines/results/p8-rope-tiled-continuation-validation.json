@@ -1,0 +1,35 @@
+{
+  "schema": "bm1690-rope-tiled-continuation-validation-v1",
+  "recorded_date": "2026-10-16",
+  "status": "passed",
+  "scope": "runner and sequencing validation only; no new board result",
+  "selected_unittests": {
+    "passed": 243,
+    "elapsed_seconds": 34.325,
+    "new_continuation_tests": 9,
+    "new_sequence_tests": 5,
+    "host_cpus": [
+      0,
+      1
+    ]
+  },
+  "shell_syntax": "passed",
+  "diff_whitespace_check": "passed",
+  "files": {
+    "tpu_demo/pipeline/run_add_pcie.py": "d11dac8c7d8d2689ace4df8318bd641eb02389666b135bccd3f7908ee1df3b9c",
+    "tpu_demo/pipeline/run_rope_tiled.sh": "c5895b5b842ff689de531843e1f481e61e1428716449730738fccb44fe784a30",
+    "tpu_demo/pipeline/prepare_add_1024.py": "462acbfd70af396fcc86aeb0f883e02dd4f97c0ec26cb2ddf3add75272a2d001",
+    "tpu_demo/pipeline/run_rope_prefixes.sh": "73bde73d956d4af870419b8fb44e233d19bb66850e06913d760e948606c351e7",
+    "testing/python/jit/test_bm1690_add_pcie_unittest.py": "9af583e392c7dff9fca2ce6103ae5a0ccc28b1e03a46e26571925d35372e1062",
+    "testing/python/jit/test_bm1690_rope_tiled_sequence_unittest.py": "4147fffd7c1cc01092f4ff545ae230780691c191d0880d109565d564c381702d"
+  },
+  "frozen_target_bundle_sha256": "c45a7e3a2676f59be6808d940938a4618bab1f7e78f5fb5ceb58112b5ed8eb87",
+  "kernel_sources_changed": false,
+  "dependencies_changed": false,
+  "native_libraries_changed": false,
+  "cmodel_rerun": false,
+  "prior_full_target_cmodel_evidence": "p8-rope-1024-timing-abi-cmodel.json",
+  "board_status": "pending fresh smoke and full tiled serial/pipeline",
+  "original_full_target_status": "failed_timeout_unresolved",
+  "hardware_overlap_verified": false
+}

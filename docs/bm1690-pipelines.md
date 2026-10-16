@@ -1916,3 +1916,51 @@ baseline remains failed. Pipeline must additionally match serial. No full
 three-variant performance or original correctness completion can be claimed
 from these checks. The failed original artifacts and diagnostics remain
 preserved for root-cause work; this path does not replace their status.
+
+### P8.20: resume complete tiled RoPE after driver recovery
+
+The user supplied successful ordinary unload/reload output from
+`/home/bokai/sgcard-reload-N3jbQk`. Both chips initialized and the driver reported
+all two devices probed at 2026-10-16 11:49:59 +08:00. The module checksum matches
+the previously built 7.0.0-34 module, device nodes/bindings are restored and the
+module is live with refcnt zero. This is driver recovery evidence; a fresh
+post-reload kernel smoke remains pending.
+
+The former runner required passed original results before serial, preventing
+the planned full-target continuation. Its new `--original-failure` option is
+limited to the frozen, non-diagnostic 1024x1024 RoPE serial variant. Before any
+vendor library is loaded, it requires the preserved original one-call timeout
+receipt, completed host process cleanup, and matching build, bundle, inputs,
+shape, dtype, core count, runtime and device identity. This receipt is evidence
+of failure, not evidence of firmware health. Serial still checks every output
+against the independent reference. Pipeline still requires passed serial
+results and bitwise output equality; it inherits and revalidates the original
+failure provenance. Timing also binds to this provenance when used later.
+Both receipts explicitly retain original status `failed` and
+`three_variant_acceptance_complete=false`.
+
+`run_rope_tiled.sh --allow-pcie FULL_REVISION NEW_OUTPUT_DIR SMOKE_WORK TARGET_WORK`
+downloads only the hash-pinned runner and reuses builds in their original
+locations. It runs one known 8x128 original smoke, one full 1024x1024 serial call,
+and one full pipeline call, stopping after the first failed call or invalid
+receipt. Each call has a 30-second worker deadline, 40-second outer deadline,
+two host CPUs, 4 GiB group RSS cap, one TPU core, and an immediate device-occupation
+check. No driver reload, build, original long-loop rerun, timing or retries are
+performed. Use the observed work directories
+`/home/bokai/bm1690-rope-BMzRZC/work` and
+`/home/bokai/bm1690-rope1024-ehiG4z/work`. Results must be written to a new directory.
+
+The kernels, source bundles, numerical reference and native libraries are
+unchanged. Existing full-target CModel evidence is
+`results/p8-rope-1024-timing-abi-cmodel.json`; it is prior emulator evidence, not
+a new board pass. New runner tests cover failure-receipt scope and identity,
+propagation, timing binding and strict pipeline comparison. Sequence tests use
+fake commands to check call order, arguments, hash verification and stopping
+after failure, invalid receipt or device occupation. Full tiled board results
+and the original timeout root cause remain pending.
+
+The existing Python environment passed all 243 selected regression checks,
+including nine new failure-continuation checks and five new sequence checks.
+Shell syntax and diff whitespace checks passed. Evidence:
+`results/p8-rope-tiled-continuation-validation.json`. No CModel rerun was needed
+for this runner-only change; the frozen kernels retain the prior evidence above.

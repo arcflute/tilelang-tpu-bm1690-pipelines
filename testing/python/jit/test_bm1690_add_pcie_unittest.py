@@ -536,6 +536,134 @@ class RoPETargetManifestTests(RoPEManifestTests):
     shape = [1024, 1024]
 
 
+class RoPEOriginalFailureTests(unittest.TestCase):
+    """Continuation preserves failed-baseline evidence; it never approves that baseline."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.failure = self.root / "failed-original"
+        self.failure.mkdir()
+        self.identity = dict(operation="rope", shape=[1024, 1024], diagnostic_only=False,
+                             bundle_sha256=runner.ROPE_TARGET_BUNDLE_SHA256,
+                             build_manifest_sha256="build", runtime_library="/verified/runtime.so",
+                             runtime_sha256="runtime")
+        self.args = SimpleNamespace(variant="serial", previous=None, original_failure=self.failure,
+                                    device_id=0, expected_pci="0000:01:00.0", build=self.root / "build",
+                                    output=self.root / "run", measure=False)
+        self.numeric = dict(self.identity, variant="original", dtype="float16", launch_cores=1,
+                            requested_host_calls=1, requested_kernel_calls=1, dispatch_attempted=True,
+                            last_stage="tilelang_tpu_run_once", status="running", input_sha256="input",
+                            device_id=0, expected_pci="0000:01:00.0")
+        self.report = dict(status="failed", reason="timeout", returncode=-9,
+                           cleanup_complete=True, numeric=self.numeric)
+        self.save()
+
+    def save(self):
+        (self.failure / "result.json").write_text(json.dumps(self.report))
+
+    def context(self):
+        context = {}
+        self.assertIsNone(runner.check_previous(self.args, self.identity, "input", context))
+        return context
+
+    def serial_receipt(self, context):
+        directory = self.root / "serial"
+        directory.mkdir()
+        payload = struct.pack("<e", 1.0)
+        (directory / "output.f16").write_bytes(payload)
+        numeric = dict(self.numeric, **context)
+        numeric.update(status="passed", variant="serial", reference={"passed": True},
+                       output_sha256=runner.digest(directory / "output.f16"))
+        (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+        return directory, numeric, payload
+
+    def test_continuation_records_failure_and_never_claims_three_variant_acceptance(self):
+        context = self.context()
+        self.assertEqual(context["original_baseline_status"], "failed")
+        self.assertFalse(context["three_variant_acceptance_complete"])
+        self.assertEqual(context["original_baseline_failure"]["receipt_sha256"],
+                         runner.digest(self.failure / "result.json"))
+
+    def test_scope_is_full_pinned_rope_serial_only(self):
+        for key, value in (("operation", "add"), ("shape", [8, 128]), ("diagnostic_only", True),
+                           ("bundle_sha256", runner.ROPE_TRACE_BUNDLE_SHA256)):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                runner.check_previous(self.args, {**self.identity, key:value}, "input")
+        for variant in ("original", "pipeline"):
+            self.args.variant = variant
+            with self.subTest(variant=variant), self.assertRaises(ValueError):
+                self.context()
+        self.args.variant = "serial"
+        self.args.previous = self.root / "somewhere"
+        with self.assertRaises(ValueError):
+            self.context()
+
+    def test_failed_receipt_must_match_build_input_hardware_and_runtime(self):
+        for key, value in (("build_manifest_sha256", "other"), ("bundle_sha256", "other"),
+                           ("input_sha256", "other"), ("device_id", 1), ("expected_pci", "other"),
+                           ("runtime_sha256", "other"), ("runtime_library", "other"),
+                           ("shape", [8,128]), ("launch_cores", 8), ("dtype", "float32"),
+                           ("variant", "serial"), ("diagnostic_only", True),
+                           ("dispatch_attempted", False), ("requested_kernel_calls", 25),
+                           ("last_stage", "validate_build"), ("reference", {"passed":True})):
+            self.report["numeric"] = {**self.numeric, key:value}
+            self.save()
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.context()
+
+    def test_only_timeout_with_completed_process_cleanup_is_accepted(self):
+        for key, value in (("status", "passed"), ("reason", "rss_limit"),
+                           ("cleanup_complete", False), ("returncode", 0)):
+            old = self.report[key]
+            self.report[key] = value
+            self.save()
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.context()
+            self.report[key] = old
+
+    def test_missing_failed_receipt_does_not_bypass_original(self):
+        self.args.original_failure = None
+        with self.assertRaisesRegex(ValueError, "requires --previous"):
+            self.context()
+
+    def test_pipeline_inherits_evidence_and_still_requires_matching_serial_output(self):
+        context = self.context()
+        directory, numeric, payload = self.serial_receipt(context)
+        self.args.variant, self.args.original_failure, self.args.previous = "pipeline", None, directory
+        inherited = {}
+        self.assertEqual(runner.check_previous(self.args, self.identity, "input", inherited), payload)
+        self.assertEqual(inherited, context)
+        with self.assertRaisesRegex(ValueError, "differs bitwise"):
+            runner.check_previous_output(struct.pack("<e", 2.0), payload, 1, "rope", "pipeline")
+        numeric["reference"]["passed"] = False
+        (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+        with self.assertRaisesRegex(ValueError, "independent-reference"):
+            runner.check_previous(self.args, self.identity, "input")
+
+    def test_changed_failure_provenance_cannot_be_inherited(self):
+        directory, _, _ = self.serial_receipt(self.context())
+        self.args.variant, self.args.original_failure, self.args.previous = "pipeline", None, directory
+        self.report["extra"] = "changed"
+        self.save()
+        with self.assertRaisesRegex(ValueError, "provenance changed"):
+            runner.check_previous(self.args, self.identity, "input")
+
+    def test_timing_remains_bound_to_same_failed_baseline_context(self):
+        context = self.context()
+        directory, _, payload = self.serial_receipt(context)
+        self.args.correctness = directory
+        self.assertTrue(runner.check_correctness_receipt(self.args, self.identity, "input", payload, context))
+        with self.assertRaisesRegex(ValueError, "provenance differs"):
+            runner.check_correctness_receipt(self.args, self.identity, "input", payload)
+
+    def test_guard_and_worker_receive_failure_option(self):
+        command = runner.child_command(self.args)
+        self.assertEqual(command[command.index("--original-failure") + 1], str(self.failure))
+        self.assertNotIn("--previous", command)
+
+
 class RoPETraceManifestTests(ManifestTests):
     bundle_name = "rope-1024-host-trace-sources.json"
 
