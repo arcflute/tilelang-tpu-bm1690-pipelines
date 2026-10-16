@@ -245,10 +245,81 @@
       "first_unreturned_api": "tpuRtKernelLaunch",
       "explicit_stream_synchronize_reached": false,
       "reference_reached": false,
-      "supervisor_reason": null,
-      "supervisor_reason_verified": false,
-      "worker_returncode": null,
-      "cleanup_complete": null
+      "supervisor_reason": "timeout",
+      "supervisor_reason_verified": true,
+      "worker_returncode": -9,
+      "cleanup_complete": true,
+      "result_json_received": true,
+      "supervisor_receipt_fields": {
+        "status": "failed",
+        "reason": "timeout",
+        "returncode": -9,
+        "cleanup_complete": true,
+        "peak_group_rss_bytes": 274128896,
+        "limits": {
+          "cpu_count": 2,
+          "max_group_rss_bytes": 4294967296,
+          "timeout_seconds": 30
+        }
+      },
+      "worker_checkpoint_fields": {
+        "status": "running",
+        "last_stage": "tilelang_tpu_run_once",
+        "dispatch_attempted": true,
+        "operation": "rope",
+        "variant": "original",
+        "dtype": "float16",
+        "shape": [
+          1024,
+          1024
+        ],
+        "diagnostic_only": true,
+        "diagnostic_window": [
+          0,
+          512,
+          0,
+          1024
+        ],
+        "requested_host_calls": 1,
+        "requested_kernel_calls": 1,
+        "launch_cores": 1,
+        "allowed_cpus": [
+          0,
+          1
+        ],
+        "nice": 10,
+        "device_id": 0,
+        "expected_pci": "0000:01:00.0",
+        "mapping": {
+          "character_device": "/dev/sg-host-drv-0",
+          "device_count": 2,
+          "device_id": 0,
+          "pci_function": "0000:01:00.0"
+        },
+        "bundle_sha256": "f82b0521a49c83e2e410d337ffca6b215ef4cf62933b11da869e505eeea6ed06",
+        "runner_sha256": "06baf81deeae3249c5c9249c2067381798396c7fe9bc62869579564750d7a135",
+        "build_manifest_sha256": "647740a1335459fd0ac695c4f31c7627d1d52ad5ddd7df2133992b2f5fadf13d",
+        "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+        "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+        "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+        "timing_supported": false,
+        "device_performance_measured": false,
+        "hardware_overlap_verified": false
+      },
+      "board_artifact_sha256": {
+        "original": {
+          "libkernel.so": "879730db2547e7c3a7499c2709ab974a55c27018efe159e6847aa587738c9330",
+          "main.so": "4fe096e31585af753adbae2e516f3a91cf555cf6f8fd191b1e5d7ec24641be60"
+        },
+        "pipeline": {
+          "libkernel.so": "dc2120017d2a2b507f8287a9ffd31cf521f558a361f879c241ee0f37e7ff0b7a",
+          "main.so": "5a56d70167de446a644feb9285398bd600d95b23a6cf66fc9cc5400181703fc2"
+        },
+        "serial": {
+          "libkernel.so": "f24f8286f8ee6b23f628806ac8f6882eaca9fd6d993192959f4813234816c6c3",
+          "main.so": "690db9e3c1884e118873b1bac91d1da719d6ff59060afd30bc47e81538677e80"
+        }
+      }
     }
   },
   "full_result_json_received": false,
@@ -256,7 +327,7 @@
   "hardware_overlap_verified": false,
   "full_target_correctness_established": false,
   "firmware_health_after_failure_verified": false,
-  "next_action": "Read 4096 result.json, successful-case wall durations, current occupation and kernel journal before further dispatch",
+  "next_action": "Read current occupation and recent kernel journal before any further dispatch; omit previous duration query because this runner does not save elapsed wall time",
   "source_comparison": {
     "difference": "Only original/kernel.c outer bx upper bound changes from 64 to 128",
     "diff": "--- \n+++ \n@@ -15,7 +15,7 @@\n   __tilelang_tpu_tensor_info v6 = {.shape = {1, 1024, 1, 512} , .stride = {0}, .addr = v2, .default_stride = true};\n   __tilelang_tpu_tensor_info v7 = {.shape = {1, 1024, 1, 512} , .stride = {0}, .addr = v3, .default_stride = true};\n   __tilelang_tpu_tensor_info v8 = {.shape = {1, 1024, 1, 1024} , .stride = {0}, .addr = v4, .default_stride = true};\n-  for (int32_t bx = 0; bx < 64; ++bx) {\n+  for (int32_t bx = 0; bx < 128; ++bx) {\n     for (int32_t by = 0; by < 32; ++by) {\n       __tilelang_tpu_tensor_info x = {.shape = { 1, 4, 1, 32}, .stride = {0}, .addr = 256, .default_stride = false};\n       tpu_aligned_stride(&x.stride, 0, &x.shape, DT_FP16);\n",
@@ -264,5 +335,19 @@
     "synchronization_defect_established": false,
     "monotonic_failure_threshold_established": false
   },
-  "interpretation": "Original prefixes through 2048 tiles (25% of full work) passed; the 4096-tile call failed with no launch RETURN marker. Exact supervisor cause and current device health await remote evidence."
+  "interpretation": "Original prefixes through 2048 tiles (25% of full work) passed. The 4096 worker hit its 30-second supervisor deadline after the launch CALL, was killed with -9, and host cleanup completed. This is not a measured 30-second device latency; device-side completion and firmware health remain unverified.",
+  "followup_receipt_evidence": {
+    "kind": "user_inline_remote_result_json",
+    "recorded_date": "2026-10-16",
+    "case": 4096,
+    "received_full_failed_case_result_json": true,
+    "extracts_stored_in_case": true,
+    "current_device_state_received": false,
+    "current_kernel_journal_received": false
+  },
+  "elapsed_time_evidence": {
+    "successful_case_elapsed_seconds_recorded": false,
+    "source": "tpu_demo/pipeline/run_add_pcie.py::supervise",
+    "note": "Uses time.monotonic for overall worker deadline but does not serialize elapsed wall time. The earlier requested result.json filter cannot recover those durations; do not rerun to obtain them."
+  }
 }

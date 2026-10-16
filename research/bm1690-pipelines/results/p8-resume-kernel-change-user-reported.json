@@ -26,7 +26,7 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Read failure receipt and current device state after 4096 prefix failure; no further dispatch until recovery assessment",
+  "pending_test": "4096 worker timeout verified; await current occupation and driver journal before recovery or further dispatch",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": false,
   "driver_recovery_scope": "Prior Oct 16 recovery and prefixes through 2048 passed; device health after latest 4096 failure is unverified",
@@ -155,7 +155,7 @@
       "Sequential 1024/2048/4096 original-only calls after file/occupation checks; require matching receipt before continuing"
     ],
     "stop_on_first_failure": true,
-    "status": "Board prefixes 1024/2048 passed; 4096 failed. Do not repeat this sequence; read failure receipt and assess device recovery first",
+    "status": "Board 1024/2048 passed; 4096 hit 30-second worker deadline. Host cleanup complete, device health unverified. Await state/journal; do not rerun.",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "1a7b88e70f8026d84539986794b8cde61acb2db15596bec05ef4811c0a1cc6ae",
@@ -302,7 +302,7 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "prefix4096_failed_awaiting_receipt_and_health_checks",
+    "status": "prefix4096_timeout_verified_awaiting_health_checks",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
@@ -370,9 +370,13 @@
     ],
     "failed_prefix": 4096,
     "first_unreturned_api": "tpuRtKernelLaunch",
-    "supervisor_reason_verified": false,
+    "supervisor_reason_verified": true,
     "firmware_health_after_failure_verified": false,
     "timing_started": false,
-    "full_target_acceptance": false
+    "full_target_acceptance": false,
+    "supervisor_reason": "timeout",
+    "worker_returncode": -9,
+    "supervisor_cleanup_complete": true,
+    "supervisor_timeout_seconds": 30
   }
 }

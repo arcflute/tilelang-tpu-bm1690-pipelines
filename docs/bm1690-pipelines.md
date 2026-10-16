@@ -98,11 +98,15 @@ The 4096 case built successfully and passed initialization, module loading,
 allocations and input copies. Its 13th CALL, `tpuRtKernelLaunch`, has no RETURN
 marker; the runner reported failure and stopped the sequence. No explicit
 stream synchronization, output/reference check or timing was reached. The
-console does not contain its result.json, so timeout, worker exit reason and
-host cleanup status are not yet established for this call. Current device
-health is also unverified. Read that receipt, the successful-case whole-worker
-durations, current occupation and the recent kernel journal before any more
-dispatch; those wall durations are diagnostic, not performance measurements.
+follow-up result.json confirms `reason=timeout`, worker `returncode=-9`, and
+`cleanup_complete=true`, with a 30-second overall worker deadline. Peak group
+RSS was 274128896 bytes, below the 4 GiB cap; the recorded stop reason was not
+RSS. The partial worker checkpoint still says running because the process did
+not complete the host call. Host cleanup does not establish device completion
+or firmware recovery. Current occupation and kernel journal are still needed
+before further dispatch. This runner does not save elapsed wall time, so the
+previous request to extract successful-case durations from result.json is
+withdrawn. The deadline is not a measured device execution time.
 The original 2048/4096 sources differ only in bx's upper bound, 64 versus 128.
 This narrows observed passing/failing cases without establishing a monotonic
 threshold, counter overflow or synchronization defect. Evidence is
@@ -1878,9 +1882,14 @@ The user reported 54 successful build steps, two complete original calls and a
 failure on the third original call. The first two returned all runtime APIs,
 checked 131072/262144 active elements with zero error and preserved all outside
 bytes. The 4096 trace stops after the launch CALL: 13 calls, 12 returns. The
-sequence exited one and did not proceed to another case. This console evidence
-does not identify whether the supervisor stopped it for timeout or another
-reason; result.json and current board state have been requested.
+sequence exited one and did not proceed to another case. A subsequent full
+failed-case result.json confirms timeout at the 30-second worker limit,
+returncode -9 and completed host process cleanup. Its runner/bundle hashes
+match the pinned handoff and its input hash matches the passing cases. Current
+device state and the post-timeout journal remain unreported. The code's
+supervisor measures its deadline over the complete worker, not exclusively
+the kernel, and does not store an elapsed-time field. Do not infer device
+latency or recovery from these receipt fields.
 
 The generated 2048 and 4096 device sources differ only in outer-loop bound.
 There are sixteen pair iterations per tile, each containing sixteen BDC API
@@ -1889,5 +1898,5 @@ counts, not measured emitted descriptors or hardware counter values. Neither
 the inspected local SDK headers nor the provided board disassembly establish
 a counter limit or the device-side instruction where this call stopped. Keep
 production synchronization, SDK files and preserved baselines unchanged while
-collecting the missing receipt and recovery evidence. The handoff script issues no additional kernel
+collecting the remaining device-state and recovery evidence. The handoff script issues no additional kernel
 launch or driver operation after its failure.
