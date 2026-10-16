@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "rope",
-  "pending_test": "Full RoPE serial/pipeline correctness passed. Next: five warmups and twenty resident synchronous-call samples per tiled variant; preserve full original timeout as unresolved.",
+  "pending_operation": "swiglu",
+  "pending_test": "RoPE full serial/pipeline correctness and first bounded latency round passed; original timeout unresolved. Next: sequential SwiGLU smoke/target three-variant correctness and latency.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
@@ -420,6 +420,8 @@
     ],
     "full_target_serial_pipeline_correctness": true,
     "full_original_still_failed": true,
-    "latency_matrix_complete": false
+    "latency_matrix_complete": true,
+    "latency_matrix_scope": "serial and pipeline only; full original remains failed",
+    "latency_evidence": "p8-rope-1024-tiled-latency-user-reported.json"
   }
 }

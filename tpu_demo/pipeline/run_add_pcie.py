@@ -134,6 +134,17 @@ for _tiles, _bundle in ROPE_PREFIX_BUNDLES.items():
         "diagnostic_window": list(ROPE_PREFIX_WINDOWS[_tiles])}
 
 
+SWIGLU_BUILDER_SHA256 = "8cae763a2a4c07a022f639714657019622898f39dd910841e1f0403f376fd9a5"
+SWIGLU_BUNDLE_SHA256 = "595945b8629c7df328f67669ce5bf8e1bc3d327a4889feb2e148563112105338"
+SWIGLU_TARGET_BUNDLE_SHA256 = "ebe41362517fca17248465e34f10204b612c880b30c747a6ade5521625b90611"
+for _contract in BUNDLES.values():
+    _contract["builders"] += (SWIGLU_BUILDER_SHA256,)
+for _bundle, _shape in ((SWIGLU_BUNDLE_SHA256, [8, 128]),
+                        (SWIGLU_TARGET_BUNDLE_SHA256, [1024, 1024])):
+    BUNDLES[_bundle] = {"shape": _shape, "builders": (SWIGLU_BUILDER_SHA256,),
+                       "timing": True, "operation": "swiglu"}
+
+
 def digest(path):
     hasher = hashlib.sha256()
     with Path(path).open("rb") as source:
@@ -274,6 +285,22 @@ def rmsnorm_reference(lhs, rhs, *, shape=(16, 128)):
     return struct.pack("<" + "e" * len(output), *output)
 
 
+def swiglu_reference(gate, up):
+    """Independent FP32 exp/reciprocal/products, with only the final FP16 cast."""
+    if len(gate) != len(up) or len(gate) not in (8 * 128 * 2, 1024 * 1024 * 2):
+        raise ValueError("SwiGLU requires two 8x128 or 1024x1024 FP16 matrices")
+    def f32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+    values = []
+    for (g,), (u,) in zip(struct.iter_unpack("<e", gate), struct.iter_unpack("<e", up)):
+        if not math.isfinite(g) or not math.isfinite(u) or abs(g) > 3.0:
+            raise ValueError("SwiGLU reference requires finite inputs and gate in [-3, 3]")
+        denominator = f32(1.0 + f32(math.exp(-g)))
+        sigmoid = f32(1.0 / denominator)
+        values.append(f32(f32(g * sigmoid) * u))
+    return struct.pack("<" + "e" * len(values), *values)
+
+
 def rope_reference(source, cosine, sine, *, shape=(8, 128)):
     """Interleaved pairs, independent FP32 products/sum, then FP16 output."""
     if shape not in ((8, 128), (1024, 1024)):
@@ -312,12 +339,14 @@ def test_vectors(count=COUNT, operation="add"):
     Division retains the demo's positive [0.5, 2] denominator domain. Add's
     historical stream and hashes are preserved exactly.
     """
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "swiglu"):
         raise ValueError("Unsupported reference operation")
     if operation == "matmul" and count not in (128 * 128, 1024 * 1024):
         raise ValueError("Matmul reference is bounded to 128-cubed or 1024-cubed")
     if operation.startswith("rmsnorm") and count not in (16 * 128, 1024 * 1024):
         raise ValueError("RMSNorm reference is bounded to 16x128 or 1024x1024")
+    if operation == "swiglu" and count not in (8 * 128, 1024 * 1024):
+        raise ValueError("SwiGLU reference is bounded to 8x128 or 1024x1024")
     state = 0
     values = []
     for _ in range(count * 2):
@@ -326,6 +355,10 @@ def test_vectors(count=COUNT, operation="add"):
     if operation == "matmul":
         # Dense signed bounded inputs; every output depends on all K blocks.
         values = [value * 0.125 for value in values]
+    if operation == "swiglu":
+        values[:count] = [value * 1.5 for value in values[:count]]
+        values[:8] = [-3.0, -1.0, -0.001, -0.0, 0.0, 0.001, 1.0, 3.0]
+        values[count:count+8] = [-2.0, 0.0, 2.0, -1.0, 1.0, -2.0, 0.5, 2.0]
     if operation.startswith("rmsnorm"):
         shape = (16, 128) if count == 16 * 128 else (1024, 1024)
         width = shape[1]
@@ -335,6 +368,8 @@ def test_vectors(count=COUNT, operation="add"):
     lhs = struct.pack("<" + "e" * count, *values[:count])
     rhs_values = [(value + 2) * (1.5 / 4) + 0.5 for value in values[count:]] if operation == "div" else values[count:]
     rhs = struct.pack("<" + "e" * count, *rhs_values)
+    if operation == "swiglu":
+        return lhs, rhs, swiglu_reference(lhs, rhs)
     if operation.startswith("rmsnorm"):
         return lhs, rhs, rmsnorm_reference(lhs, rhs, shape=shape)
     if operation == "matmul":
@@ -361,7 +396,7 @@ def test_vectors(count=COUNT, operation="add"):
 
 
 def check_output(actual, expected, count=COUNT, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
         raise ValueError("Unsupported reference operation")
     if len(actual) != count * 2 or len(expected) != count * 2:
         raise ValueError("Unexpected output length")
@@ -369,7 +404,7 @@ def check_output(actual, expected, count=COUNT, operation="add"):
     b = [v[0] for v in struct.iter_unpack("<e", expected)]
     finite = all(math.isfinite(v) for v in a + b)
     errors = [abs(x-y) for x,y in zip(a,b)]
-    atol = rtol = 0.01 if operation in ("div", "matmul", "rmsnorm", "rmsnorm-splitk") else 0.005
+    atol = rtol = 0.01 if operation in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "swiglu") else 0.005
     mismatches = sum(not math.isfinite(x) or abs(x-y) > atol + rtol*abs(y) for x,y in zip(a,b))
     metrics = {"passed": finite and mismatches == 0, "finite": finite,
                "atol": atol, "rtol": rtol, "mismatched_elements": mismatches,
@@ -611,7 +646,7 @@ def check_correctness_receipt(args, identity, input_hash, expected, baseline_con
             raise ValueError("Timing original-baseline provenance differs from the correctness receipt")
     check_hash(args.correctness / "output.f16", numeric.get("output_sha256"))
     actual = (args.correctness / "output.f16").read_bytes()
-    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+    if identity.get("operation", "add") in ("div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
         # Retain each demo's tolerance rather than requiring exact reference bits.
         check_output(actual, expected, len(expected) // 2, identity["operation"])
     elif actual != expected:
@@ -718,6 +753,10 @@ def worker(args):
                                                     module_path=np.__file__, requested_blas_threads=1)
             else:
                 result["reference_backend"]["name"] = "stdlib scalar FP32 accumulation"
+        elif operation == "swiglu":
+            result.update(layout="row-major", intermediate_dtype="float32", output_index=2,
+                          formula="up * (gate * sigmoid(gate))", buffer_reuse=False,
+                          reference_backend={"name":"stdlib scalar FP32 SwiGLU"})
         elif operation.startswith("rmsnorm"):
             result.update(epsilon=1e-12, weight_shape=identity["shape"], layout="row-major",
                           normalization_rounding="fp16-before-weight-multiply",

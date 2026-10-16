@@ -1,0 +1,111 @@
+{
+  "schema": "bm1690-swiglu-handoff-validation-v1",
+  "recorded_date": "2026-10-16",
+  "status": "passed",
+  "selected_unittests": {
+    "passed": 262,
+    "elapsed_seconds": 45.821
+  },
+  "cmodel_evidence": "p8-swiglu-handoff-cmodel.json",
+  "native_libraries_changed": false,
+  "dependencies_changed": false,
+  "board_compiled": false,
+  "board_executed": false,
+  "hardware_overlap_verified": false,
+  "cases": {
+    "smoke": {
+      "bundle_sha256": "595945b8629c7df328f67669ce5bf8e1bc3d327a4889feb2e148563112105338",
+      "shape": [
+        8,
+        128
+      ],
+      "original_tiling": [
+        4,
+        32
+      ],
+      "serial_pipeline_tiling": [
+        4,
+        32
+      ],
+      "pipeline_extent": 8,
+      "lowered_statements": 13,
+      "input_versions": {
+        "gate_input": [
+          "gate_input",
+          "gate_input_pipeline_v1"
+        ],
+        "up_input": [
+          "up_input",
+          "up_input_pipeline_v1"
+        ]
+      },
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "generated_parallel_sections": true,
+      "buffer_reuse": false
+    },
+    "1024": {
+      "bundle_sha256": "ebe41362517fca17248465e34f10204b612c880b30c747a6ade5521625b90611",
+      "shape": [
+        1024,
+        1024
+      ],
+      "original_tiling": [
+        4,
+        32
+      ],
+      "serial_pipeline_tiling": [
+        32,
+        128
+      ],
+      "pipeline_extent": 256,
+      "lowered_statements": 13,
+      "input_versions": {
+        "gate_input": [
+          "gate_input",
+          "gate_input_pipeline_v1"
+        ],
+        "up_input": [
+          "up_input",
+          "up_input_pipeline_v1"
+        ]
+      },
+      "stage": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "generated_parallel_sections": true,
+      "buffer_reuse": false
+    }
+  },
+  "files": {
+    "tilelang/jit/adapter/legacy_pcie.py": "8cae763a2a4c07a022f639714657019622898f39dd910841e1f0403f376fd9a5",
+    "tpu_demo/pipeline/run_add_pcie.py": "82a5e7799d0f034d9eb5f9edb3b5789fde030fa2bc321c36508f6acbf912e7d6",
+    "tpu_demo/pipeline/prepare_add_1024.py": "12ef9caa042ce3e88f5a8de23d2b944f9d7b9283a8f570da9d4afb017a926252",
+    "tpu_demo/pipeline/run_swiglu_board.sh": "118171b735cfd56a5a1c5f5d207c6532a301bf997073c3d7ae0f6bded53fc0f7"
+  }
+}

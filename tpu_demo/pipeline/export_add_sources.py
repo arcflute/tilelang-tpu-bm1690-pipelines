@@ -9,7 +9,7 @@ import tempfile
 
 
 def export(*, target_size=False, coarse_tiles=False, operation="add"):
-    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+    if operation not in ("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
         raise ValueError("Unsupported handoff operation")
     if operation in ("sub", "mul", "div") and not (target_size and coarse_tiles):
         raise ValueError("Sub/Mul/Div handoffs require the 1024x1024, 128x1024-tile case")
@@ -19,6 +19,8 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         raise ValueError("RMSNorm uses fixed row/K tiles; --coarse-tiles is for elementwise")
     if operation == "rope" and coarse_tiles:
         raise ValueError("RoPE uses fixed row/pair tiles; --coarse-tiles is for elementwise")
+    if operation == "swiglu" and coarse_tiles:
+        raise ValueError("SwiGLU uses fixed row/column tiles; --coarse-tiles is for elementwise")
     if coarse_tiles and not target_size:
         raise ValueError("The coarse-tile comparison requires the 1024x1024 target case")
     import tilelang
@@ -34,7 +36,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
                                     cwd=root, text=True).splitlines()
     identity = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in sorted(set(paths)) if (root / name).is_file() and
-                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/", "tpu_demo/rmsnorm/", "tpu_demo/rope/"))}
+                name.startswith(("tilelang/", "src/", "tpu_demo/pipeline/", "tpu_demo/elementwise/", "tpu_demo/matmul/", "tpu_demo/rmsnorm/", "tpu_demo/rope/", "tpu_demo/swiglu/"))}
     rows, width = (1024, 1024) if target_size else (8, 128)
     if operation == "matmul":
         rows = width = 1024 if target_size else 128
@@ -70,6 +72,16 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         functions = {name: build_matmul(m=rows, n=rows, k=rows, block_m=block,
                                        block_n=block, block_k=block, num_stages=stages)
                      for name, block, stages in (("original", 16, 0), ("serial", 32, 0), ("pipeline", 32, 2))}
+    elif operation == "swiglu":
+        from tpu_demo.swiglu.swiglu import build_swiglu
+        from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
+        bundle["schema"] = "bm1690-swiglu-source-check-v2" if target_size else "bm1690-swiglu-source-check-v1"
+        bundle["target"].update(operation="swiglu", layout="row-major", intermediate_dtype="float32",
+                                formula="up * (gate * sigmoid(gate))", output_index=2, buffer_reuse=False)
+        original = build_swiglu(rows=rows, width=width, block_rows=4, block_width=32)
+        tiled = build_swiglu(rows=rows, width=width, block_rows=block_rows, block_width=block_width)
+        functions = {"original": original, "serial": pipeline_kernel_tiles(tiled, 0),
+                     "pipeline": pipeline_kernel_tiles(tiled, 2)}
     elif operation == "rope":
         from tpu_demo.rope.rope import build_rope
         from tpu_demo.pipeline.kernels import pipeline_kernel_tiles
@@ -128,7 +140,7 @@ def export(*, target_size=False, coarse_tiles=False, operation="add"):
         }
         if operation == "matmul":
             bundle["variants"][name]["tiling"] = [16 if name == "original" else 32] * 3
-        if operation == "rope":
+        if operation in ("rope", "swiglu"):
             bundle["variants"][name]["tiling"] = [4, 32] if name == "original" else [block_rows, block_width]
         if operation.startswith("rmsnorm"):
             bundle["variants"][name]["tiling"] = (
@@ -203,10 +215,10 @@ def main():
     mode.add_argument("--verify-cmodel-bundle", type=Path)
     parser.add_argument("--target-size", action="store_true", help="export the 1024x1024 case")
     parser.add_argument("--coarse-tiles", action="store_true", help="128x1024 tiles, retaining the original baseline")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"), default="add")
     args = parser.parse_args()
     if args.verify_cmodel_bundle:
-        if json.loads(args.verify_cmodel_bundle.read_text())["target"].get("operation") in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope"):
+        if json.loads(args.verify_cmodel_bundle.read_text())["target"].get("operation") in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"):
             parser.error("Use the exact-ABI check_add_pcie_cmodel worker for Matmul/RMSNorm/RoPE")
         result = verify_cmodel(json.loads(args.verify_cmodel_bundle.read_text()))
         print("BM1690_PIPELINE_RESULT=" + json.dumps(result, sort_keys=True))

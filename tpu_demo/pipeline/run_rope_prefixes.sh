@@ -30,14 +30,14 @@ with urllib.request.urlopen(request, timeout=45) as response:
 with pathlib.Path(sys.argv[2]).open('xb') as output:
     output.write(payload)
 PY
-printf '%s  %s\n' 462acbfd70af396fcc86aeb0f883e02dd4f97c0ec26cb2ddf3add75272a2d001 "$prefix_root/prepare.py" | sha256sum -c -
+printf '%s  %s\n' 12ef9caa042ce3e88f5a8de23d2b944f9d7b9283a8f570da9d4afb017a926252 "$prefix_root/prepare.py" | sha256sum -c -
 for prefix_tiles in "${prefix_counts[@]}"; do
   prefix_case="rope-target-prefix$prefix_tiles"
   prefix_work="$prefix_root/$prefix_tiles"
   echo "PREFIX_BEGIN tiles=$prefix_tiles"
   timeout -k 5s 600s python3 "$prefix_root/prepare.py" --case "$prefix_case" \
     --transport github-api --revision "$prefix_revision" --output "$prefix_work"
-  printf '%s  %s\n' d11dac8c7d8d2689ace4df8318bd641eb02389666b135bccd3f7908ee1df3b9c "$prefix_work/run_add.py" | sha256sum -c -
+  printf '%s  %s\n' 82a5e7799d0f034d9eb5f9edb3b5789fde030fa2bc321c36508f6acbf912e7d6 "$prefix_work/run_add.py" | sha256sum -c -
   prefix_users=0
   sudo -n timeout -k 2s 5s fuser -v /dev/sg-host-drv-0 /dev/sg-host-drv-1 \
     > "$prefix_work/users.log" 2>&1 || prefix_users=$?

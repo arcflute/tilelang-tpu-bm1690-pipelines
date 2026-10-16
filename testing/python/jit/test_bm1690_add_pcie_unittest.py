@@ -536,6 +536,60 @@ class RoPETargetManifestTests(RoPEManifestTests):
     shape = [1024, 1024]
 
 
+class SwiGLUManifestTests(ManifestTests):
+    bundle_name = "swiglu-smoke-sources.json"
+
+    def test_fixed_precision_contract_and_timing_receipt(self):
+        identity = runner.validate_build(self.build)
+        self.assertEqual(identity["operation"], "swiglu")
+        directory = self.root / "correctness"
+        directory.mkdir()
+        args = SimpleNamespace(correctness=directory, variant="original", device_id=0,
+                               expected_pci="0000:01:00.0")
+        expected = struct.pack("<e", 1.0)
+        for value, passes in ((1.0009765625, True), (1.1, False), (float("nan"), False)):
+            (directory / "output.f16").write_bytes(struct.pack("<e", value))
+            numeric = dict(status="passed", variant="original", reference={"passed":True},
+                           shape=identity["shape"], bundle_sha256=self.bundle_hash,
+                           build_manifest_sha256=identity["build_manifest_sha256"], input_sha256="input",
+                           device_id=0, expected_pci="0000:01:00.0",
+                           output_sha256=runner.digest(directory / "output.f16"))
+            (directory / "result.json").write_text(json.dumps({"status":"passed", "numeric":numeric}))
+            if passes:
+                self.assertTrue(runner.check_correctness_receipt(args, identity, "input", expected))
+            else:
+                with self.assertRaisesRegex(ValueError, "numerical mismatch"):
+                    runner.check_correctness_receipt(args, identity, "input", expected)
+
+
+class SwiGLUTargetManifestTests(SwiGLUManifestTests):
+    bundle_name = "swiglu-1024-sources.json"
+
+
+class SwiGLUReferenceTests(unittest.TestCase):
+    def test_scalar_reference_matches_formula_and_preserves_signed_inputs(self):
+        gate, up, output = runner.test_vectors(1024, "swiglu")
+        g, u, result = [[x[0] for x in struct.iter_unpack("<e", data)] for data in (gate,up,output)]
+        self.assertEqual((min(g), max(g)), (-3.0,3.0))
+        self.assertTrue(min(u) < 0 < max(u))
+        self.assertEqual(result[1:2], [-0.0])
+        for x,y,z in zip(g,u,result):
+            self.assertAlmostEqual(z, y*x/(1+math.exp(-x)), delta=0.002)
+        self.assertEqual(runner.check_output(output,output,1024,"swiglu")["atol"],0.01)
+        with self.assertRaises(ValueError):
+            runner.check_output(struct.pack("<e",float("nan"))+output[2:],output,1024,"swiglu")
+        with self.assertRaisesRegex(ValueError, "differs bitwise"):
+            runner.check_previous_output(struct.pack("<e",2.0),struct.pack("<e",1.0),1,"swiglu","pipeline")
+
+    def test_reference_rejects_wrong_sizes_nonfinite_and_out_of_domain_gate(self):
+        gate, up, _ = runner.test_vectors(1024, "swiglu")
+        for invalid in (gate[:-2], struct.pack("<e",float("nan"))+gate[2:], struct.pack("<e",4.0)+gate[2:]):
+            with self.assertRaises(ValueError):
+                runner.swiglu_reference(invalid,up)
+        with self.assertRaises(ValueError):
+            runner.test_vectors(100,"swiglu")
+
+
 class RoPEOriginalFailureTests(unittest.TestCase):
     """Continuation preserves failed-baseline evidence; it never approves that baseline."""
 

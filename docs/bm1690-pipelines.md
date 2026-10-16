@@ -17,10 +17,12 @@ correctness passed on BM1690 at revision
 `763a36e690c92b65a72dd6a8370151e90a93d435`. Both tiled outputs match the independent
 reference bitwise (zero error), each other, and prior CModel output hashes.
 The result root is `/home/bokai/bm1690-rope-tiled-w214OT/results`.
-Next: five warmups and twenty resident synchronous-call samples per tiled
-variant using the existing runner/builds. The full original timeout remains
-unresolved; three-variant acceptance is incomplete. Single-call console values
-123.790/105.902 ms are not a repeated latency comparison. Evidence:
+The first latency round subsequently passed: five warmups and twenty samples
+each, serial median 128.154439 ms and pipeline median 106.877073 ms, a 16.6029%
+reduction for the same tiling/core count. This measures launch plus sync, not
+pure device time or physical overlap. The full original timeout remains
+unresolved; three-variant acceptance is incomplete. Next is the pinned SwiGLU
+smoke/target sequence (P8.23). Correctness evidence:
 `results/p8-rope-1024-tiled-board-user-reported.json`; see P8.21 below.
 
 ### Earlier recovery and diagnostic history
@@ -2006,3 +2008,73 @@ resident buffers; allocation, module loading, transfers and reference checks
 are outside the samples. Retain all raw samples, median, IQR and p95, and
 recheck final output. Keep the existing two-host-CPU, 4 GiB RSS and 30-second
 worker bounds, check device occupation before each case, and stop on failure.
+
+### P8.22: full tiled RoPE first latency round
+
+The user completed serial then pipeline timing under
+`/home/bokai/bm1690-rope-timing-6wdoHJ`, using runner revision `763a36e` and the
+existing full-target build. Both workers and their wrappers exited zero.
+After five warmups and twenty samples per variant, both final outputs still
+matched the independent reference bitwise with zero error; pipeline also
+matched the preserved serial correctness output. The original timeout remains
+failed and excluded from this comparison.
+
+| FP16 1024x1024, FP32 tables, 32x64 tiles, one TPU core | Median ms | IQR ms | p95 ms |
+|---|---:|---:|---:|
+| Serial | 128.154439 | 0.939507 | 129.123058 |
+| Pipeline | 106.877073 | 0.350895 | 107.344506 |
+
+The median synchronous-call latency decreased 16.6029099%, a serial/pipeline
+ratio of 1.1990826. All forty raw samples are retained in
+`results/p8-rope-1024-tiled-latency-user-reported.json`; statistics were recomputed
+from those samples and match the console. This is one fixed-order round, not
+repeated-round stability or physical-overlap evidence. The measurement includes
+launch and stream synchronization; compilation, module loading, allocation,
+H2D/D2H and reference work are excluded.
+
+### P8.23: SwiGLU smoke and full-target handoff
+
+The existing `build_swiglu` implementation and `pipeline_kernel_tiles` adapter
+now feed the pinned legacy PCIe export/runner. FP16 gate/up inputs are converted
+to FP32; the sequence remains exp(-gate), denominator, reciprocal, gate times
+sigmoid, multiplication by up, then final FP16 output. The optional buffer-reuse
+experiment is not enabled. The contract remains `atol=rtol=0.01` from the demo.
+An independent standard-library scalar reference rounds each intermediate to
+FP32. Deterministic vectors include gate signs, +/-3 endpoints, signed zeros,
+small magnitudes and signed/zero up values. The scalar result was also checked
+against Torch SiLU in the bounded CModel workers.
+
+Two frozen source bundles are available: `swiglu-smoke-sources.json` for 8x128
+and `swiglu-1024-sources.json` for 1024x1024. Original uses 4x32 tiles. Serial and
+pipeline use 4x32 for smoke and 32x128 for target. Pipeline depth is two, with
+8/256 output iterations and thirteen lowered statements: two input loads at
+stage zero and eleven conversion/compute/store statements at stage one.
+Gate/up FP16 local inputs each have two versions; FP32 intermediates and exp
+scratch remain ordered single versions. Generated parallel boundaries and
+post-compute stores are recorded in the bundle reports. This is compiler
+evidence; CModel serializes parallel scopes and does not prove hardware overlap.
+
+All 262 selected regression checks passed, including pinned schema/manifest,
+FP32 reference and sequencing tests. Four sequential CModel workers validated
+all three smoke variants and each full-target variant with two host CPUs,
+4 GiB group RSS and 120 seconds per worker. Smoke matches reference exactly;
+full-target maximum error is 0.0001220703125, within the retained contract.
+Original, serial and pipeline outputs are bitwise equal at each size, and
+their resident timing ABIs return finite positive samples with unchanged
+outputs. Source/native identities stayed unchanged during verification.
+No dependencies or native libraries were changed. Evidence:
+`results/p8-swiglu-handoff-{cmodel,validation}.json`.
+
+`run_swiglu_board.sh --allow-pcie FULL_REVISION NEW_OUTPUT_DIR` downloads the
+pinned prepare helper, builds smoke, checks all three variants, times all three,
+then proceeds to the target in the same order. Each timing run requires its
+passed correctness receipt; serial/pipeline also compare to the preceding
+correctness variant. Compilation and workers retain existing resource limits.
+Each worker has a 30-second deadline (40-second outer bound), one TPU core,
+two host CPUs and 4 GiB RSS. Every dispatch checks device occupation, and any
+failed call, incorrect receipt or occupied-device check stops the sequence.
+There are twelve worker processes and 156 kernel calls if all cases finish
+(six one-call checks plus six groups of five warmups/twenty samples).
+No automatic driver operations or failed-call retries are performed. The board
+compile, numerical and latency results remain pending; do not promote local
+CModel evidence to board acceptance.

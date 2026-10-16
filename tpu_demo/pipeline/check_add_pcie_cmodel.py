@@ -28,6 +28,7 @@ def main():
                                                ROPE_TRACE_BUNDLE_SHA256, ROPE_WINDOW_BUNDLE_SHA256, ROPE_WINDOW,
                                                ROPE_WINDOW_END_BUNDLE_SHA256, ROPE_WINDOW_END,
                                                ROPE_PREFIX_BUNDLES, ROPE_PREFIX_WINDOWS,
+                                               SWIGLU_BUNDLE_SHA256, SWIGLU_TARGET_BUNDLE_SHA256,
                                                check_rope_window_output,
                                                rope_test_vectors, call_rope_host)
 
@@ -43,7 +44,7 @@ def main():
                          help="eight original tiles at the matrix end; diagnostic only")
     windows.add_argument("--rope-prefix-tiles", type=int, choices=tuple(ROPE_PREFIX_BUNDLES),
                          help="bounded original-order prefix; one diagnostic call only")
-    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope"), default="add")
+    parser.add_argument("--operation", choices=("add", "sub", "mul", "div", "matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu"), default="add")
     parser.add_argument("--variant", choices=("original", "serial", "pipeline"),
                         help="required for target Matmul/RMSNorm/RoPE: one bounded worker per variant")
     args = parser.parse_args()
@@ -54,7 +55,8 @@ def main():
     matmul_target = args.operation == "matmul" and args.target_size
     rmsnorm_target = args.operation.startswith("rmsnorm") and args.target_size
     rope_target = args.operation == "rope" and args.target_size
-    target_worker = matmul_target or rmsnorm_target or rope_target
+    swiglu_target = args.operation == "swiglu" and args.target_size
+    target_worker = matmul_target or rmsnorm_target or rope_target or swiglu_target
     if args.trace_host_runtime and not (rope_target and args.variant == "original"):
         parser.error("Host tracing is limited to the RoPE target original one-call check")
     if (args.rope_window8 or args.rope_window8_end or args.rope_prefix_tiles) and not args.trace_host_runtime:
@@ -68,6 +70,8 @@ def main():
         parser.error("RMSNorm does not use elementwise --coarse-tiles")
     if args.operation == "rope" and args.coarse_tiles:
         parser.error("RoPE does not use elementwise --coarse-tiles")
+    if args.operation == "swiglu" and args.coarse_tiles:
+        parser.error("SwiGLU does not use elementwise --coarse-tiles")
     if bool(args.variant) != target_worker:
         parser.error("--variant is required only for target Matmul/RMSNorm/RoPE; compare worker outputs afterward")
 
@@ -87,6 +91,9 @@ def main():
     if args.operation.startswith("rmsnorm"):
         bundle_path = bundle_path.with_name(args.operation + ("-1024-sources.json" if rmsnorm_target else "-smoke-sources.json"))
         bundle_hash = (RMSNORM_TARGET_BUNDLES if rmsnorm_target else RMSNORM_BUNDLES)[args.operation]
+    if args.operation == "swiglu":
+        bundle_path = bundle_path.with_name("swiglu-1024-sources.json" if swiglu_target else "swiglu-smoke-sources.json")
+        bundle_hash = SWIGLU_TARGET_BUNDLE_SHA256 if swiglu_target else SWIGLU_BUNDLE_SHA256
     if args.operation == "rope":
         bundle_path = bundle_path.with_name("rope-1024-sources.json" if rope_target else "rope-smoke-sources.json")
         bundle_hash = ROPE_TARGET_BUNDLE_SHA256 if rope_target else ROPE_BUNDLE_SHA256
@@ -136,6 +143,9 @@ def main():
         normalized = value * torch.rsqrt(value.square().mean(dim=1, keepdim=True) + 1e-12)
         torch_reference = (normalized.half().float() * weight).half()
         independent = check_output(expected, torch_reference.numpy().tobytes(), count, args.operation)
+    elif args.operation == "swiglu":
+        torch_reference = (b.float() * torch.nn.functional.silu(a.float())).half()
+        independent = check_output(expected, torch_reference.numpy().tobytes(), count, "swiglu")
     elif args.operation != "rope":
         calculate = {"add": torch.add, "sub": torch.sub, "mul": torch.mul, "div": torch.div}[args.operation]
         assert calculate(a.float(), b.float()).half().numpy().tobytes() == expected
@@ -157,7 +167,7 @@ def main():
                             "output_sha256":hashlib.sha256(output).hexdigest(),
                             "source_sha256":bundle["variants"][variant]["sha256"]}
         outputs.append(output)
-        if not args.trace_host_runtime and (args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope")):
+        if not args.trace_host_runtime and (args.target_size or args.operation in ("matmul", "rmsnorm", "rmsnorm-splitk", "rope", "swiglu")):
             timing = {"warmups": 1, "samples": 1 if target_worker else 2}
             repeated = launch(library, *inputs, timing=timing)
             assert repeated == output
@@ -194,6 +204,10 @@ def main():
         report.update(selected_variant=args.variant, epsilon=1e-12, weight_shape=[rows,width],
                       normalization_rounding="fp16-before-weight-multiply",
                       reference_backend={"name":"stdlib scalar FP32 RMSNorm"})
+    if args.operation == "swiglu":
+        report.update(selected_variant=args.variant, intermediate_dtype="float32", output_index=2,
+                      layout="row-major", formula="up * (gate * sigmoid(gate))", buffer_reuse=False,
+                      reference_backend={"name":"stdlib scalar FP32 SwiGLU"})
     if args.operation == "rope":
         report.update(table_shape=[rows,width//2], table_dtype="float32", pairing="interleaved-even-odd",
                       output_index=3, table_max_abs_difference_from_demo=table_errors,

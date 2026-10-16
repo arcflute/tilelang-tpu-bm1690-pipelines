@@ -212,6 +212,23 @@ class LegacyTests(unittest.TestCase):
                 with self.subTest(operation=operation, variant=name), self.assertRaises(ValueError):
                     legacy.validate_source_bundle(bad)
 
+    def test_swiglu_preserves_precision_formula_tiles_and_separate_reuse(self):
+        for size in ("smoke", "1024"):
+            bundle = json.loads((ROOT / f"research/bm1690-pipelines/handoff/swiglu-{size}-sources.json").read_text())
+            legacy.validate_source_bundle(bundle)
+            for field, value in (("intermediate_dtype", "float16"), ("buffer_reuse", True),
+                                 ("formula", "sigmoid(up) * gate"), ("output_index", 3),
+                                 ("shape", [32,128])):
+                changed = copy.deepcopy(bundle)
+                changed["target"][field] = value
+                with self.subTest(size=size,field=field), self.assertRaises(ValueError):
+                    legacy.validate_source_bundle(changed)
+            for field, value in (("tiling", [16,64]), ("num_stages", 3)):
+                changed = copy.deepcopy(bundle)
+                changed["variants"]["pipeline"][field] = value
+                with self.assertRaises(ValueError):
+                    legacy.validate_source_bundle(changed)
+
     def test_standalone_compile_failure_preserves_diagnostics_and_stops(self):
         bundle = write(self.root / "bundle.json", json.dumps(self.bundle()))
         output = self.root / "build"

@@ -18,11 +18,11 @@ import urllib.request
 
 FILES = {
     "build.py": ("tilelang/jit/adapter/legacy_pcie.py",
-                 "8234fdc245476f93becd3ca86f945f911507527dc89990a92a435d7e43191f64"),
+                 "8cae763a2a4c07a022f639714657019622898f39dd910841e1f0403f376fd9a5"),
     "add.json": ("research/bm1690-pipelines/handoff/add-1024-sources.json",
                  "2f43fcb39be86a3a4fc7407e5a10714bccbbb93ae7f7211dfc38bafa938155c5"),
     "run_add.py": ("tpu_demo/pipeline/run_add_pcie.py",
-                   "d11dac8c7d8d2689ace4df8318bd641eb02389666b135bccd3f7908ee1df3b9c"),
+                   "82a5e7799d0f034d9eb5f9edb3b5789fde030fa2bc321c36508f6acbf912e7d6"),
 }
 BASE = "https://raw.githubusercontent.com/arcflute/tilelang-tpu-bm1690-pipelines"
 API_BASE = "https://api.github.com/repos/arcflute/tilelang-tpu-bm1690-pipelines/contents"
@@ -55,6 +55,13 @@ RMSNORM_SOURCES = {'rmsnorm-smoke': ('research/bm1690-pipelines/handoff/rmsnorm-
 
 RMSNORM_SOURCES.update({'rmsnorm-target': ('research/bm1690-pipelines/handoff/rmsnorm-1024-sources.json', '2dce32f1a01903815f2c837c8e0a567365d5e5883b1ae042553a0e9a4251cdbb'), 'rmsnorm-splitk-target': ('research/bm1690-pipelines/handoff/rmsnorm-splitk-1024-sources.json', '80eb6f65a0a5f05ea567a9d4a01bedfaf5765faaa240aa3c7993f377be7d148a')})
 
+SWIGLU_SOURCES = {
+    "swiglu-smoke": ("research/bm1690-pipelines/handoff/swiglu-smoke-sources.json",
+                     "595945b8629c7df328f67669ce5bf8e1bc3d327a4889feb2e148563112105338"),
+    "swiglu-target": ("research/bm1690-pipelines/handoff/swiglu-1024-sources.json",
+                      "ebe41362517fca17248465e34f10204b612c880b30c747a6ade5521625b90611"),
+}
+
 ROPE_SOURCE = ("research/bm1690-pipelines/handoff/rope-smoke-sources.json", '6466f705a207a969c9669e9cb8729bd1f6c1fbb38702f797f46ee2fdfd22bdbb')
 
 ROPE_TARGET_SOURCE = ("research/bm1690-pipelines/handoff/rope-1024-sources.json", 'c45a7e3a2676f59be6808d940938a4618bab1f7e78f5fb5ceb58112b5ed8eb87')
@@ -75,6 +82,8 @@ ROPE_PREFIX_SOURCES = {
 }
 
 def source_files(case):
+    if case in SWIGLU_SOURCES:
+        return {**FILES, "add.json": SWIGLU_SOURCES[case]}
     if case in ROPE_PREFIX_SOURCES:
         return {**FILES, "add.json": ROPE_PREFIX_SOURCES[case]}
     if case == "rope-target-window8-end":
@@ -156,7 +165,7 @@ def main():
     parser.add_argument("--revision", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *ROPE_PREFIX_SOURCES), default="target",
+    parser.add_argument("--case", choices=("target", "coarse", "sub", "mul", "div", "matmul-smoke", "matmul-target", "rmsnorm-smoke", "rmsnorm-splitk-smoke", "rmsnorm-target", "rmsnorm-splitk-target", "rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end", *ROPE_PREFIX_SOURCES, *SWIGLU_SOURCES), default="target",
                         help="Elementwise, Matmul, RMSNorm ordinary/Split-K or RoPE smoke/target")
     parser.add_argument("--resume", action="store_true", help="reuse verified downloads before compilation")
     parser.add_argument("--transport", choices=("raw", "github-api"), default="raw",
@@ -214,7 +223,7 @@ def main():
             if result.returncode:
                 raise RuntimeError(f"Compilation failed: {result.returncode}; inspect {output / 'build.log'}")
             receipt["status"] = "compile_only_passed"
-            prefix = (args.case.upper().replace("-", "_") if args.case in RMSNORM_SOURCES or args.case in ROPE_PREFIX_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end") else
+            prefix = (args.case.upper().replace("-", "_") if args.case in SWIGLU_SOURCES or args.case in RMSNORM_SOURCES or args.case in ROPE_PREFIX_SOURCES or args.case in ("rope-smoke", "rope-target", "rope-target-trace", "rope-target-window8", "rope-target-window8-end") else
                       "MATMUL1024" if args.case == "matmul-target" else
                       "MATMUL128" if args.case == "matmul-smoke" else
                       (args.case.upper() if args.case in ELEMENTWISE_SOURCES else "ADD") + "1024")

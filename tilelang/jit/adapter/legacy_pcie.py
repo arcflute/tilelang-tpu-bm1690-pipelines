@@ -198,7 +198,9 @@ def validate_source_bundle(bundle):
                "bm1690-rmsnorm-source-check-v1": [16, 128],
                "bm1690-rmsnorm-source-check-v2": [1024, 1024],
                "bm1690-rope-source-check-v1": [8, 128],
-               "bm1690-rope-source-check-v2": [1024, 1024]}
+               "bm1690-rope-source-check-v2": [1024, 1024],
+               "bm1690-swiglu-source-check-v1": [8, 128],
+               "bm1690-swiglu-source-check-v2": [1024, 1024]}
     if bundle.get("schema") not in schemas:
         raise ValueError("Unsupported source bundle schema")
     target = {"chip": "bm1690", "programming_model": "tpukernel",
@@ -214,6 +216,9 @@ def validate_source_bundle(bundle):
     if bundle["schema"].startswith("bm1690-rope-"):
         target.update(operation="rope", table_shape=[target["shape"][0], target["shape"][1] // 2], table_dtype="float32",
                       layout="row-major", pairing="interleaved-even-odd", output_index=3)
+    if bundle["schema"].startswith("bm1690-swiglu-"):
+        target.update(operation="swiglu", layout="row-major", intermediate_dtype="float32",
+                      formula="up * (gate * sigmoid(gate))", output_index=2, buffer_reuse=False)
     if bundle["schema"].startswith("bm1690-rmsnorm-"):
         operation = bundle.get("target", {}).get("operation")
         if operation not in ("rmsnorm", "rmsnorm-splitk"):
@@ -226,6 +231,11 @@ def validate_source_bundle(bundle):
     if set(variants) != {"original", "serial", "pipeline"}:
         raise ValueError("Source bundle must preserve original/serial/pipeline variants")
     for name, variant in variants.items():
+        if bundle["schema"].startswith("bm1690-swiglu-"):
+            tile = [32, 128] if target["shape"] == [1024, 1024] and name != "original" else [4, 32]
+            if (variant.get("tiling") != tile or
+                    variant.get("num_stages") != (2 if name == "pipeline" else 0)):
+                raise ValueError("SwiGLU requires its original/candidate tiles and depth 0/0/2")
         if bundle["schema"].startswith("bm1690-rope-"):
             tile = [32, 64] if target["shape"] == [1024, 1024] and name != "original" else [4, 32]
             if (variant.get("tiling") != tile or
