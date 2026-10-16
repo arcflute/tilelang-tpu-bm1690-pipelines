@@ -86,16 +86,33 @@ first 64 full rows, 6.25% of the original target computation. This is no timing
 or full-target acceptance; the original 8192-tile failure remains unexplained.
 Evidence is `results/p8-rope-1024-prefixes-board-user-reported.json`.
 
-Next are original-order prefixes of 1024, 2048 and 4096 tiles, covering the
-first 128, 256 and 512 full rows. All three bounded CModel calls and 229 selected
-checks passed. Invoke `run_rope_prefixes.sh` with `--larger` to select this
-sequence; its default remains 128/256/512. Every case checks file hashes and
-device occupation, makes one original call with a 30-second supervisor limit,
-and requires the matching correctness receipt before proceeding. It stops on
-first failure. No board execution of these larger prefixes is yet reported.
-Only the outer-loop extent changes; old bundles, SDK and production
-synchronization remain unchanged. Local evidence is
-`results/p8-rope-1024-prefix-large-{cmodel,handoff-validation}.json`.
+The subsequent 1024/2048/4096 board sequence at revision
+`5dd077018056a079cb0483f7c9416de150b56f23` passed its first two calls and
+stopped at the third. Work is under
+`/home/bokai/bm1690-rope-prefix-large-dVkaOi/work`. Prefixes 1024 and 2048
+matched reference bitwise, preserved all outside sentinels, matched CModel
+input/output hashes and returned all 22 runtime calls. They cover the first
+128 and 256 rows: at most 25% of the complete original computation.
+
+The 4096 case built successfully and passed initialization, module loading,
+allocations and input copies. Its 13th CALL, `tpuRtKernelLaunch`, has no RETURN
+marker; the runner reported failure and stopped the sequence. No explicit
+stream synchronization, output/reference check or timing was reached. The
+console does not contain its result.json, so timeout, worker exit reason and
+host cleanup status are not yet established for this call. Current device
+health is also unverified. Read that receipt, the successful-case whole-worker
+durations, current occupation and the recent kernel journal before any more
+dispatch; those wall durations are diagnostic, not performance measurements.
+The original 2048/4096 sources differ only in bx's upper bound, 64 versus 128.
+This narrows observed passing/failing cases without establishing a monotonic
+threshold, counter overflow or synchronization defect. Evidence is
+`results/p8-rope-1024-prefix-large-board-user-reported.json`.
+
+All three larger cases had passed local CModel and 229 selected checks. Preserve
+that evidence separately from board results; the CModel uses PPL 1.7 while the
+board uses the inspected PPL 1.4 environment. The failed board case is not a
+pipeline schedule: only the original variant was dispatched. Full original,
+serial and pipeline target acceptance remains open.
 
 Add/Sub/Mul/Div have completed their first board correctness and bounded
 synchronous-call latency acceptance in the recorded FP16 1024x1024, one-core
@@ -1844,8 +1861,8 @@ one-launch BM1690 CModel workers, with two host CPUs, 4 GiB RSS cap and 120
 seconds per worker. Each matched reference bitwise, preserved all unwritten
 bytes and returned all 22 traced runtime calls. Source and native library
 identities stayed unchanged. These emulator results do not establish board
-correctness or performance. Board builds/execution of the larger prefixes
-remain pending.
+correctness or performance. Board results subsequently passed 1024/2048 and failed at the unreturned
+launch of 4096; see P8.19. The local results remain CModel-only evidence.
 
 The sequence script's explicit `--larger` selector preserves the previous
 small default. Tests cover both orders and stop before the next case after a
@@ -1854,3 +1871,23 @@ one call per case, 30-second supervisor and 40-second outer run bound, with
 privileged occupation checks before each dispatch. It has no automatic retry,
 driver operation or performance measurement. Maximum work is 4096/8192 tiles;
 only a future complete-target reference match can close full-target correctness.
+
+### P8.19: board passes through 2048 tiles; 4096 launch does not return
+
+The user reported 54 successful build steps, two complete original calls and a
+failure on the third original call. The first two returned all runtime APIs,
+checked 131072/262144 active elements with zero error and preserved all outside
+bytes. The 4096 trace stops after the launch CALL: 13 calls, 12 returns. The
+sequence exited one and did not proceed to another case. This console evidence
+does not identify whether the supervisor stopped it for timeout or another
+reason; result.json and current board state have been requested.
+
+The generated 2048 and 4096 device sources differ only in outer-loop bound.
+There are sixteen pair iterations per tile, each containing sixteen BDC API
+calls, plus four GDMA API calls per tile. These are static source-level API
+counts, not measured emitted descriptors or hardware counter values. Neither
+the inspected local SDK headers nor the provided board disassembly establish
+a counter limit or the device-side instruction where this call stopped. Keep
+production synchronization, SDK files and preserved baselines unchanged while
+collecting the missing receipt and recovery evidence. The handoff script issues no additional kernel
+launch or driver operation after its failure.

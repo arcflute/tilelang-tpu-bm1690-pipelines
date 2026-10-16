@@ -26,11 +26,11 @@
   },
   "existing_timing_directories": [],
   "pending_operation": "rope",
-  "pending_test": "Prefixes 128/256/512 passed on BM1690; next original-only prefixes 1024/2048/4096, stopping at first failure",
+  "pending_test": "Read failure receipt and current device state after 4096 prefix failure; no further dispatch until recovery assessment",
   "board_kernels_launched_in_this_preflight": 0,
-  "driver_recovery_complete": true,
-  "driver_recovery_scope": "Oct 16 reload, small RoPE, both eight-tile windows and prefixes through 512 tiles passed; full target unresolved",
-  "current_environment_correctness_rechecked": true,
+  "driver_recovery_complete": false,
+  "driver_recovery_scope": "Prior Oct 16 recovery and prefixes through 2048 passed; device health after latest 4096 failure is unverified",
+  "current_environment_correctness_rechecked": false,
   "current_kernel_build_prerequisites_verified": true,
   "current_pci_enumeration_verified": true,
   "current_kernel_matching_module_availability": "new module built in isolated user directory and temporarily loaded; no permanent installation performed",
@@ -155,7 +155,7 @@
       "Sequential 1024/2048/4096 original-only calls after file/occupation checks; require matching receipt before continuing"
     ],
     "stop_on_first_failure": true,
-    "status": "229 checks and all three larger CModel calls passed; larger prefix board builds and execution pending",
+    "status": "Board prefixes 1024/2048 passed; 4096 failed. Do not repeat this sequence; read failure receipt and assess device recovery first",
     "python": "python3",
     "prepare_helper": "tpu_demo/pipeline/prepare_add_1024.py",
     "prepare_helper_sha256": "1a7b88e70f8026d84539986794b8cde61acb2db15596bec05ef4811c0a1cc6ae",
@@ -163,10 +163,10 @@
     "timeout_seconds": 30,
     "automatic_retry": false,
     "diagnostic_only": true,
-    "source_revision": null,
-    "source_revision_note": "Use the pushed commit containing p8-rope-1024-prefix-large-handoff-validation.json",
-    "remote_work_directory": null,
-    "remote_build_passed": false,
+    "source_revision": "5dd077018056a079cb0483f7c9416de150b56f23",
+    "source_revision_note": "Executed revision; no new dispatch instruction issued after 4096 failure",
+    "remote_work_directory": "/home/bokai/bm1690-rope-prefix-large-dVkaOi/work",
+    "remote_build_passed": true,
     "cases": [
       "rope-target-prefix1024",
       "rope-target-prefix2048",
@@ -302,14 +302,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "prefixes_through_512_passed_larger_prefix_sequence_ready",
+    "status": "prefix4096_failed_awaiting_receipt_and_health_checks",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-rope-1024-prefixes-board-user-reported.json",
+  "latest_device_state_evidence": "p8-rope-1024-prefix-large-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -360,5 +360,19 @@
     "outside_sentinels_preserved": true,
     "full_target_acceptance": false,
     "hardware_overlap_verified": false
+  },
+  "subsequent_rope_prefix_large_attempt": {
+    "evidence": "p8-rope-1024-prefix-large-board-user-reported.json",
+    "remote_root": "/home/bokai/bm1690-rope-prefix-large-dVkaOi",
+    "passed_prefixes": [
+      1024,
+      2048
+    ],
+    "failed_prefix": 4096,
+    "first_unreturned_api": "tpuRtKernelLaunch",
+    "supervisor_reason_verified": false,
+    "firmware_health_after_failure_verified": false,
+    "timing_started": false,
+    "full_target_acceptance": false
   }
 }
