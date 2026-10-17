@@ -1,0 +1,131 @@
+{
+  "schema": "bm1690-current-scope-acceptance-v1",
+  "recorded_date": "2026-10-17",
+  "status": "scoped_correctness_and_sync_latency_collection_complete",
+  "scope": "FP16 initial target shapes: six-family matched serial/pipeline at one/two cores, original baseline where completed, plus two reordered FlashAttention repeat rounds",
+  "project_complete": false,
+  "all_original_baselines_complete": false,
+  "all_configurations_faster": false,
+  "evidence_kind": "derived_from_user_supplied_remote_terminal_output",
+  "full_remote_receipts_received": false,
+  "first_round_evidence": {
+    "path": "p9-single-dual-core-first-round-summary.json",
+    "sha256": "aecae9ebc98a62a882d8d33cf9f0d481b13e05e979f8b781adf11b4c427a18bf"
+  },
+  "repeat_evidence": {
+    "path": "p9-flashattn-multicore-repeat-board-user-reported.json",
+    "sha256": "6b578b4c10440e68a3be3bca1c96555b0582cc33b63da86a65ea1f316850e288"
+  },
+  "counts": {
+    "families": 6,
+    "operation_rows": 11,
+    "distinct_configurations": 54,
+    "correctness_workers": 54,
+    "timing_workers": 70,
+    "total_workers": 124,
+    "raw_samples": 1400,
+    "requested_kernel_calls": 1804,
+    "excluded": "Earlier smoke, P8 repetitions, diagnostics, recoveries and workitem probe"
+  },
+  "dtype": "float16",
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "unexecuted_current_handoff_batches": 0,
+  "original_baseline_exception": "RoPE full original timeout unresolved; original small case and full tiled serial/pipeline passed",
+  "acceptance_criteria": {
+    "correctness": "Retained operator-specific tolerance against independent reference; matched-version outputs as recorded",
+    "timing": "Host launch plus stream synchronization, five warmups and twenty measured samples per worker",
+    "minimum_speedup_required": false
+  },
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "flashattn_three_round_assessment": {
+    "flashattn": {
+      "median_reduction_percent_by_round": {
+        "pipeline_at_1_core": [
+          -5.671217523472233,
+          -2.2169333114730527,
+          -3.150781818497113
+        ],
+        "pipeline_at_2_cores": [
+          3.1547890130918157,
+          -3.549664628131788,
+          2.9515153652366988
+        ],
+        "serial_1_to_2_cores": [
+          47.722745037213194,
+          47.78348458734154,
+          48.7870492906802
+        ],
+        "pipeline_1_to_2_cores": [
+          52.08911276561278,
+          47.10267189728374,
+          51.816756282470934
+        ]
+      },
+      "pipeline_1_regressed_all_three_rounds": true,
+      "pipeline_2_lower_latency_all_three_rounds": false,
+      "fixed_pipeline_gain_established": false,
+      "pipeline_1_to_2_core_latency_reduction_range_percent": [
+        47.10267189728374,
+        52.08911276561278
+      ]
+    },
+    "flashattn-causal": {
+      "median_reduction_percent_by_round": {
+        "pipeline_at_1_core": [
+          0.7768329669013068,
+          -2.3627037980328693,
+          0.4726274135168099
+        ],
+        "pipeline_at_2_cores": [
+          3.4187016345495187,
+          1.168540883445549,
+          2.8939444698201875
+        ],
+        "serial_1_to_2_cores": [
+          48.59719669941898,
+          48.5193602996886,
+          48.157773072447796
+        ],
+        "pipeline_1_to_2_cores": [
+          49.96582319592851,
+          50.29530728424183,
+          49.41899865325329
+        ]
+      },
+      "pipeline_1_regressed_all_three_rounds": false,
+      "pipeline_2_lower_latency_all_three_rounds": true,
+      "fixed_pipeline_gain_established": false,
+      "pipeline_1_to_2_core_latency_reduction_range_percent": [
+        49.41899865325329,
+        50.29530728424183
+      ]
+    }
+  },
+  "first_round_other_regressions_retained": true,
+  "next_full_plan_work": [
+    {
+      "item": "Performance regressions and variable gains",
+      "action": "Inspect schedule/commands, granularity and resource limits before proposing changed candidates; retain serial and pipeline versions; no identical-version retest scheduled"
+    },
+    {
+      "item": "RoPE full original timeout",
+      "action": "Keep explicit baseline exception and preserved diagnostics; do not substitute a tiled version for original"
+    },
+    {
+      "item": "Higher core counts and additional optimizations",
+      "action": "Require specific implementation/correctness/resource validation before the next bounded board handoff"
+    },
+    {
+      "item": "Broader shapes/dtypes",
+      "action": "Extend after the initial requested FP16 target scope; no universal performance claim"
+    },
+    {
+      "item": "Physical overlap",
+      "action": "Requires future profiler/trace evidence; not required by first-round user acceptance"
+    }
+  ]
+}

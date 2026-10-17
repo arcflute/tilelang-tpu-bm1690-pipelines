@@ -1,0 +1,4522 @@
+{
+  "schema": "bm1690-flashattn-multicore-repeat-board-evidence-v1",
+  "recorded_date": "2026-10-17",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "transcript_sha256": "c122a9722bc50801e6f72998c4fe559f26f64265da66d090c957e9ac634aab92",
+  "revision": "e4a489e31c3ee62cce081bbd177249bf509e84b0",
+  "script_sha256": "4f1016e324a0036206e1b076b260dab6055917376dd4248d8e9d4818e7c49a77",
+  "source_revision": "22acd787b25672a40f5e72a18760f3b3f53c34b3",
+  "source_root": "/home/bokai/bm1690-flashattn2-DMpyNl/results",
+  "remote_root": "/home/bokai/bm1690-flashattn2-repeat-D22EDV/results",
+  "status": "passed",
+  "suite_exit": 0,
+  "passed_workers": 16,
+  "requested_kernel_calls": 400,
+  "raw_samples": 320,
+  "statistics_recomputed": true,
+  "comparisons_recomputed": true,
+  "expected_dispatch_order_verified": true,
+  "first_round_evidence": "p9-flashattn-multicore-board-user-reported.json",
+  "first_round_evidence_sha256": "43eac055cc8d65d71224c1aad1ea849fe45fdec3a57ecd2d50f5e67c06e0d5f8",
+  "all_build_input_output_runtime_identities_match_first_round": true,
+  "all_output_hashes_match_cmodel": true,
+  "full_remote_receipts_received": false,
+  "full_remote_summary_received": false,
+  "remote_binaries_received": false,
+  "compilation_performed": false,
+  "original_relaunched": false,
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "workers": [
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+        "main.so": "987f9c2cb991f434909a5d0d44fed59bb6551900623840458a97d16f44cb947a"
+      },
+      "build_manifest_sha256": "c3477827c1102ad5c8ab9d70dddb7d0b44a08c1ba3e2c3c523b93802ca6bd307",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 57.99300000000039,
+        "max_us": 11095.912,
+        "median_us": 10993.4205,
+        "min_us": 10941.278,
+        "p95_us": 11064.3397,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11000.669,
+          11043.099,
+          11034.019,
+          11022.682,
+          10952.588,
+          10958.893,
+          10941.278,
+          11021.443,
+          11006.972,
+          10962.367,
+          10993.832,
+          10975.928,
+          10973.847,
+          10959.299,
+          10993.009,
+          11062.678,
+          11095.912,
+          11044.756,
+          10969.242,
+          10989.294
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+        "main.so": "6894b63badcc2441bcabebc85e065720e289a52e80d6b960c4860b457a9a7b65"
+      },
+      "build_manifest_sha256": "201b4c85ca17069a00d7ac005a4fc5b521446a34918407c19e0d42cb3fc79d29",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 88.61050000000068,
+        "max_us": 11297.686,
+        "median_us": 11123.402,
+        "min_us": 11055.453,
+        "p95_us": 11266.96015,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11214.154,
+          11223.374,
+          11297.686,
+          11170.25,
+          11149.29,
+          11161.372,
+          11126.035,
+          11159.286,
+          11120.769,
+          11093.649,
+          11256.618,
+          11265.343,
+          11084.12,
+          11082.702,
+          11115.378,
+          11055.453,
+          11098.635,
+          11089.515,
+          11088.488,
+          11113.497
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+        "main.so": "f892ac7349ed44bbf6e95cebf5dad8b38f2f867952b7d0c5c5c4295cd7f91d9a"
+      },
+      "build_manifest_sha256": "9f71af3b60676b6ebf757e504ec282196245b4158cbcc0fad66362d044fe44f2",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 55.34149999999863,
+        "max_us": 22254.968,
+        "median_us": 22117.47,
+        "min_us": 22010.299,
+        "p95_us": 22201.6464,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          22123.091,
+          22094.096,
+          22067.161,
+          22198.84,
+          22175.179,
+          22115.032,
+          22109.995,
+          22067.735,
+          22117.206,
+          22254.968,
+          22169.89,
+          22147.076,
+          22149.837,
+          22087.411,
+          22136.696,
+          22115.005,
+          22117.734,
+          22010.299,
+          22129.484,
+          22036.467
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+        "main.so": "3fb0b6b9fcc9c58effb93cbe4379217be6bd37d4726e77927d60fe09b81d241c"
+      },
+      "build_manifest_sha256": "f7489a402af92d1e21e8d5706884211ede165844aec06b9177d52659446c9da7",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 113.99949999999808,
+        "max_us": 21835.155,
+        "median_us": 21606.9615,
+        "min_us": 21481.784,
+        "p95_us": 21772.4075,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21625.405,
+          21607.183,
+          21644.306,
+          21600.545,
+          21769.105,
+          21562.834,
+          21687.242,
+          21529.75,
+          21481.784,
+          21835.155,
+          21724.683,
+          21616.821,
+          21589.029,
+          21606.74,
+          21725.093,
+          21575.646,
+          21686.176,
+          21552.156,
+          21533.027,
+          21598.693
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+        "main.so": "4fad7d16436cb21b4f0e1ed76b29dfe913f50968c68aa064df21c78f1b03c86f"
+      },
+      "build_manifest_sha256": "9a6c16600adabf851816e3021fc04a0a45c2774770f7bece0be89b18e4e04503",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 63.11675000000105,
+        "max_us": 11630.743,
+        "median_us": 11547.6515,
+        "min_us": 11444.055,
+        "p95_us": 11623.06415,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11622.66,
+          11587.582,
+          11563.998,
+          11518.151,
+          11630.743,
+          11507.03,
+          11547.071,
+          11578.776,
+          11444.055,
+          11479.102,
+          11526.402,
+          11515.02,
+          11516.99,
+          11554.764,
+          11569.802,
+          11599.677,
+          11540.105,
+          11533.874,
+          11548.232,
+          11599.865
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+        "main.so": "89d67338f7dd52791f45033210a36739132c033ce4da63bf54ae4cca0e7db370"
+      },
+      "build_manifest_sha256": "0142127acf0d9114b1d0da62265337f7363f93ffb697365405a20e3fa765a258",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 38.501500000000306,
+        "max_us": 11209.431,
+        "median_us": 11151.8,
+        "min_us": 11098.337,
+        "p95_us": 11208.03545,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11137.898,
+          11161.999,
+          11154.489,
+          11181.591,
+          11099.777,
+          11139.587,
+          11098.337,
+          11108.588,
+          11184.973,
+          11201.686,
+          11103.604,
+          11147.754,
+          11152.452,
+          11176.358,
+          11151.148,
+          11144.612,
+          11207.962,
+          11159.159,
+          11209.431,
+          11149.171
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+        "main.so": "6325ae211e71c75693ba4837ea4330beb1d8a2fb0c8a852987cb4f0bd0002029"
+      },
+      "build_manifest_sha256": "fc9de47ab3d67abc03ff40f37e147718050ce984266ac66f69392c5a673d8fd3",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 40.681000000000495,
+        "max_us": 21856.829,
+        "median_us": 21830.3115,
+        "min_us": 21748.435,
+        "p95_us": 21851.6515,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21834.476,
+          21846.804,
+          21820.004,
+          21750.475,
+          21851.379,
+          21803.68,
+          21798.547,
+          21839.351,
+          21856.829,
+          21832.118,
+          21748.435,
+          21849.785,
+          21790.376,
+          21828.505,
+          21766.756,
+          21812.59,
+          21838.071,
+          21795.199,
+          21833.033,
+          21836.61
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+        "main.so": "d57e5a6e922f21b0500697b3c5dca084ff175f7ca9bd8f4618de664a34fcfb1a"
+      },
+      "build_manifest_sha256": "a6eba2e047954f7acdcb51abf4752f6aa30dadd1800fa9fedbecd8e807633576",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 2,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 91.20349999999962,
+        "max_us": 21536.438,
+        "median_us": 21356.8445,
+        "min_us": 21214.614,
+        "p95_us": 21514.959450000002,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21269.386,
+          21271.278,
+          21362.74,
+          21401.332,
+          21369.935,
+          21324.782,
+          21387.201,
+          21287.152,
+          21536.438,
+          21214.614,
+          21323.452,
+          21435.913,
+          21350.949,
+          21299.837,
+          21513.829,
+          21304.86,
+          21369.345,
+          21392.633,
+          21404.916,
+          21349.37
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+        "main.so": "89d67338f7dd52791f45033210a36739132c033ce4da63bf54ae4cca0e7db370"
+      },
+      "build_manifest_sha256": "0142127acf0d9114b1d0da62265337f7363f93ffb697365405a20e3fa765a258",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 74.20074999999997,
+        "max_us": 11160.831,
+        "median_us": 11045.2415,
+        "min_us": 10937.546,
+        "p95_us": 11147.222249999999,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11022.78,
+          11072.509,
+          11142.346,
+          11050.331,
+          11146.506,
+          11160.831,
+          11103.721,
+          11070.687,
+          11106.008,
+          11079.467,
+          10989.297,
+          11004.908,
+          11038.353,
+          10978.954,
+          11090.556,
+          10937.546,
+          11040.152,
+          11026.05,
+          11010.246,
+          11036.529
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+        "main.so": "4fad7d16436cb21b4f0e1ed76b29dfe913f50968c68aa064df21c78f1b03c86f"
+      },
+      "build_manifest_sha256": "9a6c16600adabf851816e3021fc04a0a45c2774770f7bece0be89b18e4e04503",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 39.840000000000146,
+        "max_us": 10776.629,
+        "median_us": 10719.2395,
+        "min_us": 10678.16,
+        "p95_us": 10754.58615,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          10736.218,
+          10683.567,
+          10698.006,
+          10679.35,
+          10704.851,
+          10724.487,
+          10719.906,
+          10678.16,
+          10739.793,
+          10688.292,
+          10718.024,
+          10753.426,
+          10776.629,
+          10718.901,
+          10719.578,
+          10721.166,
+          10695.069,
+          10742.967,
+          10717.717,
+          10745.649
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+        "main.so": "d57e5a6e922f21b0500697b3c5dca084ff175f7ca9bd8f4618de664a34fcfb1a"
+      },
+      "build_manifest_sha256": "a6eba2e047954f7acdcb51abf4752f6aa30dadd1800fa9fedbecd8e807633576",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 89.30600000000413,
+        "max_us": 22118.156,
+        "median_us": 21567.282,
+        "min_us": 21403.952,
+        "p95_us": 21830.6214,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21526.567,
+          21624.344,
+          21560.167,
+          21515.687,
+          21568.797,
+          21632.082,
+          21532.983,
+          21516.388,
+          21594.112,
+          21512.522,
+          21521.085,
+          22118.156,
+          21815.488,
+          21611.222,
+          21565.767,
+          21570.43,
+          21403.952,
+          21529.235,
+          21585.066,
+          21636.662
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+        "main.so": "6325ae211e71c75693ba4837ea4330beb1d8a2fb0c8a852987cb4f0bd0002029"
+      },
+      "build_manifest_sha256": "fc9de47ab3d67abc03ff40f37e147718050ce984266ac66f69392c5a673d8fd3",
+      "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+      "is_causal": false,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn",
+      "output_index": 4,
+      "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 93.81850000000122,
+        "max_us": 22485.416,
+        "median_us": 22246.82,
+        "min_us": 22124.713,
+        "p95_us": 22392.2989,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          22189.544,
+          22255.858,
+          22124.713,
+          22246.052,
+          22217.829,
+          22247.588,
+          22173.676,
+          22227.373,
+          22206.181,
+          22485.416,
+          22225.158,
+          22297.783,
+          22296.273,
+          22387.398,
+          22301.232,
+          22360.92,
+          22264.609,
+          22301.441,
+          22194.226,
+          22200.764
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+        "main.so": "6894b63badcc2441bcabebc85e065720e289a52e80d6b960c4860b457a9a7b65"
+      },
+      "build_manifest_sha256": "201b4c85ca17069a00d7ac005a4fc5b521446a34918407c19e0d42cb3fc79d29",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 75.43375000000015,
+        "max_us": 11161.345,
+        "median_us": 11087.7905,
+        "min_us": 10999.941,
+        "p95_us": 11142.394400000001,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          11129.642,
+          11105.433,
+          11089.583,
+          11021.489,
+          11040.974,
+          11114.799,
+          11128.455,
+          11064.597,
+          11071.439,
+          10999.941,
+          11043.381,
+          11141.397,
+          11090.795,
+          11104.806,
+          11013.627,
+          11161.345,
+          11085.998,
+          11030.396,
+          11130.807,
+          11058.203
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+        "main.so": "987f9c2cb991f434909a5d0d44fed59bb6551900623840458a97d16f44cb947a"
+      },
+      "build_manifest_sha256": "c3477827c1102ad5c8ab9d70dddb7d0b44a08c1ba3e2c3c523b93802ca6bd307",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 53.157499999999345,
+        "max_us": 10814.903,
+        "median_us": 10766.916000000001,
+        "min_us": 10703.238,
+        "p95_us": 10812.59545,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          10765.049,
+          10791.833,
+          10703.238,
+          10728.576,
+          10763.813,
+          10790.645,
+          10742.328,
+          10809.766,
+          10739.191,
+          10814.903,
+          10712.723,
+          10768.783,
+          10755.052,
+          10812.474,
+          10806.582,
+          10758.204,
+          10803.306,
+          10770.13,
+          10774.947,
+          10738.313
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+        "main.so": "3fb0b6b9fcc9c58effb93cbe4379217be6bd37d4726e77927d60fe09b81d241c"
+      },
+      "build_manifest_sha256": "f7489a402af92d1e21e8d5706884211ede165844aec06b9177d52659446c9da7",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 188.9230000000025,
+        "max_us": 21584.57,
+        "median_us": 21387.566,
+        "min_us": 21217.708,
+        "p95_us": 21544.00025,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21441.536,
+          21541.865,
+          21584.57,
+          21418.417,
+          21373.101,
+          21335.44,
+          21516.114,
+          21443.219,
+          21328.028,
+          21505.203,
+          21330.987,
+          21343.162,
+          21286.966,
+          21402.031,
+          21257.503,
+          21283.55,
+          21522.406,
+          21237.89,
+          21511.133,
+          21217.708
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulation_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+        "main.so": "f892ac7349ed44bbf6e95cebf5dad8b38f2f867952b7d0c5c5c4295cd7f91d9a"
+      },
+      "build_manifest_sha256": "9f71af3b60676b6ebf757e504ec282196245b4158cbcc0fad66362d044fe44f2",
+      "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+      "is_causal": true,
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "BSHD",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "mask_dtype": "float32",
+      "mask_shape": [
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "flashattn-causal",
+      "output_index": 4,
+      "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+      "probability_dtype": "float16",
+      "reference": {
+        "atol": 0.02,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.02
+      },
+      "reference_backend": {
+        "name": "NumPy full-matrix FP32 softmax",
+        "numpy_version": "1.26.4",
+        "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+      },
+      "reference_contract": "ideal-fp32-softmax",
+      "requested_kernel_calls": 25,
+      "round": 3,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 65.90124999999898,
+        "max_us": 21352.622,
+        "median_us": 21286.4825,
+        "min_us": 21229.746,
+        "p95_us": 21350.08075,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          21320.161,
+          21284.769,
+          21334.991,
+          21318.46,
+          21352.622,
+          21299.335,
+          21318.328,
+          21349.947,
+          21286.15,
+          21237.101,
+          21242.772,
+          21229.746,
+          21245.121,
+          21274.254,
+          21288.586,
+          21230.688,
+          21255.605,
+          21286.815,
+          21275.012,
+          21334.38
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    }
+  ],
+  "printed_comparisons": [
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.0118824709743435,
+          "median_reduction_percent": 50.29530728424183
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.976918313893949,
+          "median_reduction_percent": -2.3627037980328693
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.011823572108426,
+          "median_reduction_percent": 1.168540883445549
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.942477804901774,
+          "median_reduction_percent": 48.5193602996886
+        }
+      },
+      "operation": "flashattn-causal",
+      "round": 2
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.8904546521862042,
+          "median_reduction_percent": 47.10267189728374
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.9783114867600492,
+          "median_reduction_percent": -2.2169333114730527
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 0.9657201726255766,
+          "median_reduction_percent": -3.549664628131788
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9151028981868399,
+          "median_reduction_percent": 47.78348458734154
+        }
+      },
+      "operation": "flashattn",
+      "round": 2
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.0754102937992944,
+          "median_reduction_percent": 51.816756282470934
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.9694546007024823,
+          "median_reduction_percent": -3.150781818497113
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0304127918776327,
+          "median_reduction_percent": 2.9515153652366988
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9526310945758858,
+          "median_reduction_percent": 48.7870492906802
+        }
+      },
+      "operation": "flashattn",
+      "round": 3
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.9770268942378668,
+          "median_reduction_percent": 49.41899865325329
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.0047487178776484,
+          "median_reduction_percent": 0.4726274135168099
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0298018949901715,
+          "median_reduction_percent": 2.8939444698201875
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.928929483290652,
+          "median_reduction_percent": 48.157773072447796
+        }
+      },
+      "operation": "flashattn-causal",
+      "round": 3
+    }
+  ],
+  "three_rounds": [
+    {
+      "round": 1,
+      "operation": "flashattn",
+      "order": [
+        "serial_1",
+        "pipeline_1",
+        "serial_2",
+        "pipeline_2"
+      ],
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.0872082687758433,
+          "median_reduction_percent": 52.08911276561278
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.9463314831002821,
+          "median_reduction_percent": -5.671217523472233
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0325755809806465,
+          "median_reduction_percent": 3.1547890130918157
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9128777911385035,
+          "median_reduction_percent": 47.722745037213194
+        }
+      },
+      "variants": {
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 34.28449999999975,
+            "max_us": 10949.72,
+            "median_us": 10879.192,
+            "min_us": 10847.922,
+            "p95_us": 10941.0541,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              10900.578,
+              10879.582,
+              10912.537,
+              10876.181,
+              10920.679,
+              10886.747,
+              10865.455,
+              10863.363,
+              10908.714,
+              10856.969,
+              10847.922,
+              10940.598,
+              10888.781,
+              10878.802,
+              10870.848,
+              10877.984,
+              10862.956,
+              10893.118,
+              10949.72,
+              10869.285
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 86.25024999999914,
+            "max_us": 11348.16,
+            "median_us": 11233.588,
+            "min_us": 11173.727,
+            "p95_us": 11316.13075,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11254.072,
+              11192.476,
+              11211.49,
+              11240.19,
+              11256.795,
+              11207.983,
+              11175.072,
+              11173.727,
+              11206.856,
+              11240.371,
+              11184.908,
+              11192.082,
+              11209.53,
+              11285.115,
+              11302.7,
+              11308.791,
+              11308.265,
+              11314.445,
+              11348.16,
+              11226.986
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 24.69075000000157,
+            "max_us": 22810.683,
+            "median_us": 22707.1395,
+            "min_us": 22672.909,
+            "p95_us": 22749.408,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              22746.183,
+              22717.864,
+              22719.148,
+              22727.936,
+              22715.172,
+              22703.405,
+              22721.261,
+              22708.006,
+              22712.831,
+              22685.539,
+              22681.161,
+              22709.02,
+              22672.909,
+              22679.245,
+              22681.014,
+              22706.273,
+              22700.795,
+              22706.155,
+              22696.146,
+              22810.683
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 235.4282499999972,
+            "max_us": 21875.956,
+            "median_us": 21488.481,
+            "min_us": 21334.987,
+            "p95_us": 21843.172450000002,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21419.42,
+              21578.702,
+              21411.844,
+              21565.706,
+              21471.516,
+              21386.976,
+              21364.266,
+              21367.917,
+              21464.027,
+              21401.685,
+              21438.092,
+              21505.446,
+              21538.68,
+              21721.174,
+              21334.987,
+              21619.252,
+              21727.215,
+              21875.956,
+              21841.447,
+              21810.155
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        }
+      },
+      "evidence": "p9-flashattn-multicore-board-user-reported.json"
+    },
+    {
+      "round": 1,
+      "operation": "flashattn-causal",
+      "order": [
+        "serial_1",
+        "pipeline_1",
+        "serial_2",
+        "pipeline_2"
+      ],
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.998633861642,
+          "median_reduction_percent": 49.96582319592851
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.007829149080095,
+          "median_reduction_percent": 0.7768329669013068
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0353971389120658,
+          "median_reduction_percent": 3.4187016345495187
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9454191907636615,
+          "median_reduction_percent": 48.59719669941898
+        }
+      },
+      "variants": {
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 23.01599999999962,
+            "max_us": 10704.435,
+            "median_us": 10656.680499999999,
+            "min_us": 10612.59,
+            "p95_us": 10693.22405,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              10663.528,
+              10635.559,
+              10666.324,
+              10662.41,
+              10643.52,
+              10642.694,
+              10652.4,
+              10612.59,
+              10628.334,
+              10629.945,
+              10645.538,
+              10660.961,
+              10666.346,
+              10666.858,
+              10650.367,
+              10704.435,
+              10645.256,
+              10665.89,
+              10692.634,
+              10672.637
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 42.67675000000054,
+            "max_us": 11144.064,
+            "median_us": 11033.8965,
+            "min_us": 10943.829,
+            "p95_us": 11126.619149999999,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11019.512,
+              11038.164,
+              11125.701,
+              11070.548,
+              11066.038,
+              11032.495,
+              11000.335,
+              10943.829,
+              11036.818,
+              11048.67,
+              10995.585,
+              11009.187,
+              11035.298,
+              11000.751,
+              11144.064,
+              11049.292,
+              11023.514,
+              11051.143,
+              11015.745,
+              10975.768
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 76.56150000000343,
+            "max_us": 21546.785,
+            "median_us": 21298.802499999998,
+            "min_us": 21229.023,
+            "p95_us": 21420.2165,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21273.061,
+              21273.046,
+              21287.165,
+              21310.616,
+              21546.785,
+              21276.226,
+              21268.602,
+              21363.946,
+              21363.502,
+              21310.44,
+              21256.366,
+              21229.023,
+              21338.486,
+              21233.615,
+              21266.908,
+              21413.555,
+              21367.345,
+              21323.686,
+              21332.195,
+              21262.081
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 69.34024999999747,
+            "max_us": 21559.055,
+            "median_us": 21465.554,
+            "min_us": 21354.344,
+            "p95_us": 21545.597299999998,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21460.787,
+              21409.466,
+              21530.702,
+              21506.26,
+              21466.826,
+              21464.282,
+              21354.344,
+              21544.889,
+              21417.985,
+              21462.748,
+              21497.078,
+              21383.209,
+              21486.86,
+              21427.532,
+              21483.216,
+              21523.195,
+              21445.694,
+              21559.055,
+              21463.569,
+              21534.313
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ]
+        }
+      },
+      "evidence": "p9-flashattn-multicore-board-user-reported.json"
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.8904546521862042,
+          "median_reduction_percent": 47.10267189728374
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.9783114867600492,
+          "median_reduction_percent": -2.2169333114730527
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 0.9657201726255766,
+          "median_reduction_percent": -3.549664628131788
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9151028981868399,
+          "median_reduction_percent": 47.78348458734154
+        }
+      },
+      "operation": "flashattn",
+      "round": 2,
+      "order": [
+        "pipeline_2",
+        "serial_2",
+        "pipeline_1",
+        "serial_1"
+      ],
+      "variants": {
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+            "main.so": "4fad7d16436cb21b4f0e1ed76b29dfe913f50968c68aa064df21c78f1b03c86f"
+          },
+          "build_manifest_sha256": "9a6c16600adabf851816e3021fc04a0a45c2774770f7bece0be89b18e4e04503",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 63.11675000000105,
+            "max_us": 11630.743,
+            "median_us": 11547.6515,
+            "min_us": 11444.055,
+            "p95_us": 11623.06415,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11622.66,
+              11587.582,
+              11563.998,
+              11518.151,
+              11630.743,
+              11507.03,
+              11547.071,
+              11578.776,
+              11444.055,
+              11479.102,
+              11526.402,
+              11515.02,
+              11516.99,
+              11554.764,
+              11569.802,
+              11599.677,
+              11540.105,
+              11533.874,
+              11548.232,
+              11599.865
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_2"
+        },
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+            "main.so": "89d67338f7dd52791f45033210a36739132c033ce4da63bf54ae4cca0e7db370"
+          },
+          "build_manifest_sha256": "0142127acf0d9114b1d0da62265337f7363f93ffb697365405a20e3fa765a258",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 38.501500000000306,
+            "max_us": 11209.431,
+            "median_us": 11151.8,
+            "min_us": 11098.337,
+            "p95_us": 11208.03545,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11137.898,
+              11161.999,
+              11154.489,
+              11181.591,
+              11099.777,
+              11139.587,
+              11098.337,
+              11108.588,
+              11184.973,
+              11201.686,
+              11103.604,
+              11147.754,
+              11152.452,
+              11176.358,
+              11151.148,
+              11144.612,
+              11207.962,
+              11159.159,
+              11209.431,
+              11149.171
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_2"
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+            "main.so": "6325ae211e71c75693ba4837ea4330beb1d8a2fb0c8a852987cb4f0bd0002029"
+          },
+          "build_manifest_sha256": "fc9de47ab3d67abc03ff40f37e147718050ce984266ac66f69392c5a673d8fd3",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 40.681000000000495,
+            "max_us": 21856.829,
+            "median_us": 21830.3115,
+            "min_us": 21748.435,
+            "p95_us": 21851.6515,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21834.476,
+              21846.804,
+              21820.004,
+              21750.475,
+              21851.379,
+              21803.68,
+              21798.547,
+              21839.351,
+              21856.829,
+              21832.118,
+              21748.435,
+              21849.785,
+              21790.376,
+              21828.505,
+              21766.756,
+              21812.59,
+              21838.071,
+              21795.199,
+              21833.033,
+              21836.61
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_1"
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+            "main.so": "d57e5a6e922f21b0500697b3c5dca084ff175f7ca9bd8f4618de664a34fcfb1a"
+          },
+          "build_manifest_sha256": "a6eba2e047954f7acdcb51abf4752f6aa30dadd1800fa9fedbecd8e807633576",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": null,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 91.20349999999962,
+            "max_us": 21536.438,
+            "median_us": 21356.8445,
+            "min_us": 21214.614,
+            "p95_us": 21514.959450000002,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21269.386,
+              21271.278,
+              21362.74,
+              21401.332,
+              21369.935,
+              21324.782,
+              21387.201,
+              21287.152,
+              21536.438,
+              21214.614,
+              21323.452,
+              21435.913,
+              21350.949,
+              21299.837,
+              21513.829,
+              21304.86,
+              21369.345,
+              21392.633,
+              21404.916,
+              21349.37
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_1"
+        }
+      }
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.0118824709743435,
+          "median_reduction_percent": 50.29530728424183
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.976918313893949,
+          "median_reduction_percent": -2.3627037980328693
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.011823572108426,
+          "median_reduction_percent": 1.168540883445549
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.942477804901774,
+          "median_reduction_percent": 48.5193602996886
+        }
+      },
+      "operation": "flashattn-causal",
+      "round": 2,
+      "order": [
+        "pipeline_2",
+        "serial_2",
+        "pipeline_1",
+        "serial_1"
+      ],
+      "variants": {
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+            "main.so": "987f9c2cb991f434909a5d0d44fed59bb6551900623840458a97d16f44cb947a"
+          },
+          "build_manifest_sha256": "c3477827c1102ad5c8ab9d70dddb7d0b44a08c1ba3e2c3c523b93802ca6bd307",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 57.99300000000039,
+            "max_us": 11095.912,
+            "median_us": 10993.4205,
+            "min_us": 10941.278,
+            "p95_us": 11064.3397,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11000.669,
+              11043.099,
+              11034.019,
+              11022.682,
+              10952.588,
+              10958.893,
+              10941.278,
+              11021.443,
+              11006.972,
+              10962.367,
+              10993.832,
+              10975.928,
+              10973.847,
+              10959.299,
+              10993.009,
+              11062.678,
+              11095.912,
+              11044.756,
+              10969.242,
+              10989.294
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_2"
+        },
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+            "main.so": "6894b63badcc2441bcabebc85e065720e289a52e80d6b960c4860b457a9a7b65"
+          },
+          "build_manifest_sha256": "201b4c85ca17069a00d7ac005a4fc5b521446a34918407c19e0d42cb3fc79d29",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 88.61050000000068,
+            "max_us": 11297.686,
+            "median_us": 11123.402,
+            "min_us": 11055.453,
+            "p95_us": 11266.96015,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11214.154,
+              11223.374,
+              11297.686,
+              11170.25,
+              11149.29,
+              11161.372,
+              11126.035,
+              11159.286,
+              11120.769,
+              11093.649,
+              11256.618,
+              11265.343,
+              11084.12,
+              11082.702,
+              11115.378,
+              11055.453,
+              11098.635,
+              11089.515,
+              11088.488,
+              11113.497
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_2"
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+            "main.so": "f892ac7349ed44bbf6e95cebf5dad8b38f2f867952b7d0c5c5c4295cd7f91d9a"
+          },
+          "build_manifest_sha256": "9f71af3b60676b6ebf757e504ec282196245b4158cbcc0fad66362d044fe44f2",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 55.34149999999863,
+            "max_us": 22254.968,
+            "median_us": 22117.47,
+            "min_us": 22010.299,
+            "p95_us": 22201.6464,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              22123.091,
+              22094.096,
+              22067.161,
+              22198.84,
+              22175.179,
+              22115.032,
+              22109.995,
+              22067.735,
+              22117.206,
+              22254.968,
+              22169.89,
+              22147.076,
+              22149.837,
+              22087.411,
+              22136.696,
+              22115.005,
+              22117.734,
+              22010.299,
+              22129.484,
+              22036.467
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_1"
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+            "main.so": "3fb0b6b9fcc9c58effb93cbe4379217be6bd37d4726e77927d60fe09b81d241c"
+          },
+          "build_manifest_sha256": "f7489a402af92d1e21e8d5706884211ede165844aec06b9177d52659446c9da7",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 2,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": null,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 113.99949999999808,
+            "max_us": 21835.155,
+            "median_us": 21606.9615,
+            "min_us": 21481.784,
+            "p95_us": 21772.4075,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21625.405,
+              21607.183,
+              21644.306,
+              21600.545,
+              21769.105,
+              21562.834,
+              21687.242,
+              21529.75,
+              21481.784,
+              21835.155,
+              21724.683,
+              21616.821,
+              21589.029,
+              21606.74,
+              21725.093,
+              21575.646,
+              21686.176,
+              21552.156,
+              21533.027,
+              21598.693
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_1"
+        }
+      }
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.0754102937992944,
+          "median_reduction_percent": 51.816756282470934
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 0.9694546007024823,
+          "median_reduction_percent": -3.150781818497113
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0304127918776327,
+          "median_reduction_percent": 2.9515153652366988
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.9526310945758858,
+          "median_reduction_percent": 48.7870492906802
+        }
+      },
+      "operation": "flashattn",
+      "round": 3,
+      "order": [
+        "serial_2",
+        "pipeline_2",
+        "serial_1",
+        "pipeline_1"
+      ],
+      "variants": {
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+            "main.so": "89d67338f7dd52791f45033210a36739132c033ce4da63bf54ae4cca0e7db370"
+          },
+          "build_manifest_sha256": "0142127acf0d9114b1d0da62265337f7363f93ffb697365405a20e3fa765a258",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 74.20074999999997,
+            "max_us": 11160.831,
+            "median_us": 11045.2415,
+            "min_us": 10937.546,
+            "p95_us": 11147.222249999999,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11022.78,
+              11072.509,
+              11142.346,
+              11050.331,
+              11146.506,
+              11160.831,
+              11103.721,
+              11070.687,
+              11106.008,
+              11079.467,
+              10989.297,
+              11004.908,
+              11038.353,
+              10978.954,
+              11090.556,
+              10937.546,
+              11040.152,
+              11026.05,
+              11010.246,
+              11036.529
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_2"
+        },
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+            "main.so": "4fad7d16436cb21b4f0e1ed76b29dfe913f50968c68aa064df21c78f1b03c86f"
+          },
+          "build_manifest_sha256": "9a6c16600adabf851816e3021fc04a0a45c2774770f7bece0be89b18e4e04503",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 39.840000000000146,
+            "max_us": 10776.629,
+            "median_us": 10719.2395,
+            "min_us": 10678.16,
+            "p95_us": 10754.58615,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              10736.218,
+              10683.567,
+              10698.006,
+              10679.35,
+              10704.851,
+              10724.487,
+              10719.906,
+              10678.16,
+              10739.793,
+              10688.292,
+              10718.024,
+              10753.426,
+              10776.629,
+              10718.901,
+              10719.578,
+              10721.166,
+              10695.069,
+              10742.967,
+              10717.717,
+              10745.649
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_2"
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+            "main.so": "d57e5a6e922f21b0500697b3c5dca084ff175f7ca9bd8f4618de664a34fcfb1a"
+          },
+          "build_manifest_sha256": "a6eba2e047954f7acdcb51abf4752f6aa30dadd1800fa9fedbecd8e807633576",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": null,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 89.30600000000413,
+            "max_us": 22118.156,
+            "median_us": 21567.282,
+            "min_us": 21403.952,
+            "p95_us": 21830.6214,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21526.567,
+              21624.344,
+              21560.167,
+              21515.687,
+              21568.797,
+              21632.082,
+              21532.983,
+              21516.388,
+              21594.112,
+              21512.522,
+              21521.085,
+              22118.156,
+              21815.488,
+              21611.222,
+              21565.767,
+              21570.43,
+              21403.952,
+              21529.235,
+              21585.066,
+              21636.662
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_1"
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+            "main.so": "6325ae211e71c75693ba4837ea4330beb1d8a2fb0c8a852987cb4f0bd0002029"
+          },
+          "build_manifest_sha256": "fc9de47ab3d67abc03ff40f37e147718050ce984266ac66f69392c5a673d8fd3",
+          "bundle_sha256": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "7d7455277b69d39a68bab95b719746a3a1c99f895bb8240cdb6e8fd2e2dc4a29",
+          "is_causal": false,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn",
+          "output_index": 4,
+          "output_sha256": "a50ed0d528a8fd95511c98835609555511ccff7583941cef48b8f7ea98e7e684",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 93.81850000000122,
+            "max_us": 22485.416,
+            "median_us": 22246.82,
+            "min_us": 22124.713,
+            "p95_us": 22392.2989,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              22189.544,
+              22255.858,
+              22124.713,
+              22246.052,
+              22217.829,
+              22247.588,
+              22173.676,
+              22227.373,
+              22206.181,
+              22485.416,
+              22225.158,
+              22297.783,
+              22296.273,
+              22387.398,
+              22301.232,
+              22360.92,
+              22264.609,
+              22301.441,
+              22194.226,
+              22200.764
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_1"
+        }
+      }
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.9770268942378668,
+          "median_reduction_percent": 49.41899865325329
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.0047487178776484,
+          "median_reduction_percent": 0.4726274135168099
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0298018949901715,
+          "median_reduction_percent": 2.8939444698201875
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.928929483290652,
+          "median_reduction_percent": 48.157773072447796
+        }
+      },
+      "operation": "flashattn-causal",
+      "round": 3,
+      "order": [
+        "serial_2",
+        "pipeline_2",
+        "serial_1",
+        "pipeline_1"
+      ],
+      "variants": {
+        "serial_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "cc2e9e78e58a652dd089f3e682208e54cdfe683f9dc3e2fa21850b60cd5f196f",
+            "main.so": "6894b63badcc2441bcabebc85e065720e289a52e80d6b960c4860b457a9a7b65"
+          },
+          "build_manifest_sha256": "201b4c85ca17069a00d7ac005a4fc5b521446a34918407c19e0d42cb3fc79d29",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 75.43375000000015,
+            "max_us": 11161.345,
+            "median_us": 11087.7905,
+            "min_us": 10999.941,
+            "p95_us": 11142.394400000001,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              11129.642,
+              11105.433,
+              11089.583,
+              11021.489,
+              11040.974,
+              11114.799,
+              11128.455,
+              11064.597,
+              11071.439,
+              10999.941,
+              11043.381,
+              11141.397,
+              11090.795,
+              11104.806,
+              11013.627,
+              11161.345,
+              11085.998,
+              11030.396,
+              11130.807,
+              11058.203
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_2"
+        },
+        "pipeline_2": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "f205cea984c633846b9066997f1dc4baab975fd4cc43db86096462a9fcf664c1",
+            "main.so": "987f9c2cb991f434909a5d0d44fed59bb6551900623840458a97d16f44cb947a"
+          },
+          "build_manifest_sha256": "c3477827c1102ad5c8ab9d70dddb7d0b44a08c1ba3e2c3c523b93802ca6bd307",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 2,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 53.157499999999345,
+            "max_us": 10814.903,
+            "median_us": 10766.916000000001,
+            "min_us": 10703.238,
+            "p95_us": 10812.59545,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              10765.049,
+              10791.833,
+              10703.238,
+              10728.576,
+              10763.813,
+              10790.645,
+              10742.328,
+              10809.766,
+              10739.191,
+              10814.903,
+              10712.723,
+              10768.783,
+              10755.052,
+              10812.474,
+              10806.582,
+              10758.204,
+              10803.306,
+              10770.13,
+              10774.947,
+              10738.313
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_2"
+        },
+        "serial_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "020c1b0ce1a52d46aac6333f3c3f66aba2427fd3e5c77b7510e45a0068358046",
+            "main.so": "3fb0b6b9fcc9c58effb93cbe4379217be6bd37d4726e77927d60fe09b81d241c"
+          },
+          "build_manifest_sha256": "f7489a402af92d1e21e8d5706884211ede165844aec06b9177d52659446c9da7",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 0,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": null,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 188.9230000000025,
+            "max_us": 21584.57,
+            "median_us": 21387.566,
+            "min_us": 21217.708,
+            "p95_us": 21544.00025,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21441.536,
+              21541.865,
+              21584.57,
+              21418.417,
+              21373.101,
+              21335.44,
+              21516.114,
+              21443.219,
+              21328.028,
+              21505.203,
+              21330.987,
+              21343.162,
+              21286.966,
+              21402.031,
+              21257.503,
+              21283.55,
+              21522.406,
+              21237.89,
+              21511.133,
+              21217.708
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "serial_1"
+        },
+        "pipeline_1": {
+          "accumulation_dtype": "float32",
+          "artifacts": {
+            "libkernel.so": "2393f7fa6d5dba23fe75983fad4f43b3c380bc2f49e2751de7dfe9e38b4873de",
+            "main.so": "f892ac7349ed44bbf6e95cebf5dad8b38f2f867952b7d0c5c5c4295cd7f91d9a"
+          },
+          "build_manifest_sha256": "9f71af3b60676b6ebf757e504ec282196245b4158cbcc0fad66362d044fe44f2",
+          "bundle_sha256": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8",
+          "device_performance_measured": false,
+          "dispatch_attempted": true,
+          "dtype": "float16",
+          "hardware_overlap_verified": false,
+          "input_sha256": "0bfc9709f958f520c0cf01fad26a2c045ac66b22a7c00d75c15e4d710618b6f0",
+          "is_causal": true,
+          "last_stage": "completed",
+          "launch_cores": 1,
+          "layout": "BSHD",
+          "mapping": {
+            "character_device": "/dev/sg-host-drv-0",
+            "device_count": 2,
+            "device_id": 0,
+            "pci_function": "0000:01:00.0"
+          },
+          "mask_dtype": "float32",
+          "mask_shape": [
+            1024,
+            1024
+          ],
+          "measurement": "timing",
+          "num_stages": 2,
+          "operation": "flashattn-causal",
+          "output_index": 4,
+          "output_sha256": "096093b6fa95fdc640fdb40c2dc409ea4e0f0fb73f2e7b0d47c35e69c1bde60d",
+          "probability_dtype": "float16",
+          "reference": {
+            "atol": 0.02,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.02
+          },
+          "reference_backend": {
+            "name": "NumPy full-matrix FP32 softmax",
+            "numpy_version": "1.26.4",
+            "python": "/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python"
+          },
+          "reference_contract": "ideal-fp32-softmax",
+          "requested_kernel_calls": 25,
+          "round": 3,
+          "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+          "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+          "serial_variant_bitwise_equal": true,
+          "shape": [
+            1,
+            1024,
+            1,
+            64
+          ],
+          "status": "passed",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 65.90124999999898,
+            "max_us": 21352.622,
+            "median_us": 21286.4825,
+            "min_us": 21229.746,
+            "p95_us": 21350.08075,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              21320.161,
+              21284.769,
+              21334.991,
+              21318.46,
+              21352.622,
+              21299.335,
+              21318.328,
+              21349.947,
+              21286.15,
+              21237.101,
+              21242.772,
+              21229.746,
+              21245.121,
+              21274.254,
+              21288.586,
+              21230.688,
+              21255.605,
+              21286.815,
+              21275.012,
+              21334.38
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32
+          ],
+          "variant": "pipeline_1"
+        }
+      }
+    }
+  ],
+  "interpretation": {
+    "flashattn": {
+      "median_reduction_percent_by_round": {
+        "pipeline_at_1_core": [
+          -5.671217523472233,
+          -2.2169333114730527,
+          -3.150781818497113
+        ],
+        "pipeline_at_2_cores": [
+          3.1547890130918157,
+          -3.549664628131788,
+          2.9515153652366988
+        ],
+        "serial_1_to_2_cores": [
+          47.722745037213194,
+          47.78348458734154,
+          48.7870492906802
+        ],
+        "pipeline_1_to_2_cores": [
+          52.08911276561278,
+          47.10267189728374,
+          51.816756282470934
+        ]
+      },
+      "pipeline_1_regressed_all_three_rounds": true,
+      "pipeline_2_lower_latency_all_three_rounds": false,
+      "fixed_pipeline_gain_established": false,
+      "pipeline_1_to_2_core_latency_reduction_range_percent": [
+        47.10267189728374,
+        52.08911276561278
+      ]
+    },
+    "flashattn-causal": {
+      "median_reduction_percent_by_round": {
+        "pipeline_at_1_core": [
+          0.7768329669013068,
+          -2.3627037980328693,
+          0.4726274135168099
+        ],
+        "pipeline_at_2_cores": [
+          3.4187016345495187,
+          1.168540883445549,
+          2.8939444698201875
+        ],
+        "serial_1_to_2_cores": [
+          48.59719669941898,
+          48.5193602996886,
+          48.157773072447796
+        ],
+        "pipeline_1_to_2_cores": [
+          49.96582319592851,
+          50.29530728424183,
+          49.41899865325329
+        ]
+      },
+      "pipeline_1_regressed_all_three_rounds": false,
+      "pipeline_2_lower_latency_all_three_rounds": true,
+      "fixed_pipeline_gain_established": false,
+      "pipeline_1_to_2_core_latency_reduction_range_percent": [
+        49.41899865325329,
+        50.29530728424183
+      ]
+    }
+  },
+  "limitations": [
+    "Terminal worker JSON and success markers were supplied; complete remote receipts, binary outputs and summary.json were not transferred.",
+    "Correctness and timing collection passed. A positive pipeline gain is not an acceptance requirement.",
+    "Noncausal single-core pipeline regressed in all three current multicore-comparison rounds, despite earlier positive P8 rounds. Cause is not established.",
+    "Noncausal dual-core and causal single-core pipeline gains change sign across rounds. Causal dual-core reductions are positive in these three measurements only.",
+    "Core scaling is a separate comparison, not evidence of pipeline benefit or physical transfer/compute overlap.",
+    "Do not pool samples across rounds, replace first-round negatives or extrapolate to other shapes, dtypes and cores."
+  ]
+}

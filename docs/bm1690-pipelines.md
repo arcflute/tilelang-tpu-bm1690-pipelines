@@ -10,7 +10,7 @@ The source owner reports that ChunkScan stages other than P10 have completed
 validation. This project migrates those mechanisms; it does not restart that
 project's environment bring-up. P10 is not complete performance evidence.
 
-## Current test handoff (2026-10-17)
+## Current scoped acceptance (2026-10-17)
 
 **First FlashAttention result:** all 24 FlashAttention board workers passed at revision
 `d6bf332cc9775f58407edf794ac38ead22c624f8`: causal/non-causal, smoke/target,
@@ -30,14 +30,14 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** FlashAttention causal/non-causal original plus matched
-one/two-workitem serial/pipeline passed at `22acd787`: ten configurations,
-twenty correctness/timing workers and 200 raw samples. Matched outputs agree
-bitwise per mask and retain earlier board/CModel hashes. Maximum absolute
-reference error is 0.0009765625, within atol=rtol=0.02. Pipeline median reductions
-at one/two cores are -5.6712% / +3.1548% non-causal and +0.7768% / +3.4187%
-causal. The non-causal one-core regression is retained, not treated as noise
-without further evidence (P9.16).
+**Latest result:** the previously deferred FlashAttention one/two-core repeat
+batch at `e4a489e` has now run and passed: sixteen timing workers, two reordered
+rounds and 320 raw samples, with reference and saved-output checks on every
+worker. Build/input/output/runtime identities match P9.16. Non-causal single-core
+pipeline regressed in all three current rounds (-5.6712%, -2.2169%, -3.1508%).
+Causal dual-core pipeline reductions were positive in all three (+3.4187%,
++1.1685%, +2.8939%); the other two comparisons changed sign. These are measured
+outcomes for this scope, not a universal gain or a diagnosed cause (P9.19).
 
 All six families now have matched one/two-core first-round correctness and
 synchronous-call latency evidence: eleven operation rows, 54 configurations,
@@ -47,24 +47,23 @@ FlashAttention masks. RoPE's full original timeout remains unresolved and was
 not retried. See the complete matrix in P9.17 and
 `results/p9-single-dual-core-first-round-summary.json`.
 
-The next handoff reuses the just-passed FlashAttention builds for two reordered
-timing rounds at both core counts (P9.18). It requires no compilation or
-environment changes and does not rerun original. Each repeated configuration
-must still match its saved correctness output and independent reference.
-
-**Next-session reminder (2026-10-17):** the user deferred this latest repeat
-handoff and requested a reminder before the next testing session. It has **not
-run**. Resume from the delivered script at `e4a489e31c3ee62cce081bbd177249bf509e84b0`:
-one batch, two automatic rounds, sixteen timing workers using
-`/home/bokai/bm1690-flashattn2-DMpyNl/results`. Completed first-round results
-remain accepted; do not count the deferred repeat as passed or rerun the whole
-six-family matrix by default.
+**Current scope closed:** adding the two repeat rounds gives 124 workers and
+1400 timing samples across the first single/dual-core matrix and attention
+repeats. Correctness and synchronous-call timing collection are complete for
+these configurations; minimum speedup was not an acceptance requirement.
+No unexecuted handoff remains for this scope. The prior next-session reminder
+is fulfilled: results are in
+`/home/bokai/bm1690-flashattn2-repeat-D22EDV/results`. Do not ask the user to rerun
+the delivered batch or the six-family matrix by default. Regressions remain
+recorded, with no additional identical-version repeat scheduled.
+See `results/p9-current-scope-acceptance-summary.json` and P9.20.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
-were 3.0726%, 1.8687%, 1.0250%. A fixed gain is not established. Higher core
-counts, reordered multicore repeats, additional optimizations and wider workload
-coverage, the RoPE baseline gap, and physical-overlap evidence remain open.
+were 3.0726%, 1.8687%, 1.0250%. Preserve those earlier observations separately;
+the current P9 repeat includes regressions. A fixed gain is not established.
+Higher core counts, additional optimizations and wider workload coverage, the
+RoPE baseline gap, and physical-overlap evidence remain open.
 
 ### Earlier recovery and diagnostic history
 
@@ -3127,7 +3126,7 @@ exclude earlier smoke tests, the separate workitem probe and diagnostic retries.
 RoPE has four matched configurations; its original remains an unresolved timeout.
 The other ten rows have five configurations, including original.
 
-All inputs/outputs are FP16. Elementwise, RMSNorm, RoPE and SwiGLU use [1024,1024];
+The primary tested dtype is FP16. Elementwise, RMSNorm, RoPE and SwiGLU use [1024,1024];
 Matmul uses M=N=K=1024; FlashAttention uses [1,1024,1,64] with a 1024x1024 score
 matrix. Intermediate precision, layout and oracle tolerances retain each
 operator's recorded contract. The following medians are milliseconds. A negative
@@ -3157,8 +3156,8 @@ reference errors, tiling/core/precision contracts and evidence/revision links:
 comparison was recomputed from its source archive.
 
 This closes first-round matched single/dual-core coverage of all six families,
-not every original project milestone. Remaining work includes reordered timing
-confirmation (FlashAttention next, other regressions retained), the RoPE original
+not every original project milestone. Reordered FlashAttention timing was
+subsequently completed in P9.19, with regressions retained. Remaining work includes the RoPE original
 baseline failure, higher core counts beyond two, separately validated additional
 optimizations, and wider workloads/dtypes when expanded. Profiler/trace evidence
 is still required before any claim of physical overlap; it is not a prerequisite
@@ -3192,6 +3191,101 @@ of old results, source/runtime/output corruption, incorrect contracts/statistics
 missing receipts, existing destinations, failure midway, bad NumPy environment,
 changed repeated outputs, and separate pipeline/core comparison arithmetic.
 These checks are not board or CModel execution. Frozen kernel bundles retain
-P9.15 CModel evidence; this change is orchestration only. New board repeat results
-remain pending. Local validation is recorded in
+P9.15 CModel evidence; this change is orchestration only. Board repeat results
+were subsequently received as recorded in P9.19. Local validation is recorded in
 `results/p9-flashattn-multicore-repeat-validation.json`.
+
+### P9.19: FlashAttention reordered single/dual-core repeat results
+
+The user executed the previously deferred handoff at
+`e4a489e31c3ee62cce081bbd177249bf509e84b0`, script SHA256
+`4f1016e324a0036206e1b076b260dab6055917376dd4248d8e9d4818e7c49a77`, using the
+existing P9.16 builds. Results are in
+`/home/bokai/bm1690-flashattn2-repeat-D22EDV/results`;
+`FLASHATTN_MULTICORE_REPEAT_PASSED` and `FLASHATTN2_REPEAT_EXIT=0` were reported.
+All sixteen workers passed. The dispatch order matches P9.18, and no original
+relaunch or compilation was performed.
+
+Each worker used five warmups and twenty measured samples: 400 requested kernel
+calls and 320 raw samples. The independent reference passed with finite outputs,
+zero tolerance mismatches, maximum absolute error 0.0009765625 and
+atol=rtol=0.02. Outputs are not bitwise equal to the FP32 reference. All repeated
+output hashes equal their earlier matched correctness outputs and CModel hashes.
+Core count, layout, precision, mask mode, input, SDK/runtime and build/artifact
+identities are unchanged. The first-round and new raw timing statistics and all
+printed comparisons were independently recomputed locally.
+
+Median host synchronous-call latencies, in milliseconds:
+
+| Mode | Round | Serial 1 ms | Pipeline 1 ms | Serial 2 ms | Pipeline 2 ms |
+|---|---:|---:|---:|---:|---:|
+| flashattn | 1 | 21.488481 | 22.707140 | 11.233588 | 10.879192 |
+| flashattn-causal | 1 | 21.465554 | 21.298802 | 11.033897 | 10.656680 |
+| flashattn | 2 | 21.356844 | 21.830312 | 11.151800 | 11.547652 |
+| flashattn-causal | 2 | 21.606962 | 22.117470 | 11.123402 | 10.993421 |
+| flashattn | 3 | 21.567282 | 22.246820 | 11.045241 | 10.719240 |
+| flashattn-causal | 3 | 21.387566 | 21.286482 | 11.087790 | 10.766916 |
+
+Pipeline median latency reduction against the same-tile serial variant at the
+same core count follows. Positive values mean lower latency; negative values
+mean regression. Round one is P9.16, not an additional execution in this batch.
+
+| Mode / cores | Round 1 | Round 2 | Round 3 | Assessment |
+|---|---:|---:|---:|---|
+| flashattn / 1 | -5.6712% | -2.2169% | -3.1508% | regressed in all three |
+| flashattn / 2 | +3.1548% | -3.5497% | +2.9515% | sign changes; consistent gain unestablished |
+| flashattn-causal / 1 | +0.7768% | -2.3627% | +0.4726% | sign changes; consistent gain unestablished |
+| flashattn-causal / 2 | +3.4187% | +1.1685% | +2.8939% | lower latency in all three; no fixed gain claim |
+
+Non-causal single-core pipeline regressed in all three current comparison
+rounds. This does not erase the earlier positive P8 observations, and the cause
+has not been established. Non-causal dual-core and causal single-core results
+change sign, so a consistent pipeline advantage is unestablished. Causal
+dual-core pipeline has a 1.1685% to 3.4187% lower median in these three runs;
+this is not a fixed or universal gain. Preserve all positive and negative rounds
+without pooling samples or selecting only the best result.
+
+Separately, changing one core to two with the pipeline implementation lowers
+median latency by 47.1027% to 52.0891% non-causal and 49.4190% to 50.2953%
+causal in these rounds. This is core-scaling evidence and cannot be attributed
+solely to pipeline. Timing remains host launch plus stream synchronization,
+excluding compile, allocation, module loading, H2D/D2H and reference. No pure
+device execution time or physical transfer/compute overlap has been measured.
+
+`results/p9-flashattn-multicore-repeat-board-user-reported.json` archives all
+sixteen printed numeric records, four printed comparisons, the three-round
+comparison and transcript checksum. Input/output hashes were checked against
+P9.15 CModel and P9.16 board evidence. Complete remote receipts, binary outputs
+and summary.json were not transferred; evidence remains user-supplied terminal
+output. Only data and documentation changed during this reconciliation; no
+kernel, compiler, runner, dependency or environment was changed, and no new
+local CModel or board test was launched.
+
+### P9.20: Current acceptance scope and remaining original-plan work
+
+The currently scheduled FP16 initial-target single/dual-core matrix and the two
+FlashAttention repeat rounds are complete. The combined evidence covers six
+families, eleven operation rows, 54 distinct configurations, 54 correctness
+workers, seventy timing workers, 1804 requested kernel calls and 1400 measured
+samples. Repeated workers do not add new distinct configurations. These counts
+exclude earlier P8/smoke/diagnostic/recovery runs and the workitem probe.
+`results/p9-current-scope-acceptance-summary.json` links the original matrix and
+repeat archive with checksums. The original first-round matrix is preserved.
+
+The user requested correctness and synchronous-call latency collection without
+a minimum speedup requirement. That scoped acceptance is complete, while
+recorded performance regressions and variable gains remain findings. This is
+not completion of every milestone in the original implementation plan. RoPE's
+full original timeout remains a baseline exception, so all-original-baseline
+acceptance is still incomplete. Higher core counts, other optimization
+candidates and broader workload/dtype coverage have not been promoted to tested
+results. Physical overlap remains unverified and requires profiler/trace evidence.
+
+There is no unexecuted board handoff in the current scope and no further
+identical-version timing repeat is scheduled. The prior next-session reminder
+has been fulfilled by the supplied results. Future implementation work should
+first use the recorded regressions and code/command evidence to select concrete
+changes, preserve all baselines, and validate changed candidates locally before
+another bounded board handoff. The RoPE baseline issue and higher-core/other
+optimization tasks remain explicit follow-ups rather than reasons to rerun the
+whole six-family first-round matrix now.
