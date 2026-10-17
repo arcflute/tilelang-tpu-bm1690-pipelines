@@ -30,29 +30,33 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** SwiGLU FP16 [1024,1024] original plus matched one/two-workitem
-serial/pipeline passed at `3a1d858`: five configurations, ten correctness/timing
-workers and 100 raw samples. All outputs agree bitwise and retain the earlier
-board/CModel hash. Maximum absolute reference error is 0.0001220703125,
-within atol=rtol=0.01; the outputs are not bitwise equal to the reference.
-Same-tile pipeline median reductions are 9.8205% at one core and 10.8789% at
-two. Pipeline one-to-two-core reduction is 50.4331%. These remain one-round
-launch-plus-sync observations; buffer reuse was disabled (P9.14).
+**Latest result:** FlashAttention causal/non-causal original plus matched
+one/two-workitem serial/pipeline passed at `22acd787`: ten configurations,
+twenty correctness/timing workers and 200 raw samples. Matched outputs agree
+bitwise per mask and retain earlier board/CModel hashes. Maximum absolute
+reference error is 0.0009765625, within atol=rtol=0.02. Pipeline median reductions
+at one/two cores are -5.6712% / +3.1548% non-causal and +0.7768% / +3.4187%
+causal. The non-causal one-core regression is retained, not treated as noise
+without further evidence (P9.16).
 
-Matched one/two-workitem matrices now passed for Add/Sub/Mul/Div, Matmul,
-ordinary/Split-K RMSNorm, RoPE and SwiGLU. RoPE's full original timeout remains
-unresolved and was not retried. The next handoff is FlashAttention causal and
-non-causal at [1,1024,1,64], original [16,16] and matched [32,32] tiles,
-serial/pipeline at one and two workitems. Each workitem owns a complete query
-tile and its online recurrence. Existing Add manifests supply verified SDK,
-runtime and compiler paths; the existing NumPy environment supplies the
-independent full-matrix FP32 softmax reference. No environment rebuild is needed.
+All six families now have matched one/two-core first-round correctness and
+synchronous-call latency evidence: eleven operation rows, 54 configurations,
+108 correctness/timing workers and 1080 measured samples. This includes
+Add/Sub/Mul/Div, Matmul, ordinary/Split-K RMSNorm, RoPE, SwiGLU and both
+FlashAttention masks. RoPE's full original timeout remains unresolved and was
+not retried. See the complete matrix in P9.17 and
+`results/p9-single-dual-core-first-round-summary.json`.
+
+The next handoff reuses the just-passed FlashAttention builds for two reordered
+timing rounds at both core counts (P9.18). It requires no compilation or
+environment changes and does not rerun original. Each repeated configuration
+must still match its saved correctness output and independent reference.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
-were 3.0726%, 1.8687%, 1.0250%. A fixed gain is not established. Wider workload
-coverage, multicore and optional optimizations across the remaining families,
-the RoPE baseline gap, and physical-overlap evidence remain open.
+were 3.0726%, 1.8687%, 1.0250%. A fixed gain is not established. Higher core
+counts, reordered multicore repeats, additional optimizations and wider workload
+coverage, the RoPE baseline gap, and physical-overlap evidence remain open.
 
 ### Earlier recovery and diagnostic history
 
@@ -3037,7 +3041,7 @@ worker. Host affinity remains two CPUs with nice 10 and single-thread BLAS;
 worker RSS is capped at 4 GiB with a thirty-second timeout. Device locking and
 privileged occupation checks cover both nodes. Any failure stops the batch,
 preserving results; the script never reloads the driver or retries a failed
-launch. Board execution of this handoff remains pending.
+launch. Its first board execution is recorded in P9.16 below.
 
 All ten exact-source CModel workers passed, with one correctness call and a timed
 ABI call (one warmup/one sample) each: thirty calls. Maximum absolute reference
@@ -3057,3 +3061,129 @@ source/SDK/artifact binding, reference/repeated-call evidence, real shell
 sequencing with simulated compiler/board replies, and stop-on-failure behavior
 for invalid gates, downloads, builds, outputs and timing statistics. Validation
 and file hashes are in `results/p9-flashattn-multicore-handoff-validation.json`.
+
+### P9.16: FlashAttention causal/non-causal one/two-core board result
+
+The user ran `22acd787b25672a40f5e72a18760f3b3f53c34b3` under
+`/home/bokai/bm1690-flashattn2-DMpyNl/results`. All sixty build commands and
+twenty correctness/timing workers passed; `FLASHATTN2_EXIT=0`. Both masks retain
+FP16 Q/K/V/output BSHD [1,1024,1,64], FP32 mask [1024,1024], FP32 online state
+and FP16 probabilities. Original uses [16,16] tiles; the four matched variants
+use [32,32]. Original-to-tiled changes therefore include a tiling change.
+
+All ten configurations and their repeated calls pass the independent NumPy
+FP32 reference at atol=rtol=0.02, with finite output, zero tolerance mismatches
+and maximum absolute error 0.0009765625. Outputs are not bitwise equal to the
+reference. Within each mask, the four matched configurations agree bitwise;
+original differs, consistently with the earlier board and CModel results.
+Every input/output hash matches the corresponding previous evidence.
+
+| Mode | Configuration | Median ms | IQR ms | p95 ms |
+|---|---|---:|---:|---:|
+| flashattn | original | 89.895997 | 0.436976 | 90.339558 |
+| flashattn | serial_1 | 21.488481 | 0.235428 | 21.843172 |
+| flashattn | pipeline_1 | 22.707140 | 0.024691 | 22.749408 |
+| flashattn | serial_2 | 11.233588 | 0.086250 | 11.316131 |
+| flashattn | pipeline_2 | 10.879192 | 0.034284 | 10.941054 |
+| flashattn-causal | original | 87.179156 | 0.468549 | 87.616425 |
+| flashattn-causal | serial_1 | 21.465554 | 0.069340 | 21.545597 |
+| flashattn-causal | pipeline_1 | 21.298802 | 0.076562 | 21.420216 |
+| flashattn-causal | serial_2 | 11.033897 | 0.042677 | 11.126619 |
+| flashattn-causal | pipeline_2 | 10.656680 | 0.023016 | 10.693224 |
+
+Each timing worker uses five warmups and twenty samples: 260 requested kernel
+calls and 200 measured samples overall. Pipeline-at-fixed-core reductions are
+-5.6712% / +3.1548% for non-causal and +0.7768% / +3.4187% for causal at
+one/two cores. Pipeline one-to-two-core reductions are 52.0891% / 49.9658%.
+Non-causal single-core pipeline regressed in this batch despite small positive
+reductions in earlier P8 rounds. This is an observation requiring reordered
+repeat measurements, not evidence of a particular hardware cause. Core scaling
+and pipeline effects are reported separately; no fixed speedup is established.
+
+The timing boundary is host launch plus stream synchronization. Compilation,
+allocation, module loading, H2D/D2H and reference are excluded. No pure-device
+latency or physical overlap claim is made.
+`results/p9-flashattn-multicore-board-user-reported.json` archives all twenty
+printed worker records, both summaries and the 200 raw samples, bound to the
+terminal transcript checksum. Statistics, comparisons and CModel identities
+were independently checked locally. Full remote receipts/binaries were not
+transferred; this is user-reported board evidence.
+
+### P9.17: Six-family first single/dual-core matrix
+
+All eleven operation rows have passed matched single/dual-core serial/pipeline
+correctness and first-round synchronous-call timing. The seven archived batches
+contain 54 configurations, 108 correctness/timing workers, 1404 requested kernel
+calls, 1080 raw measured samples and 324 completed build commands. These counts
+exclude earlier smoke tests, the separate workitem probe and diagnostic retries.
+RoPE has four matched configurations; its original remains an unresolved timeout.
+The other ten rows have five configurations, including original.
+
+All inputs/outputs are FP16. Elementwise, RMSNorm, RoPE and SwiGLU use [1024,1024];
+Matmul uses M=N=K=1024; FlashAttention uses [1,1024,1,64] with a 1024x1024 score
+matrix. Intermediate precision, layout and oracle tolerances retain each
+operator's recorded contract. The following medians are milliseconds. A negative
+pipeline gain means regression; small differences are not established stable gains.
+
+| Operation | Original ms | Serial 1 ms | Pipeline 1 ms | Serial 2 ms | Pipeline 2 ms | Pipeline gain 1 / 2 cores | Pipeline 1-to-2-core reduction |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| add | 0.1143 | 0.1210 | 0.1205 | 0.0952 | 0.0976 | +0.41% / -2.55% | 18.98% |
+| sub | 0.1142 | 0.1231 | 0.1190 | 0.0886 | 0.0904 | +3.36% / -2.06% | 24.00% |
+| mul | 0.1147 | 0.1248 | 0.1204 | 0.0923 | 0.0970 | +3.51% / -5.12% | 19.45% |
+| div | 0.1278 | 0.1369 | 0.1258 | 0.1028 | 0.0955 | +8.15% / +7.12% | 24.10% |
+| matmul | 461.3356 | 61.1615 | 54.5777 | 30.2561 | 31.9474 | +10.76% / -5.59% | 41.46% |
+| rmsnorm | 1.9525 | 0.2852 | 0.2873 | 0.1811 | 0.1664 | -0.74% / +8.09% | 42.08% |
+| rmsnorm-splitk | 57.9406 | 1.9037 | 1.8760 | 1.0584 | 1.0464 | +1.45% / +1.13% | 44.22% |
+| rope | timeout | 123.4346 | 109.5094 | 58.9823 | 53.9445 | +11.28% / +8.54% | 50.74% |
+| swiglu | 95.3673 | 3.5133 | 3.1683 | 1.7621 | 1.5704 | +9.82% / +10.88% | 50.43% |
+| flashattn | 89.8960 | 21.4885 | 22.7071 | 11.2336 | 10.8792 | -5.67% / +3.15% | 52.09% |
+| flashattn-causal | 87.1792 | 21.4656 | 21.2988 | 11.0339 | 10.6567 | +0.78% / +3.42% | 49.97% |
+
+Pipeline columns compare only matched tiles at a fixed core count. The last
+column changes core count while retaining the pipeline implementation. Do not
+attribute original-to-tiled reductions solely to pipelining or average across
+these separate operator batches. Original medians are retained for context.
+The matrix JSON retains each variant's full timing statistics/raw samples,
+reference errors, tiling/core/precision contracts and evidence/revision links:
+`results/p9-single-dual-core-first-round-summary.json`. Every statistic and
+comparison was recomputed from its source archive.
+
+This closes first-round matched single/dual-core coverage of all six families,
+not every original project milestone. Remaining work includes reordered timing
+confirmation (FlashAttention next, other regressions retained), the RoPE original
+baseline failure, higher core counts beyond two, separately validated additional
+optimizations, and wider workloads/dtypes when expanded. Profiler/trace evidence
+is still required before any claim of physical overlap; it is not a prerequisite
+for the user's first correctness/synchronous-call-latency acceptance.
+
+### P9.18: Reordered FlashAttention one/two-core timing handoff
+
+`repeat_flashattn_multicore_board.py --allow-pcie --source PASSED_FLASHATTN_ROOT
+--output NEW_DIRECTORY --python EXISTING_NUMPY_PYTHON` verifies and reuses all ten
+build identities and twenty receipts from P9.16. It does not compile or rerun
+original. It records the original and first matched round as baselines, then
+runs two new timing rounds of the four matched configurations for both masks.
+Round two runs causal then non-causal, pipeline_2/serial_2/pipeline_1/serial_1;
+round three runs non-causal then causal, serial_2/pipeline_2/serial_1/pipeline_1.
+Each measured worker still checks the independent reference and saved correctness
+output. That is sixteen new workers, 400 requested calls, 320 raw samples, with
+five warmups/twenty samples per worker.
+
+The exact P9.16 driver remains pinned. It enforces both-device occupation checks,
+exclusive device locking, two host CPUs, single-thread BLAS, nice 10, a 4 GiB
+worker RSS limit and a thirty-second worker timeout. A forty-second outer timeout
+bounds each invocation. A failed environment check, changed identity, occupied
+device, timeout, output/reference mismatch or invalid statistics stops the batch.
+Completed results and a failed summary remain available; original directories
+are unchanged, including import caches. No dependencies or compiler/kernel
+sources change. There is no automatic retry, driver reload or core-count increase.
+
+New offline checks exercise real build/receipt validators with synthetic ELF
+files and simulated worker replies, including successful ordering, preservation
+of old results, source/runtime/output corruption, incorrect contracts/statistics,
+missing receipts, existing destinations, failure midway, bad NumPy environment,
+changed repeated outputs, and separate pipeline/core comparison arithmetic.
+These checks are not board or CModel execution. Frozen kernel bundles retain
+P9.15 CModel evidence; this change is orchestration only. New board repeat results
+remain pending. Local validation is recorded in
+`results/p9-flashattn-multicore-repeat-validation.json`.

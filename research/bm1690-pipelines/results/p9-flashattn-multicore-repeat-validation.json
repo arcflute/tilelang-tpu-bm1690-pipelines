@@ -1,0 +1,38 @@
+{
+  "schema": "bm1690-flashattn-multicore-repeat-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 500,
+    "elapsed_seconds": 67.62,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 150s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "5f28b95fd671ddbdae1a9ca9a0249351a4a1f60001c79b0ef415c7eccdb06e16"
+  },
+  "new_checks": 8,
+  "new_checks_scope": "Offline build/receipt validators with synthetic ELF and simulated workers; no runtime or hardware access",
+  "source_board_evidence": "p9-flashattn-multicore-board-user-reported.json",
+  "source_remote_root": "/home/bokai/bm1690-flashattn2-DMpyNl/results",
+  "matrix_evidence": "p9-single-dual-core-first-round-summary.json",
+  "cmodel_reused_evidence": "p9-flashattn-multicore-handoff-cmodel.json",
+  "existing_sources_unchanged": true,
+  "new_cmodel_run": false,
+  "new_board_run": false,
+  "dependencies_changed": false,
+  "planned_repeated_rounds": 2,
+  "planned_workers": 16,
+  "planned_requested_kernel_calls": 400,
+  "planned_raw_samples": 320,
+  "compilation_required": false,
+  "original_relaunched": false,
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "files": {
+    "tpu_demo/pipeline/repeat_flashattn_multicore_board.py": "4f1016e324a0036206e1b076b260dab6055917376dd4248d8e9d4818e7c49a77",
+    "testing/python/jit/test_bm1690_flashattn_multicore_repeat_unittest.py": "907439ee68dbc64f9c70bcca19ce6f4d5c0a6e10c5934fa3b6f7dd2c64a8f1f2",
+    "tpu_demo/pipeline/flashattn_multicore_pcie.py": "c4b49b5b492f01c69772cf9f0fcc996fc22232cbcc2df0e5f9521438113a2ed9",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "research/bm1690-pipelines/handoff/flashattn-multicore-sources.json": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+    "research/bm1690-pipelines/handoff/flashattn-causal-multicore-sources.json": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8"
+  }
+}
