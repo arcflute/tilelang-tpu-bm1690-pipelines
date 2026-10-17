@@ -1,0 +1,55 @@
+{
+  "schema": "bm1690-rmsnorm-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 426,
+    "elapsed_seconds": 54.868,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 110s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "ecee0f1036261de47abc4c741d47885e5e82d6ae7f8bd0381e8a2130c493c4c8"
+  },
+  "new_checks": 21,
+  "cmodel_evidence": "p9-rmsnorm-multicore-handoff-cmodel.json",
+  "previous_board_evidence": "p9-matmul-multicore-board-user-reported.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operations": [
+    "rmsnorm",
+    "rmsnorm-splitk"
+  ],
+  "shape": [
+    1024,
+    1024
+  ],
+  "weight_shape": [
+    1024,
+    1024
+  ],
+  "dtype": "float16",
+  "reduction_dtype": "float32",
+  "epsilon": 1e-12,
+  "normalization_rounding": "float16 before weight multiplication",
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "planned_board_workers": 20,
+  "planned_board_kernel_calls": 260,
+  "planned_board_measured_samples": 200,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/rmsnorm_multicore_pcie.py": "1db87fcd80ec8f81860878908c795ae69a3c5ae1a05ce32d9ec234075011e79e",
+    "tpu_demo/pipeline/export_rmsnorm_multicore.py": "42229630331abd651e48df350ac3bf9c2e21908385a3fb9ab08ddee1fe4383d9",
+    "tpu_demo/pipeline/run_rmsnorm_multicore_board.sh": "08a47d184f82ca8e212f452dfab13e9b0213f2427fae001463efc9bf9cfed73f",
+    "testing/python/jit/test_bm1690_rmsnorm_multicore_pcie_unittest.py": "178eb9a3cb1b154dd8978c4799aa5ed392677a336655abfac79f4bb56e17053d",
+    "testing/python/jit/test_bm1690_rmsnorm_multicore_sequence_unittest.py": "763e0672fa279f9a20c0be4055a4039c724f252caa8323bc6157dc0b968e76ea",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/rmsnorm-multicore-sources.json": "7b67b3740b01498098dac1e3a548941e9ce10e435b4f6c3215c313d2aaf5d82a",
+    "research/bm1690-pipelines/handoff/rmsnorm-splitk-multicore-sources.json": "917970da9d4496e6a11702d240f8ae68a76aa94215a4d9f115c63b456b559e10"
+  }
+}

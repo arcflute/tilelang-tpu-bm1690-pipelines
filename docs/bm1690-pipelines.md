@@ -30,21 +30,21 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the grouped Sub/Mul/Div FP16 [1024,1024] one/two-workitem
-matrix passed at `8a2435e`: fifteen configurations, thirty correctness/timing
-workers, 300 raw timing samples. Every operation's five outputs match its CModel
-hash and its original output. Sub/Mul match the reference exactly; Div retains
-its existing tolerance and 0.00390625 maximum absolute error. Pipeline one-to-two
-core median reductions are 24.0034%, 19.4482%, 24.1025%, respectively. At two
-cores, pipeline is 2.0600% / 5.1168% slower than same-tile serial for Sub/Mul,
-and 7.1194% faster for Div. Preserve those regressions and all outliers.
-These are one-round synchronous-call observations; repeatability and physical
-overlap are unverified. Add's earlier five-way matrix also passed (P9.4).
+**Latest result:** the Matmul FP16 M=N=K=1024 one/two-workitem batch passed at
+`559d17d`: five configurations, ten correctness/timing workers, 100 raw timing
+samples. All outputs meet atol=rtol=0.01 (maximum absolute error 0.0009765625)
+and match the corresponding CModel hashes. The block-32 serial/pipeline outputs
+are bitwise identical at one and two cores; the original block-16 output retains
+its known rounding difference. One-core pipeline median is 10.7645% lower than
+same-tile serial. At two cores pipeline is 5.5900% slower than serial. Serial
+and pipeline one-to-two-core reductions are 50.5309% and 41.4645%, respectively.
+These remain one-round synchronous-call observations, without physical-overlap
+or repeatability evidence. See P9.8. Add/Sub/Mul/Div matrices also passed.
 
-The next board handoff is Matmul FP16 M=N=K=1024: original block 16, then matched
-block 32 serial/pipeline at one and two workitems. It reuses the verified Add
-SDK/runtime paths and the already inspected NumPy environment. No driver reset,
-dependency installation or concurrent TPU execution is part of the handoff.
+The next board handoff combines ordinary and Split-K RMSNorm FP16 [1024,1024]:
+each original baseline plus same-tile serial/pipeline at one and two workitems.
+Existing Add manifests supply verified SDK/runtime paths, and scalar references
+use the system Python standard library. No environment rebuild is needed.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2677,3 +2677,105 @@ reference passes. These checks do not establish board execution.
 Final local regression validation passed 405 checks, including twenty-one
 new Matmul driver/sequence checks. Final file hashes and validation details are
 in `results/p9-matmul-multicore-handoff-validation.json`.
+
+### P9.8: Matmul one/two-workitem board comparison passed
+
+The user ran revision `559d17dcca4e0ebcdaaeb5f7ab8875efa21ccb14` in
+`/home/bokai/bm1690-matmul2-8BxBZ7/results`. All thirty build steps and ten
+correctness/timing workers passed, ending with `MATMUL_MULTICORE_SUITE_PASSED`
+and `MATMUL2_EXIT=0`. The inspected NumPy 1.26.4 interpreter was reused.
+All five configurations satisfy the independent FP32-reference-to-FP16
+contract, with maximum absolute error 0.0009765625 and no tolerance mismatches.
+All four block-32 outputs match bitwise, including repeat calls and CModel.
+Original block 16 preserves its earlier distinct output hash.
+
+| Configuration | Cores | Tile M/N/K | Median ms | IQR ms | p95 ms |
+|---|---:|---|---:|---:|---:|
+| original | 1 | 16/16/16 | 461.335630 | 3.449962 | 464.380591 |
+| serial_1 | 1 | 32/32/32 | 61.161475 | 0.185100 | 61.485287 |
+| pipeline_1 | 1 | 32/32/32 | 54.577719 | 1.519187 | 55.588952 |
+| serial_2 | 2 | 32/32/32 | 30.256051 | 0.225026 | 30.417423 |
+| pipeline_2 | 2 | 32/32/32 | 31.947360 | 0.532359 | 32.355309 |
+
+Each configuration uses five warmups and twenty samples. Timing remains the
+host synchronous-call boundary (launch plus stream synchronization), excluding
+compilation, allocation, module loading, transfers and reference. There are
+130 requested calls and 100 measured samples. The original-to-tiled change
+includes a block-size change and must not be called pipeline-only gain.
+
+At one core, pipeline versus same-tile serial reduces median latency by
+10.7645%; at two cores it increases latency by 5.5900%. One-to-two-core scaling
+reduces serial median by 50.5309% and pipeline median by 41.4645%. Preserve the
+two-core pipeline regression for the planned reordered repetition stage;
+this round does not establish its cause, stable scaling or physical overlap.
+`results/p9-matmul-multicore-board-user-reported.json` records the transcript
+hash, all ten worker records, artifact/runtime identities, five distributions
+and independently recomputed statistics/comparisons. Full remote receipts and
+binaries remain on the board server.
+
+### P9.9: Combined ordinary/Split-K RMSNorm multicore handoff
+
+`export_rmsnorm_multicore.py` preserves FP16 [1024,1024] source and per-element
+weights, epsilon=1e-12, FP32 reduction/normalization, and the FP16 rounding
+boundary before weight multiplication. Ordinary original uses [4,1024] tiles;
+its matched serial/pipeline use [32,1024]. Split-K original uses [4,32]; matched
+serial/pipeline use [32,128]. All six single-core kernel.c hashes match the
+previous board-tested target bundles; no kernel arithmetic or compiler changes
+are introduced.
+
+Ordinary RMSNorm uses the existing flat output-tile adapter and maps 32 row
+blocks across workitems (16 per workitem at two cores). Its generated pipeline
+has twelve statements, order [0,2,3,4,5,6,7,8,1,9,10,11], stage
+[0,1,1,1,1,1,1,1,0,1,1,1], and double-buffered input/weight. It retains the
+row reduction before normalization. Pipeline extent is 32 or 16 at one/two
+cores. Per-lane allocator high-water is 18432 bytes serial, 22784 pipeline.
+
+Split-K maps complete row blocks through the original kernel grid, keeping
+both passes and the full reduction on the owning workitem. Each pass has eight
+K iterations at block_k=128, independently of core count. The first pipeline
+has five statements with stages [0,1,1,1,1] and double-buffered input, retaining
+single-version ordered sum_square. After its drain, the code computes variance
+and inverse RMS; the second pass uses seven statements with stages
+[0,1,1,0,1,1,1], double-buffered input/weight, and the existing reversed K
+traversal. Per-lane high-water is 16704 bytes serial, 16960 pipeline. These
+allocation/scheduling reports do not establish physical overlap.
+
+`rmsnorm_multicore_pcie.py` binds operation, epsilon, weight shape, rounding,
+layout, tiling, core count, inputs, SDK/runtime and artifacts to each receipt.
+The independent stdlib reference retains zero rows, small-magnitude rows and
+nonuniform weights. All variants use atol=rtol=0.01; the matched variants must
+be bitwise equal to serial_1, and timing output must match its own correctness
+output. Original Split-K may differ by reduction association and is checked
+against the independent reference under the same precision contract.
+
+`run_rmsnorm_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR`
+verifies the passed Add gate, reuses its SDK/compiler/runtime paths and pinned
+helpers, and downloads the RMSNorm driver plus two source bundles. All ten
+six-step builds finish before dispatch. Ordinary RMSNorm then Split-K each run
+five correctness/timing pairs; each completed operation gets a summary before
+the next begins. There are 260 requested calls and 200 measured samples using
+five warmups/twenty samples per configuration. Four comparisons per operation
+separate pipeline effects at fixed core count from core scaling at fixed mode.
+Per-worker CPU affinity (two host CPUs), nice 10, 4-GiB RSS, 30-second timeout,
+shared device lock and both-node privileged occupancy checks remain in force.
+A failure stops the batch and preserves completed work. Existing result folders
+are read-only prerequisites. No automatic retries, resets or installations are
+performed. Board acceptance of this combined batch remains pending.
+
+All ten exact-source CModel configurations passed, including one correctness
+call plus the timed ABI with one warmup/one sample each (thirty kernel calls).
+The maximum absolute reference error is 0.0009765625 throughout, with no
+tolerance mismatches. For each operation all four matched-tile outputs agree
+bitwise. Ordinary original agrees with them; Split-K original retains its
+previously observed different reduction-association output. All output hashes
+match the earlier single-core board results. Sources/native libraries stayed
+unchanged during validation. Full receipts are in
+`results/p9-rmsnorm-multicore-handoff-cmodel.json`; emulator durations are not
+performance evidence.
+
+The final regression passed 426 checks, including twenty-one new RMSNorm
+driver/sequence checks. These cover both numerical contracts, artifact binding,
+same-tile equivalence, timing-statistic integrity and the actual shell sequence
+with simulated compilation/dispatch, including stopping on failures while
+preserving an already completed operation. File hashes and test details are in
+`results/p9-rmsnorm-multicore-handoff-validation.json`.

@@ -1,0 +1,1246 @@
+{
+  "schema": "bm1690-matmul-multicore-board-evidence-v1",
+  "recorded_date": "2026-10-17",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "transcript_sha256": "d9d5bbf8eae6abe648808069a4d343b6ab2b047745fc95825d34b7c08cd96f94",
+  "revision": "559d17dcca4e0ebcdaaeb5f7ab8875efa21ccb14",
+  "remote_root": "/home/bokai/bm1690-matmul2-8BxBZ7/results",
+  "all_30_build_commands_passed": true,
+  "all_10_workers_passed": true,
+  "all_variants_match_cmodel": true,
+  "statistics_recomputed": true,
+  "full_remote_receipts_received": false,
+  "suite_exit": 0,
+  "workers": [
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "6ca85539e8121fba6d913eb769bd01d809ba4dc006f7ac55efe8d8c672a015f5",
+        "main.so": "be9c32254d03650b9a6c5dba5152f81ecafdd1c12125b4ce902db59eb4bdb9df"
+      },
+      "build_manifest_sha256": "7a5a0ab49a19646914f6e91e995b84412dbec4922a6781d842d15c84b93649d5",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "157dbd6afdce6475f0f1aa3b6b193a53112dce9d428da339165e613561f0f2ad",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        16,
+        16,
+        16
+      ],
+      "variant": "original"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "6ca85539e8121fba6d913eb769bd01d809ba4dc006f7ac55efe8d8c672a015f5",
+        "main.so": "be9c32254d03650b9a6c5dba5152f81ecafdd1c12125b4ce902db59eb4bdb9df"
+      },
+      "build_manifest_sha256": "7a5a0ab49a19646914f6e91e995b84412dbec4922a6781d842d15c84b93649d5",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "157dbd6afdce6475f0f1aa3b6b193a53112dce9d428da339165e613561f0f2ad",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3449.9619999999995,
+        "max_us": 464639.616,
+        "median_us": 461335.62950000004,
+        "min_us": 458387.144,
+        "p95_us": 464380.5909,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          459585.14,
+          460492.899,
+          464639.616,
+          459736.868,
+          462610.212,
+          463412.427,
+          461211.906,
+          463566.635,
+          461680.807,
+          462383.504,
+          464366.958,
+          460948.258,
+          463360.189,
+          460595.479,
+          458387.144,
+          463452.248,
+          459985.426,
+          458446.94,
+          461459.353,
+          459025.414
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        16,
+        16,
+        16
+      ],
+      "variant": "original"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2980a0812e9cd737e3ad8e38e71433556b2c4406e53ce1563c6e823adc9dff2b",
+        "main.so": "4ef3729f613213e4bf580054b70f8dd9c0ca68f86f7a329958ad03179b05160a"
+      },
+      "build_manifest_sha256": "15557d4b9c1f2c3649621c609b2f9a298f4534d170dbecb4b71d76415d0bda6b",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "2980a0812e9cd737e3ad8e38e71433556b2c4406e53ce1563c6e823adc9dff2b",
+        "main.so": "4ef3729f613213e4bf580054b70f8dd9c0ca68f86f7a329958ad03179b05160a"
+      },
+      "build_manifest_sha256": "15557d4b9c1f2c3649621c609b2f9a298f4534d170dbecb4b71d76415d0bda6b",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 185.09999999999854,
+        "max_us": 61763.694,
+        "median_us": 61161.475,
+        "min_us": 60805.048,
+        "p95_us": 61485.287,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          60805.048,
+          60871.8,
+          61130.257,
+          61128.624,
+          61101.118,
+          61241.671,
+          60977.116,
+          61016.342,
+          61105.587,
+          61763.694,
+          61270.47,
+          61289.129,
+          61470.634,
+          61279.598,
+          61192.693,
+          61047.254,
+          61227.838,
+          61210.289,
+          61286.313,
+          61113.673
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "33ed8740669fe0ae8e5dcadfc79fe1f13fd67231fc193598b7cb9f46473ee125",
+        "main.so": "f37fc20b82e9d3ab435017ad5194aafa0c454c384a93be385eebfa539f00cfae"
+      },
+      "build_manifest_sha256": "553d501f2f88d46c8407e4fe6231b20da6777d43d1a88f8fc9289af0f4022261",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "33ed8740669fe0ae8e5dcadfc79fe1f13fd67231fc193598b7cb9f46473ee125",
+        "main.so": "f37fc20b82e9d3ab435017ad5194aafa0c454c384a93be385eebfa539f00cfae"
+      },
+      "build_manifest_sha256": "553d501f2f88d46c8407e4fe6231b20da6777d43d1a88f8fc9289af0f4022261",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 1519.1865000000034,
+        "max_us": 55806.992,
+        "median_us": 54577.7185,
+        "min_us": 52929.124,
+        "p95_us": 55588.9518,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          54094.163,
+          53410.909,
+          54164.576,
+          53116.852,
+          53340.783,
+          53730.439,
+          55806.992,
+          55210.145,
+          54947.515,
+          55577.476,
+          55316.352,
+          54646.492,
+          55019.117,
+          54508.945,
+          55289.929,
+          55504.871,
+          55218.53,
+          52929.124,
+          54162.884,
+          53677.456
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "22084cbf476550dec20863c60afc3809270e990aa4a7dec11a005adb9a91c38a",
+        "main.so": "f86cde3cd661d64f75bf6b1933ec4c23e0e13100527a69723c6a21b16cff80d5"
+      },
+      "build_manifest_sha256": "e9916c50d45c491f1ad22d293f2239cbd7d41ccd9cf5498a03a9bbf10a6951d3",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "22084cbf476550dec20863c60afc3809270e990aa4a7dec11a005adb9a91c38a",
+        "main.so": "f86cde3cd661d64f75bf6b1933ec4c23e0e13100527a69723c6a21b16cff80d5"
+      },
+      "build_manifest_sha256": "e9916c50d45c491f1ad22d293f2239cbd7d41ccd9cf5498a03a9bbf10a6951d3",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 225.02549999999974,
+        "max_us": 30700.347,
+        "median_us": 30256.051,
+        "min_us": 29937.585,
+        "p95_us": 30417.422749999998,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          30191.393,
+          30041.682,
+          30342.52,
+          30700.347,
+          30402.532,
+          30298.447,
+          30342.742,
+          30334.03,
+          30330.641,
+          30121.244,
+          29937.585,
+          30241.61,
+          30008.151,
+          30165.743,
+          30286.632,
+          30270.492,
+          30348.383,
+          30120.557,
+          30026.711,
+          30082.837
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "55fab35925caac5481c228fe76ad06caa11a97143cdaafc1fa462753a633bedf",
+        "main.so": "235b52984594f6dd893550e5ebe01b06f3bee8a23c1f808581ed8924f5b6f88a"
+      },
+      "build_manifest_sha256": "5a5c83d43627964a1967e29ac110faa0e62f3fa6b20c4906eeef273576731219",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "accumulator_dtype": "float32",
+      "artifacts": {
+        "libkernel.so": "55fab35925caac5481c228fe76ad06caa11a97143cdaafc1fa462753a633bedf",
+        "main.so": "235b52984594f6dd893550e5ebe01b06f3bee8a23c1f808581ed8924f5b6f88a"
+      },
+      "build_manifest_sha256": "5a5c83d43627964a1967e29ac110faa0e62f3fa6b20c4906eeef273576731219",
+      "bundle_sha256": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "matmul",
+      "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.0009765625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "reference_backend": {
+        "accumulation_dtype": "float32",
+        "name": "numpy.matmul",
+        "output_dtype": "float16",
+        "version": "1.26.4"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 532.3590000000004,
+        "max_us": 32758.932,
+        "median_us": 31947.36,
+        "min_us": 31330.307,
+        "p95_us": 32355.3093,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          31796.765,
+          31583.068,
+          31520.864,
+          31692.061,
+          31552.689,
+          31475.037,
+          31330.307,
+          31500.395,
+          32247.234,
+          32095.79,
+          32082.478,
+          32334.066,
+          32222.232,
+          31841.978,
+          31985.081,
+          32758.932,
+          31912.636,
+          32099.365,
+          31982.084,
+          32133.234
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        32,
+        32,
+        32
+      ],
+      "variant": "pipeline_2"
+    }
+  ],
+  "summaries": [
+    {
+      "accumulator_dtype": "float32",
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.7083639618422306,
+          "median_reduction_percent": 41.46446411093567
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.120630848649344,
+          "median_reduction_percent": 10.764548271603973
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 0.9470595066384202,
+          "median_reduction_percent": -5.589985950248435
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 2.0214625828069894,
+          "median_reduction_percent": 50.53086767446338
+        }
+      },
+      "correctness_workers": 5,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "layout": "row-major",
+      "matrix_dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "operation": "matmul",
+      "pure_device_time": false,
+      "raw_samples": 100,
+      "repeatability_established": false,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "timing_workers": 5,
+      "variants": {
+        "original": {
+          "accumulator_dtype": "float32",
+          "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+          "launch_cores": 1,
+          "layout": "row-major",
+          "matrix_dimensions": [
+            1024,
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_sha256": "157dbd6afdce6475f0f1aa3b6b193a53112dce9d428da339165e613561f0f2ad",
+          "reference": {
+            "atol": 0.01,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.01
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 3449.9619999999995,
+            "max_us": 464639.616,
+            "median_us": 461335.62950000004,
+            "min_us": 458387.144,
+            "p95_us": 464380.5909,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              459585.14,
+              460492.899,
+              464639.616,
+              459736.868,
+              462610.212,
+              463412.427,
+              461211.906,
+              463566.635,
+              461680.807,
+              462383.504,
+              464366.958,
+              460948.258,
+              463360.189,
+              460595.479,
+              458387.144,
+              463452.248,
+              459985.426,
+              458446.94,
+              461459.353,
+              459025.414
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            16,
+            16,
+            16
+          ]
+        },
+        "pipeline_1": {
+          "accumulator_dtype": "float32",
+          "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+          "launch_cores": 1,
+          "layout": "row-major",
+          "matrix_dimensions": [
+            1024,
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+          "reference": {
+            "atol": 0.01,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.01
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 1519.1865000000034,
+            "max_us": 55806.992,
+            "median_us": 54577.7185,
+            "min_us": 52929.124,
+            "p95_us": 55588.9518,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              54094.163,
+              53410.909,
+              54164.576,
+              53116.852,
+              53340.783,
+              53730.439,
+              55806.992,
+              55210.145,
+              54947.515,
+              55577.476,
+              55316.352,
+              54646.492,
+              55019.117,
+              54508.945,
+              55289.929,
+              55504.871,
+              55218.53,
+              52929.124,
+              54162.884,
+              53677.456
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32,
+            32
+          ]
+        },
+        "pipeline_2": {
+          "accumulator_dtype": "float32",
+          "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+          "launch_cores": 2,
+          "layout": "row-major",
+          "matrix_dimensions": [
+            1024,
+            1024,
+            1024
+          ],
+          "num_stages": 2,
+          "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+          "reference": {
+            "atol": 0.01,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.01
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 532.3590000000004,
+            "max_us": 32758.932,
+            "median_us": 31947.36,
+            "min_us": 31330.307,
+            "p95_us": 32355.3093,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              31796.765,
+              31583.068,
+              31520.864,
+              31692.061,
+              31552.689,
+              31475.037,
+              31330.307,
+              31500.395,
+              32247.234,
+              32095.79,
+              32082.478,
+              32334.066,
+              32222.232,
+              31841.978,
+              31985.081,
+              32758.932,
+              31912.636,
+              32099.365,
+              31982.084,
+              32133.234
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32,
+            32
+          ]
+        },
+        "serial_1": {
+          "accumulator_dtype": "float32",
+          "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+          "launch_cores": 1,
+          "layout": "row-major",
+          "matrix_dimensions": [
+            1024,
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+          "reference": {
+            "atol": 0.01,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.01
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 185.09999999999854,
+            "max_us": 61763.694,
+            "median_us": 61161.475,
+            "min_us": 60805.048,
+            "p95_us": 61485.287,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              60805.048,
+              60871.8,
+              61130.257,
+              61128.624,
+              61101.118,
+              61241.671,
+              60977.116,
+              61016.342,
+              61105.587,
+              61763.694,
+              61270.47,
+              61289.129,
+              61470.634,
+              61279.598,
+              61192.693,
+              61047.254,
+              61227.838,
+              61210.289,
+              61286.313,
+              61113.673
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32,
+            32
+          ]
+        },
+        "serial_2": {
+          "accumulator_dtype": "float32",
+          "input_sha256": "03c8ccda05f09345f20c7df68b2c1f58764bbb84071b747bb7567fd1bc7de052",
+          "launch_cores": 2,
+          "layout": "row-major",
+          "matrix_dimensions": [
+            1024,
+            1024,
+            1024
+          ],
+          "num_stages": 0,
+          "output_sha256": "6cc1dd60eff7238fef9e2546ed1746fd64b0f29537fb6dff928302020c5a0823",
+          "reference": {
+            "atol": 0.01,
+            "bitwise_equal_to_reference": false,
+            "finite": true,
+            "max_abs_error": 0.0009765625,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.01
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 225.02549999999974,
+            "max_us": 30700.347,
+            "median_us": 30256.051,
+            "min_us": 29937.585,
+            "p95_us": 30417.422749999998,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              30191.393,
+              30041.682,
+              30342.52,
+              30700.347,
+              30402.532,
+              30298.447,
+              30342.742,
+              30334.03,
+              30330.641,
+              30121.244,
+              29937.585,
+              30241.61,
+              30008.151,
+              30165.743,
+              30286.632,
+              30270.492,
+              30348.383,
+              30120.557,
+              30026.711,
+              30082.837
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            32,
+            32,
+            32
+          ]
+        }
+      }
+    }
+  ],
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "repeatability_established": false
+}
