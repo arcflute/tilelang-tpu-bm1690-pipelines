@@ -30,21 +30,22 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the Matmul FP16 M=N=K=1024 one/two-workitem batch passed at
-`559d17d`: five configurations, ten correctness/timing workers, 100 raw timing
-samples. All outputs meet atol=rtol=0.01 (maximum absolute error 0.0009765625)
-and match the corresponding CModel hashes. The block-32 serial/pipeline outputs
-are bitwise identical at one and two cores; the original block-16 output retains
-its known rounding difference. One-core pipeline median is 10.7645% lower than
-same-tile serial. At two cores pipeline is 5.5900% slower than serial. Serial
-and pipeline one-to-two-core reductions are 50.5309% and 41.4645%, respectively.
-These remain one-round synchronous-call observations, without physical-overlap
-or repeatability evidence. See P9.8. Add/Sub/Mul/Div matrices also passed.
+**Latest result:** the ordinary/Split-K RMSNorm FP16 [1024,1024] one/two-workitem
+batch passed at `5555d80`: ten configurations, twenty correctness/timing workers,
+200 raw samples. Maximum absolute reference error is 0.0009765625 throughout,
+with no tolerance mismatches. Same-tile serial/pipeline outputs match bitwise at
+one and two cores and match CModel. Ordinary RMSNorm pipeline changes median
+latency by +0.7447% at one core and -8.0908% at two cores; Split-K changes it by
+-1.4520% and -1.1302%, respectively. Pipeline one-to-two-core reductions are
+42.0751% and 44.2207%. These are one-round launch-plus-sync observations;
+especially the small differences require reordered repetitions. See P9.10.
+Add/Sub/Mul/Div and Matmul one/two-workitem matrices also passed.
 
-The next board handoff combines ordinary and Split-K RMSNorm FP16 [1024,1024]:
-each original baseline plus same-tile serial/pipeline at one and two workitems.
-Existing Add manifests supply verified SDK/runtime paths, and scalar references
-use the system Python standard library. No environment rebuild is needed.
+The next handoff is RoPE FP16 [1024,1024], matched [32,64] serial/pipeline at
+one and two workitems. The full original's failed timeout receipt is preserved
+and bound to new results; that version is not dispatched in this batch. Existing
+Add manifests supply verified SDK/runtime paths, and the independent scalar
+reference uses system Python's standard library. No environment rebuild is needed.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2779,3 +2780,95 @@ same-tile equivalence, timing-statistic integrity and the actual shell sequence
 with simulated compilation/dispatch, including stopping on failures while
 preserving an already completed operation. File hashes and test details are in
 `results/p9-rmsnorm-multicore-handoff-validation.json`.
+
+### P9.10: Ordinary and Split-K RMSNorm one/two-workitem board matrices passed
+
+The user ran revision `5555d800a406fff8049b588bb9c62e1072641b4e` in
+`/home/bokai/bm1690-rmsnorm2-rWkQBk/results`. All sixty compilation steps and
+twenty correctness/timing workers passed, ending with
+`RMSNORM_MULTICORE_SUITE_PASSED` and `RMSNORM2_EXIT=0`. Both operations retain
+FP16 [1024,1024] input and per-element weights, epsilon=1e-12, FP32 reduction,
+and FP16 normalization rounding before the weight multiplication. All outputs
+are finite and pass atol=rtol=0.01; maximum absolute error is 0.0009765625.
+All same-tile results match bitwise across variants and repeat calls. Original
+Split-K retains its earlier rounding difference; every hash matches CModel.
+
+| Operation | Configuration | Cores | Tile rows/K | Median ms | IQR ms | p95 ms |
+|---|---|---:|---|---:|---:|---:|
+| rmsnorm | original | 1 | 4/1024 | 1.952499 | 0.019965 | 2.012491 |
+| rmsnorm | serial_1 | 1 | 32/1024 | 0.285208 | 0.005551 | 0.295947 |
+| rmsnorm | pipeline_1 | 1 | 32/1024 | 0.287332 | 0.008061 | 0.296019 |
+| rmsnorm | serial_2 | 2 | 32/1024 | 0.181088 | 0.002723 | 0.186193 |
+| rmsnorm | pipeline_2 | 2 | 32/1024 | 0.166437 | 0.003497 | 0.176998 |
+| rmsnorm-splitk | original | 1 | 4/32 | 57.940637 | 0.569513 | 58.610661 |
+| rmsnorm-splitk | serial_1 | 1 | 32/128 | 1.903661 | 0.016386 | 1.936802 |
+| rmsnorm-splitk | pipeline_1 | 1 | 32/128 | 1.876021 | 0.022331 | 1.921108 |
+| rmsnorm-splitk | serial_2 | 2 | 32/128 | 1.058393 | 0.032968 | 1.083972 |
+| rmsnorm-splitk | pipeline_2 | 2 | 32/128 | 1.046432 | 0.014559 | 1.121322 |
+
+Each configuration uses five warmups and twenty samples: 260 requested kernel
+calls and 200 measured samples across both operations. Measurements exclude
+compilation, allocation, module loading, transfers and reference computation.
+Original-to-matched differences include tile-size changes and are not pipeline-only
+gains. Ordinary one-core pipeline is 0.7447% slower than same-tile serial, while
+two-core pipeline is 8.0908% faster. Split-K reductions are 1.4520% and 1.1302%
+at one and two cores. Serial one-to-two-core reductions are 36.5066% ordinary
+and 44.4022% Split-K; pipeline reductions are 42.0751% and 44.2207%.
+
+Keep raw samples, tails and regressions: these figures establish neither a fixed
+speedup nor physical overlap. `results/p9-rmsnorm-multicore-board-user-reported.json`
+archives all twenty printed worker records, both complete summaries and the
+transcript checksum. All statistics and ratios were recomputed locally; full
+remote receipt files and binaries remain on the board server.
+
+### P9.11: RoPE matched one/two-workitem handoff
+
+`export_rope_multicore.py` keeps FP16 source/output [1024,1024], separate FP32
+cosine/sine [1024,512] tables, interleaved even/odd pairing and FP32 arithmetic.
+All four variants use [32,64] tiles. The single-core kernel.c hashes exactly
+match the earlier passed tiled target sources. Dual-core variants partition the
+512 independent output tiles by `task % cores`; each core handles 256 complete
+tiles, with matching 32-column sin/cos ranges. No pair crosses a workitem boundary.
+
+The lowered two-stage schedule has five statements (three input loads, the pair
+loop, output store), order [0,1,2,3,4], stages [0,0,0,1,1], and independent double
+versions of x, cos and sin. The pair loop's intermediates and output remain single
+version; stores complete after parallel end before output reuse. Extent is 512
+at one core and 256 at two. Local memory high-water is 16576 bytes per lane for
+serial, 16640 for pipeline. This is compiler scheduling evidence, not proof of
+hardware transfer/compute overlap.
+
+`rope_multicore_pcie.py` retains the original full target timeout separately:
+`original_failure` checks the operation, full shape, input/bundle identities,
+dispatch stage, completed process cleanup, device mapping and runtime identity.
+Its receipt hash and unresolved status accompany every new result and the summary.
+The original is not an allowed variant in this handoff; no original build or
+launch is scheduled. Passing the four matched configurations does not resolve
+the original failure or complete original/serial/pipeline acceptance.
+
+`run_rope_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR ORIGINAL_FAILURE_DIR`
+reuses the passed Add gate and its SDK/runtime/compiler, copies the old original
+failure receipt without changing it, and compiles all four variants before launch.
+Each variant gets a correctness worker and a timed worker (five warmups, twenty
+samples), for eight workers, 104 requested calls and 80 timing samples. New
+outputs are compared to the independent scalar FP32 RoPE reference and to the
+same-tile serial_1 output. NaN initialization and input/output guards remain in
+place, as do two-host-CPU affinity, nice 10, 4-GiB RSS, 30-second worker timeout,
+shared lock, privileged checks of both device nodes, and stop-on-failure behavior.
+Existing directories are preserved. Board validation of this handoff is pending.
+
+All four exact-source CModel workers passed, each checking one correctness call
+and the timed ABI with one warmup/one sample (twelve total calls). All outputs
+match the independent reference bitwise (maximum absolute error 0) and retain
+the earlier single-core board hash. Source/native-library identities stayed
+unchanged throughout. Full receipts are in
+`results/p9-rope-multicore-handoff-cmodel.json`; emulator timings are not used as
+performance evidence.
+
+Final local regression passed 448 checks, including twenty-two new RoPE
+handoff/sequence checks. They cover precision/layout/pairing and task partition,
+all three input buffer versions, source/artifact/core binding, independent
+reference and repeated-call evidence, failed-original provenance, actual shell
+ordering with simulated compilation/dispatch, and stopping on failed gates,
+builds, calls or summary mismatches. File hashes and test details are recorded in
+`results/p9-rope-multicore-handoff-validation.json`.

@@ -1,0 +1,53 @@
+{
+  "schema": "bm1690-rope-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 448,
+    "elapsed_seconds": 57.852,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 120s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "156174950815580f8b3f09358f39592a56ce8197267c9d5ccbf8614234d7d042"
+  },
+  "new_checks": 22,
+  "cmodel_evidence": "p9-rope-multicore-handoff-cmodel.json",
+  "previous_board_evidence": "p9-rmsnorm-multicore-board-user-reported.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operation": "rope",
+  "shape": [
+    1024,
+    1024
+  ],
+  "dtype": "float16",
+  "table_shape": [
+    1024,
+    512
+  ],
+  "table_dtype": "float32",
+  "pairing": "interleaved-even-odd",
+  "computation_dtype": "float32",
+  "original_baseline_status": "failed_timeout_unresolved",
+  "three_variant_acceptance_complete": false,
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "planned_board_workers": 8,
+  "planned_board_kernel_calls": 104,
+  "planned_board_measured_samples": 80,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/rope_multicore_pcie.py": "316731f3968a2ac4885870a08d9ee132f0710f4a16d66e247c14fa782bd9942a",
+    "tpu_demo/pipeline/export_rope_multicore.py": "c56797ac359871fe1ac2dfc56d783b1dd94df20f092fe10504b65dfeb789f009",
+    "tpu_demo/pipeline/run_rope_multicore_board.sh": "92cfb290a71cdd3fd01d6f337e5621d2b3854e503c1109a1da3b9c56c86f2995",
+    "testing/python/jit/test_bm1690_rope_multicore_pcie_unittest.py": "4b3ea7e18f0f9eef2200cecf3f9d471c71f101945b4fe803a156f362284df059",
+    "testing/python/jit/test_bm1690_rope_multicore_sequence_unittest.py": "58052cb6b2c73cb363641a4643d7db84835266b6ff69f7d65553fa2c4eb4068c",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/rope-multicore-sources.json": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9"
+  }
+}

@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "rmsnorm_and_splitk_single_dual_core_comparison",
-  "pending_test": "Matmul one/two-workitem matrix passed; next combined ordinary and Split-K RMSNorm original plus matched serial/pipeline at one/two workitems.",
+  "pending_operation": "rope_single_dual_core_comparison",
+  "pending_test": "Ordinary/Split-K RMSNorm one/two-workitem matrices passed; next matched RoPE serial/pipeline at one/two workitems, retaining the full original timeout.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
@@ -145,8 +145,7 @@
   },
   "next_handoff": {
     "operations": [
-      "rmsnorm",
-      "rmsnorm-splitk"
+      "rope"
     ],
     "shape": [
       1024,
@@ -158,16 +157,16 @@
       2
     ],
     "variants": [
-      "original",
       "serial_1",
       "pipeline_1",
       "serial_2",
       "pipeline_2"
     ],
-    "script": "tpu_demo/pipeline/run_rmsnorm_multicore_board.sh",
+    "script": "tpu_demo/pipeline/run_rope_multicore_board.sh",
     "reuse_existing_sdk_and_runtime": true,
     "board_executed": false,
-    "hardware_overlap_verified": false
+    "hardware_overlap_verified": false,
+    "original_baseline_status": "failed_timeout_unresolved"
   },
   "cause_of_kernel_change": "not established",
   "full_remote_receipts_received_at_development_host": false,
@@ -496,6 +495,14 @@
     "all_10_workers_passed": true,
     "measured_samples": 100,
     "pipeline_at_two_cores_median_regression_percent": 5.589985950248435,
+    "repeatability_established": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_rmsnorm_multicore_validation": {
+    "evidence": "p9-rmsnorm-multicore-board-user-reported.json",
+    "remote_result_root": "/home/bokai/bm1690-rmsnorm2-rWkQBk/results",
+    "all_20_workers_passed": true,
+    "measured_samples": 200,
     "repeatability_established": false,
     "hardware_overlap_verified": false
   }
