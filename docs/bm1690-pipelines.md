@@ -1,5 +1,7 @@
 # BM1690 pipeline migration
 
+Presentation report (Chinese): [阶段成果与性能报告（2026-10-17）](bm1690-pipelines-stage-report-2026-10-17.zh-CN.md).
+
 Route A starts from `xwhzz/tilelang-tpu`, branch
 `feature/sg2260e-rv-support`, commit
 `e79e06c04c592014127d5eadd0b2f48777fe07ca`. The reference is
