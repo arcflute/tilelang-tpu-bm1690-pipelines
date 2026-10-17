@@ -30,22 +30,22 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the ordinary/Split-K RMSNorm FP16 [1024,1024] one/two-workitem
-batch passed at `5555d80`: ten configurations, twenty correctness/timing workers,
-200 raw samples. Maximum absolute reference error is 0.0009765625 throughout,
-with no tolerance mismatches. Same-tile serial/pipeline outputs match bitwise at
-one and two cores and match CModel. Ordinary RMSNorm pipeline changes median
-latency by +0.7447% at one core and -8.0908% at two cores; Split-K changes it by
--1.4520% and -1.1302%, respectively. Pipeline one-to-two-core reductions are
-42.0751% and 44.2207%. These are one-round launch-plus-sync observations;
-especially the small differences require reordered repetitions. See P9.10.
-Add/Sub/Mul/Div and Matmul one/two-workitem matrices also passed.
+**Latest result:** the matched RoPE FP16 [1024,1024] one/two-workitem batch
+passed at `daa4a40`: four configurations, eight correctness/timing workers and
+80 raw samples. Every output matches the independent reference bitwise and
+retains the earlier board/CModel hash. Same-tile pipeline median reductions
+are 11.2815% at one core and 8.5412% at two cores. Pipeline one-to-two-core
+reduction is 50.7399%. These remain one-round launch-plus-sync observations.
+The full original timeout is retained as unresolved and was not retried (P9.12).
+Add/Sub/Mul/Div, Matmul and ordinary/Split-K RMSNorm one/two-workitem matrices
+also passed.
 
-The next handoff is RoPE FP16 [1024,1024], matched [32,64] serial/pipeline at
-one and two workitems. The full original's failed timeout receipt is preserved
-and bound to new results; that version is not dispatched in this batch. Existing
-Add manifests supply verified SDK/runtime paths, and the independent scalar
-reference uses system Python's standard library. No environment rebuild is needed.
+The next handoff is SwiGLU FP16 [1024,1024], retaining the original [4,32]
+baseline and matched [32,128] serial/pipeline at one and two workitems. It keeps
+FP32 intermediates and only the final FP16 output cast; buffer reuse remains a
+separate experiment. Existing Add manifests supply verified SDK/runtime/compiler
+paths, and the independent scalar reference uses system Python's standard
+library. No environment rebuild is needed.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2872,3 +2872,96 @@ reference and repeated-call evidence, failed-original provenance, actual shell
 ordering with simulated compilation/dispatch, and stopping on failed gates,
 builds, calls or summary mismatches. File hashes and test details are recorded in
 `results/p9-rope-multicore-handoff-validation.json`.
+
+### P9.12: RoPE matched one/two-workitem board comparison passed
+
+The user ran revision `daa4a4026090876feb151a85982d96c56caac2dc` in
+`/home/bokai/bm1690-rope2-3ZU00i/results`. All twenty-four compilation steps and
+eight correctness/timing workers passed, ending with `ROPE_MULTICORE_SUITE_PASSED`
+and `ROPE2_EXIT=0`. Shape is FP16 [1024,1024], with separate FP32 [1024,512]
+cosine/sine tables, interleaved even/odd pairing and [32,64] tiles throughout.
+All outputs are finite and match the independent reference bitwise, with maximum
+absolute error zero. Single/dual-core, serial/pipeline and repeated-call hashes
+all match CModel and earlier board results.
+
+| Configuration | Cores | Median ms | IQR ms | p95 ms |
+|---|---:|---:|---:|---:|
+| serial_1 | 1 | 123.434625 | 0.157829 | 123.539994 |
+| pipeline_1 | 1 | 109.509364 | 0.422030 | 110.074613 |
+| serial_2 | 2 | 58.982260 | 0.294815 | 59.594804 |
+| pipeline_2 | 2 | 53.944452 | 0.252831 | 54.255239 |
+
+Each configuration uses five warmups and twenty samples: 104 requested kernel
+calls and 80 measured samples in total. The launch-plus-stream-sync boundary
+excludes compilation, allocation, module loading, transfers and reference.
+Pipeline versus matched serial reduces median by 11.2815% at one core and
+8.5412% at two. One-to-two-core reductions are 52.2158% serial and 50.7399%
+pipeline. Reordered repeatability and physical transfer/compute overlap remain
+unverified; no fixed scaling factor is established.
+
+The original full [4,32]-tile version was neither rebuilt nor relaunched. Every
+worker retains `original_baseline_status=failed_timeout_unresolved`, failure
+receipt SHA256 `69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9`,
+and `three_variant_acceptance_complete=false`. This batch completes the four
+matched configurations, not the outstanding original-baseline investigation.
+`results/p9-rope-multicore-board-user-reported.json` archives all eight printed
+worker records, complete summary and transcript checksum. Statistics and
+comparisons were recomputed locally. Full receipts and binaries stay on the
+remote board server.
+
+### P9.13: SwiGLU original plus matched one/two-workitem handoff
+
+`export_swiglu_multicore.py` preserves FP16 [1024,1024] gate/up/output, row-major
+layout and `up * (gate * sigmoid(gate))`. Inputs become FP32 before exp,
+reciprocal and products; only the final product is cast to FP16. Original tiles
+are [4,32]; matched tiles are [32,128]. All three single-core kernel.c hashes
+match previously passed board bundles. Dual-core variants distribute 256
+independent complete output tiles by task modulo two (128 tiles per core).
+No kernel arithmetic, compiler or existing runner changes are introduced.
+
+The lowered two-stage schedule has thirteen statements, order 0 through 12,
+stages [0,0,1,1,1,1,1,1,1,1,1,1,1], with separate double versions for gate_input
+and up_input. FP32 intermediate and exp scratch buffers (negative_gate, work0,
+work1, coeff) keep their original storage contract and ordered use; output is
+stored after parallel end before its next reuse. Pipeline extent is 256 at one
+core and 128 at two. Per-lane allocator high-water is 49280 bytes in all five
+configurations; exp scratch allocation contributes to this reported peak.
+Explicit buffer reuse remains disabled and will be evaluated independently.
+These scheduling/allocation reports do not establish physical overlap.
+
+`swiglu_multicore_pcie.py` binds intermediate precision, formula, output rounding,
+buffer-reuse flag, tiling/core count, input, runtime and artifacts to receipts.
+The independent stdlib scalar reference computes FP32-rounded exp/reciprocal
+and products before the final FP16 cast; test inputs include signed gates in
+[-3,3], signed zero and near-zero values. Inherited atol=rtol=0.01 applies.
+Matched variants must agree bitwise with serial_1; timed output must agree with
+its saved correctness output.
+
+`run_swiglu_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR`
+reuses the existing passed Add gate and verified SDK/runtime/compiler paths,
+downloads the pinned driver/bundle and completes all thirty compilation steps
+before dispatch. Five configurations each get a correctness and a timing worker,
+with five warmups and twenty samples: ten workers, 130 requested calls and 100
+measured samples. Four comparisons separate pipeline at fixed core count from
+core scaling at fixed mode. Existing two-host-CPU affinity, nice 10, 4-GiB RSS,
+30-second worker timeout, device lock and privileged checks of both device nodes
+remain active. A failure stops the batch and preserves previous results. Board
+validation of this batch remains pending.
+
+All five exact-source CModel workers passed, each checking one correctness call
+and the timed ABI with one warmup/one sample (fifteen total calls). The maximum
+absolute reference error is 0.0001220703125, with no tolerance mismatches. All
+five outputs match bitwise, including repeat calls, and match the earlier
+single-core board hash. Source/native-library identities stayed unchanged during
+validation. Full receipts are in
+`results/p9-swiglu-multicore-handoff-cmodel.json`; emulator timings are not
+performance evidence.
+
+The final regression passed 469 checks, including twenty-one new SwiGLU
+handoff/sequence checks. These cover the preserved precision/formula/rounding,
+input versions and exp scratch contract, source/core/artifact binding,
+reference/repeated-call evidence, actual shell sequencing with simulated
+compiler/board replies, rejection of incomplete gates or mismatched outputs,
+and independent recomputation of timing statistics and scaling comparisons.
+File hashes and test details are in
+`results/p9-swiglu-multicore-handoff-validation.json`.

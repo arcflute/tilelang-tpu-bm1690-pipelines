@@ -1,0 +1,1095 @@
+{
+  "schema": "bm1690-rope-multicore-board-evidence-v1",
+  "recorded_date": "2026-10-17",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "transcript_sha256": "7d03b8420cf659dab4be5fb1cdd855092ff53b55ef999d71bc76e9edba677904",
+  "revision": "daa4a4026090876feb151a85982d96c56caac2dc",
+  "remote_root": "/home/bokai/bm1690-rope2-3ZU00i/results",
+  "all_24_build_commands_passed": true,
+  "all_8_workers_passed": true,
+  "all_variants_match_cmodel": true,
+  "statistics_recomputed": true,
+  "full_remote_receipts_received": false,
+  "suite_exit": 0,
+  "workers": [
+    {
+      "artifacts": {
+        "libkernel.so": "f24f8286f8ee6b23f628806ac8f6882eaca9fd6d993192959f4813234816c6c3",
+        "main.so": "770d25be971d888577eb695ffcf45e0d942eddeaf35616264b2d54927de61a8d"
+      },
+      "build_manifest_sha256": "abd8992c5e3c09b45ac67202d25453ff7e54323f29609a3c04675fa514723407",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "f24f8286f8ee6b23f628806ac8f6882eaca9fd6d993192959f4813234816c6c3",
+        "main.so": "770d25be971d888577eb695ffcf45e0d942eddeaf35616264b2d54927de61a8d"
+      },
+      "build_manifest_sha256": "abd8992c5e3c09b45ac67202d25453ff7e54323f29609a3c04675fa514723407",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": null,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 157.8289999999979,
+        "max_us": 123594.49,
+        "median_us": 123434.6255,
+        "min_us": 123033.496,
+        "p95_us": 123539.9942,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          123037.693,
+          123033.496,
+          123175.544,
+          123325.614,
+          123385.148,
+          123468.444,
+          123475.228,
+          123299.192,
+          123456.815,
+          123416.467,
+          123452.784,
+          123594.49,
+          123465.069,
+          123537.126,
+          123390.181,
+          123499.797,
+          123224.527,
+          123349.628,
+          123490.697,
+          123481.666
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "dc2120017d2a2b507f8287a9ffd31cf521f558a361f879c241ee0f37e7ff0b7a",
+        "main.so": "15daad8741728640bc2b40f9b03ea784d0c501adb24765a2dc0d2f92367597ce"
+      },
+      "build_manifest_sha256": "676bb356bc9102025b0c791f70f4e69936fa2b710d09cc99b4bbf7cfd45b99d2",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "dc2120017d2a2b507f8287a9ffd31cf521f558a361f879c241ee0f37e7ff0b7a",
+        "main.so": "15daad8741728640bc2b40f9b03ea784d0c501adb24765a2dc0d2f92367597ce"
+      },
+      "build_manifest_sha256": "676bb356bc9102025b0c791f70f4e69936fa2b710d09cc99b4bbf7cfd45b99d2",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 422.0304999999935,
+        "max_us": 110263.786,
+        "median_us": 109509.364,
+        "min_us": 109357.354,
+        "p95_us": 110074.61345,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          109521.868,
+          109357.354,
+          110064.657,
+          109373.239,
+          109609.72,
+          110010.653,
+          109396.098,
+          109359.49,
+          109732.227,
+          109496.86,
+          109598.913,
+          109942.989,
+          109832.346,
+          109413.122,
+          109487.284,
+          110032.235,
+          110263.786,
+          109446.261,
+          109496.643,
+          109469.637
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "2d54174a9f689faa4b282dd1474e347a8dbe7f6f44108a0739b68e3845484c98",
+        "main.so": "05df92567d7d22e70650ac5e382597d91e681bbda11c4f6adbc131eb074caee8"
+      },
+      "build_manifest_sha256": "dda29e53582b6df904fa40d653632f27d461b17810e7bc00c319b776f24a8a22",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "2d54174a9f689faa4b282dd1474e347a8dbe7f6f44108a0739b68e3845484c98",
+        "main.so": "05df92567d7d22e70650ac5e382597d91e681bbda11c4f6adbc131eb074caee8"
+      },
+      "build_manifest_sha256": "dda29e53582b6df904fa40d653632f27d461b17810e7bc00c319b776f24a8a22",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 294.814750000005,
+        "max_us": 59653.523,
+        "median_us": 58982.26,
+        "min_us": 58535.438,
+        "p95_us": 59594.8035,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          59040.532,
+          58890.433,
+          58727.808,
+          58895.314,
+          58905.363,
+          58896.154,
+          58656.997,
+          59042.624,
+          58688.934,
+          58950.76,
+          59184.543,
+          58535.438,
+          58886.465,
+          59149.156,
+          59184.16,
+          59013.76,
+          59653.523,
+          59440.434,
+          59569.368,
+          59591.713
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "af6eced2a0da5cd4f175472e35bd506c57bdddaf424481429ce25ff8cbcfe1e2",
+        "main.so": "f56f59a147a049304dc6b06da1b30b763ee7341f2d41307cc63a8af6857e2f2d"
+      },
+      "build_manifest_sha256": "df4bb83cd56d2a1a4616e250fd8c49e99f1323f42c55389c479e34f438c81ef5",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "af6eced2a0da5cd4f175472e35bd506c57bdddaf424481429ce25ff8cbcfe1e2",
+        "main.so": "f56f59a147a049304dc6b06da1b30b763ee7341f2d41307cc63a8af6857e2f2d"
+      },
+      "build_manifest_sha256": "df4bb83cd56d2a1a4616e250fd8c49e99f1323f42c55389c479e34f438c81ef5",
+      "bundle_sha256": "a32a3f62dd09eaf41bbd1ecb3239e4a690e8b356d6a63f967bbd451d9de6d1d9",
+      "computation_dtype": "float32",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+      "input_sha256_by_argument": [
+        "d869b98adf91910a56ebf56521fe9122aa68c1a42be06b64afddfb300d1d8f03",
+        "c090354b443cc024d49685374b4d6a49d0580b81ad612a8b451a7056933ecabe",
+        "77633f403a13885cd6832a6ac70823a8b9064af0a5810959141163453b6d30e1"
+      ],
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "layout": "row-major",
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+      "pairing": "interleaved-even-odd",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "reference_backend": {
+        "name": "stdlib scalar FP32 RoPE"
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "serial_variant_bitwise_equal": true,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 252.830750000001,
+        "max_us": 54259.943,
+        "median_us": 53944.452000000005,
+        "min_us": 53604.304,
+        "p95_us": 54255.238600000004,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          53854.192,
+          53943.586,
+          53643.797,
+          54259.943,
+          54254.991,
+          54225.274,
+          53983.819,
+          54052.733,
+          53755.361,
+          53935.759,
+          53945.318,
+          53915.605,
+          54064.186,
+          53619.368,
+          53604.304,
+          54044.599,
+          53739.121,
+          54011.722,
+          54098.921,
+          53818.567
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "tiling": [
+        32,
+        64
+      ],
+      "variant": "pipeline_2"
+    }
+  ],
+  "summaries": [
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 2.030039419067599,
+          "median_reduction_percent": 50.73987280211032
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.1271604636476567,
+          "median_reduction_percent": 11.281487219321612
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0933888066932258,
+          "median_reduction_percent": 8.541225785515843
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 2.0927415378793555,
+          "median_reduction_percent": 52.215790536019405
+        }
+      },
+      "computation_dtype": "float32",
+      "correctness_workers": 4,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "layout": "row-major",
+      "operation": "rope",
+      "original_baseline_failure": {
+        "reason": "timeout",
+        "receipt_sha256": "69d83c07c26f111d2a90ff2cdb143eaf73e709cc5611a688f06d6cc4f74a21b9"
+      },
+      "original_baseline_status": "failed_timeout_unresolved",
+      "output_index": 3,
+      "pairing": "interleaved-even-odd",
+      "pure_device_time": false,
+      "raw_samples": 80,
+      "repeatability_established": false,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "table_dtype": "float32",
+      "table_shape": [
+        1024,
+        512
+      ],
+      "three_variant_acceptance_complete": false,
+      "timing_workers": 4,
+      "variants": {
+        "pipeline_1": {
+          "computation_dtype": "float32",
+          "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+          "launch_cores": 1,
+          "layout": "row-major",
+          "num_stages": 2,
+          "output_index": 3,
+          "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+          "pairing": "interleaved-even-odd",
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 422.0304999999935,
+            "max_us": 110263.786,
+            "median_us": 109509.364,
+            "min_us": 109357.354,
+            "p95_us": 110074.61345,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              109521.868,
+              109357.354,
+              110064.657,
+              109373.239,
+              109609.72,
+              110010.653,
+              109396.098,
+              109359.49,
+              109732.227,
+              109496.86,
+              109598.913,
+              109942.989,
+              109832.346,
+              109413.122,
+              109487.284,
+              110032.235,
+              110263.786,
+              109446.261,
+              109496.643,
+              109469.637
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "table_dtype": "float32",
+          "table_shape": [
+            1024,
+            512
+          ],
+          "tiling": [
+            32,
+            64
+          ]
+        },
+        "pipeline_2": {
+          "computation_dtype": "float32",
+          "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+          "launch_cores": 2,
+          "layout": "row-major",
+          "num_stages": 2,
+          "output_index": 3,
+          "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+          "pairing": "interleaved-even-odd",
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 252.830750000001,
+            "max_us": 54259.943,
+            "median_us": 53944.452000000005,
+            "min_us": 53604.304,
+            "p95_us": 54255.238600000004,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              53854.192,
+              53943.586,
+              53643.797,
+              54259.943,
+              54254.991,
+              54225.274,
+              53983.819,
+              54052.733,
+              53755.361,
+              53935.759,
+              53945.318,
+              53915.605,
+              54064.186,
+              53619.368,
+              53604.304,
+              54044.599,
+              53739.121,
+              54011.722,
+              54098.921,
+              53818.567
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "table_dtype": "float32",
+          "table_shape": [
+            1024,
+            512
+          ],
+          "tiling": [
+            32,
+            64
+          ]
+        },
+        "serial_1": {
+          "computation_dtype": "float32",
+          "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+          "launch_cores": 1,
+          "layout": "row-major",
+          "num_stages": 0,
+          "output_index": 3,
+          "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+          "pairing": "interleaved-even-odd",
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 157.8289999999979,
+            "max_us": 123594.49,
+            "median_us": 123434.6255,
+            "min_us": 123033.496,
+            "p95_us": 123539.9942,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              123037.693,
+              123033.496,
+              123175.544,
+              123325.614,
+              123385.148,
+              123468.444,
+              123475.228,
+              123299.192,
+              123456.815,
+              123416.467,
+              123452.784,
+              123594.49,
+              123465.069,
+              123537.126,
+              123390.181,
+              123499.797,
+              123224.527,
+              123349.628,
+              123490.697,
+              123481.666
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "table_dtype": "float32",
+          "table_shape": [
+            1024,
+            512
+          ],
+          "tiling": [
+            32,
+            64
+          ]
+        },
+        "serial_2": {
+          "computation_dtype": "float32",
+          "input_sha256": "404b078672231518390d306a54fee616ba77542d54bff858b2514fb520f116ca",
+          "launch_cores": 2,
+          "layout": "row-major",
+          "num_stages": 0,
+          "output_index": 3,
+          "output_sha256": "c5b2ee562c7dfd25db6b661df2e0e1adfde5946761f874b29c42702d7a96ac0c",
+          "pairing": "interleaved-even-odd",
+          "reference": {
+            "atol": 0.005,
+            "bitwise_equal_to_reference": true,
+            "finite": true,
+            "max_abs_error": 0.0,
+            "mismatched_elements": 0,
+            "passed": true,
+            "rtol": 0.005
+          },
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 294.814750000005,
+            "max_us": 59653.523,
+            "median_us": 58982.26,
+            "min_us": 58535.438,
+            "p95_us": 59594.8035,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              59040.532,
+              58890.433,
+              58727.808,
+              58895.314,
+              58905.363,
+              58896.154,
+              58656.997,
+              59042.624,
+              58688.934,
+              58950.76,
+              59184.543,
+              58535.438,
+              58886.465,
+              59149.156,
+              59184.16,
+              59013.76,
+              59653.523,
+              59440.434,
+              59569.368,
+              59591.713
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "table_dtype": "float32",
+          "table_shape": [
+            1024,
+            512
+          ],
+          "tiling": [
+            32,
+            64
+          ]
+        }
+      }
+    }
+  ],
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "repeatability_established": false
+}

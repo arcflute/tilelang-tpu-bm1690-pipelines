@@ -1,0 +1,48 @@
+{
+  "schema": "bm1690-swiglu-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 469,
+    "elapsed_seconds": 61.49,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 125s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "f0fa5bd36b478f586c4be51f803072c898437498cc4830127109fe0a85ba3e15"
+  },
+  "new_checks": 21,
+  "cmodel_evidence": "p9-swiglu-multicore-handoff-cmodel.json",
+  "previous_board_evidence": "p9-rope-multicore-board-user-reported.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operation": "swiglu",
+  "shape": [
+    1024,
+    1024
+  ],
+  "dtype": "float16",
+  "intermediate_dtype": "float32",
+  "formula": "up * (gate * sigmoid(gate))",
+  "output_rounding": "fp16-after-final-product",
+  "buffer_reuse": false,
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "planned_board_workers": 10,
+  "planned_board_kernel_calls": 130,
+  "planned_board_measured_samples": 100,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/swiglu_multicore_pcie.py": "aa987f43ea9d332ff782e86c11154f6395d6496ebc6c7f97bce36127068cbb71",
+    "tpu_demo/pipeline/export_swiglu_multicore.py": "3947dc9974a2a2466d8376ff08b85863fb59c2ba5286d53c4617a860513660f2",
+    "tpu_demo/pipeline/run_swiglu_multicore_board.sh": "803edd691b0d80fa76a7350650ff3bb58aebd9b6967e951d5bd4de009461eb81",
+    "testing/python/jit/test_bm1690_swiglu_multicore_pcie_unittest.py": "0115812e4351910ee1b6e0a5d566b8eb3f1837843a7a65b62849c422ee4c6acc",
+    "testing/python/jit/test_bm1690_swiglu_multicore_sequence_unittest.py": "c80ad6ec1cccf957c4288f5879742666c937f15a15ad265292eec6f801a683b2",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/swiglu-multicore-sources.json": "26c7e140dac693ad1005bb1dd0a495c73863f3d6547ad8edf77783a31dc42f11"
+  }
+}
