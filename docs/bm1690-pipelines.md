@@ -30,20 +30,21 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the Add FP16 [1024,1024] matched one/two-workitem matrix
-passed at `ab24a56`. All thirty build steps and ten correctness/timing workers
-passed; every output matched its independent reference and CModel exactly.
-Median synchronous-call latencies in us are 114.2585 (original), 120.9805
-(serial_1), 120.4825 (pipeline_1), 95.1865 (serial_2), 97.6185 (pipeline_2).
-Two-core reductions versus the corresponding one-core mode are 21.3208%
-(serial) and 18.9770% (pipeline) in this round. Pipeline versus same-core serial
-is nearly flat at one core (0.4116% lower), and slower at two (2.5550% higher).
-The two-core pipeline maximum of 416.372 us is retained. These are host-call
-observations; repeatability and physical overlap are unverified. See P9.4.
+**Latest result:** the grouped Sub/Mul/Div FP16 [1024,1024] one/two-workitem
+matrix passed at `8a2435e`: fifteen configurations, thirty correctness/timing
+workers, 300 raw timing samples. Every operation's five outputs match its CModel
+hash and its original output. Sub/Mul match the reference exactly; Div retains
+its existing tolerance and 0.00390625 maximum absolute error. Pipeline one-to-two
+core median reductions are 24.0034%, 19.4482%, 24.1025%, respectively. At two
+cores, pipeline is 2.0600% / 5.1168% slower than same-tile serial for Sub/Mul,
+and 7.1194% faster for Div. Preserve those regressions and all outliers.
+These are one-round synchronous-call observations; repeatability and physical
+overlap are unverified. Add's earlier five-way matrix also passed (P9.4).
 
-The next board handoff combines Sub/Mul/Div with the same original and four
-matched tiled configurations. It reuses the passed Add environment and keeps
-the existing per-worker resource, occupancy and failure-stop checks.
+The next board handoff is Matmul FP16 M=N=K=1024: original block 16, then matched
+block 32 serial/pipeline at one and two workitems. It reuses the verified Add
+SDK/runtime paths and the already inspected NumPy environment. No driver reset,
+dependency installation or concurrent TPU execution is part of the handoff.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2568,3 +2569,111 @@ results and RoPE's unresolved full-original timeout, remains unchanged.
 Final local regression validation passed 384 checks, including twenty-one new
 driver/sequence checks. Evidence and final file hashes are in
 `results/p9-elementwise-multicore-handoff-validation.json`.
+
+### P9.6: Grouped Sub/Mul/Div board comparisons passed
+
+The user ran revision `8a2435e22e51d94618c1161f9b056c6759ec0a5a` in
+`/home/bokai/bm1690-ew2-dSSeyc/results`. All ninety build steps and thirty workers
+passed, ending with `ELEMENTWISE_MULTICORE_SUITE_PASSED` and `EW2_EXIT=0`.
+Each operation retains original, serial_1, pipeline_1, serial_2 and pipeline_2.
+There are fifteen independent correctness calls and fifteen timing workers,
+each with five warmups and twenty samples: 390 calls, 300 measured samples.
+
+| Operation | original us | serial_1 us | pipeline_1 us | serial_2 us | pipeline_2 us |
+|---|---:|---:|---:|---:|---:|
+| Sub | 114.2235 | 123.1390 | 119.0060 | 88.6150 | 90.4405 |
+| Mul | 114.7415 | 124.7900 | 120.4150 | 92.2750 | 96.9965 |
+| Div | 127.7905 | 136.9325 | 125.7735 | 102.7760 | 95.4590 |
+
+All entries are median host-call latency including launch plus stream
+synchronization; compilation, allocation, module loading, H2D/D2H and reference
+are excluded. The source/layout/precision and [128,1024] tiles are held constant
+across each serial/pipeline comparison at the same core count.
+
+| Operation | Pipeline reduction at 1 core | Pipeline reduction at 2 cores | Serial 1-to-2 reduction | Pipeline 1-to-2 reduction |
+|---|---:|---:|---:|---:|
+| Sub | 3.3564% | -2.0600% | 28.0366% | 24.0034% |
+| Mul | 3.5059% | -5.1168% | 26.0558% | 19.4482% |
+| Div | 8.1493% | 7.1194% | 24.9440% | 24.1025% |
+
+Negative reductions are regressions. Sub's original and pipeline_1 maxima are
+860.283 and 861.525 us; Mul's pipeline_2 IQR is 7.070 us. All raw samples remain
+in the evidence, without assigning an unmeasured cause or claiming stable gains.
+Sub/Mul have zero reference error. Div's maximum absolute error is 0.00390625,
+with zero tolerance mismatches at atol=rtol=0.01. Within each operation all five
+outputs, including timed repeats, are bitwise identical and agree with CModel.
+
+`results/p9-elementwise-multicore-board-user-reported.json` preserves the user
+transcript hash, all thirty printed worker records, fifteen raw distributions,
+three summaries and artifact/runtime identities. Statistics and comparison
+formulas were independently recomputed. The full remote result files and binaries
+were not transferred to the development host. This closes the grouped batch;
+physical overlap, pure device time and wider-core acceptance remain unverified.
+
+### P9.7: Matmul one/two-workitem handoff
+
+`export_matmul_multicore.py` exports FP16, row-major M=N=K=1024 with FP32
+accumulation. Original keeps block [16,16,16]; serial_1/pipeline_1 and
+serial_2/pipeline_2 use [32,32,32]. All three single-core kernel.c hashes match
+the previous board-tested Matmul target bundle. There is no prepacking cost.
+`map_workitems` partitions the output grid, assigning each complete output tile
+to one workitem, with no K reduction shared between cores. There are 1024 output
+tiles for the block-32 cases (512 per workitem at two cores) and 32 K iterations
+per tile. Both pipelines retain a three-statement load/load/GEMM schedule,
+order [0,1,2], stage [0,0,1], two versions each of A_compute/B_compute, and a
+single ordered C_acc recurrence. Allocator high-water is 32832 bytes per lane
+for serial and 32896 for pipeline. These are generated allocation values, not
+measurements of occupancy or overlap.
+
+`matmul_multicore_pcie.py` uses the frozen legacy builder and runtime helper,
+with separate Matmul bundle/build/receipt schemas. All variants require the
+independent CPU FP32 NumPy GEMM reference, rounded to FP16, at atol=rtol=0.01.
+Because changing K-block size changes floating-point association, original is
+not required to match the block-32 result bitwise. The other three block-32
+variants must match the verified serial_1 output bitwise; every timing worker
+also matches its own saved correctness output. Matrix dimensions, accumulation
+precision, layout, tiling, core count, input, runtime and artifact hashes are
+part of receipt identity. This handoff covers the FP16 TPU-Kernel path only.
+
+`run_matmul_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR NUMPY_PYTHON`
+reuses the passed Add manifests to locate and verify the existing SDK/compiler
+and runtime. It checks the supplied existing Python can import NumPy, with CPU
+threads capped at one. The already inspected board interpreter is
+`/home/bokai/ChunkScan-bm1690-test-86add2f/.venv/bin/python` (NumPy 1.26.4).
+The batch downloads only the new Matmul driver and source bundle, then compiles
+all five variants before any dispatch. Ten workers run sequentially: correctness
+then timing for original, serial_1, pipeline_1, serial_2, pipeline_2. Each worker
+retains CPU affinity to two host CPUs, nice 10, 4-GiB RSS, a 30-second timeout,
+the shared device lock, and a privileged occupancy check of both device nodes.
+A failure stops the batch with logs and completed results intact. No retries,
+driver reloads or package changes are performed.
+
+The timing plan uses five warmups and twenty measured calls per configuration:
+130 total calls, 100 raw timing samples. The original's previous board timing
+was about 446 ms per call, so this bounded batch retains the existing 30-second
+worker limit; if it times out, inspect the saved stage rather than automatically
+increasing the limit. The four reported comparisons separate pipeline changes
+at fixed core count from one-to-two-core scaling at fixed serial/pipeline mode.
+The host timing boundary excludes compilation, allocation, module loading,
+transfers and reference. Board Matmul multicore acceptance remains pending.
+
+All five exact-source CModel workers passed, including one correctness call
+and the timed ABI with one warmup/one sample per configuration (fifteen kernel
+calls). The maximum absolute reference error is 0.0009765625 throughout; no
+values exceed the inherited tolerance. All four block-32 outputs are bitwise
+identical and match the earlier single-core board hash. Original retains its
+own previously observed output hash. Source/native-library identities were
+unchanged during the run. The complete receipts are in
+`results/p9-matmul-multicore-handoff-cmodel.json`. Emulator durations are not
+used as performance evidence.
+
+Offline checks exercise the actual board sequence with simulated compiler and
+runtime replies, including missing NumPy, invalid prior Add evidence, corrupt
+downloads/builds, wrong architectures/core counts, stopping after failures,
+incorrect timing statistics and mismatched same-tile outputs. They also verify
+that different original/block-32 outputs are accepted when the independent
+reference passes. These checks do not establish board execution.
+
+Final local regression validation passed 405 checks, including twenty-one
+new Matmul driver/sequence checks. Final file hashes and validation details are
+in `results/p9-matmul-multicore-handoff-validation.json`.

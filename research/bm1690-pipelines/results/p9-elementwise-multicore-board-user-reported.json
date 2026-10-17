@@ -1,0 +1,2973 @@
+{
+  "schema": "bm1690-elementwise-multicore-board-evidence-v1",
+  "recorded_date": "2026-10-17",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "transcript_sha256": "180bbe16a1f4fb750c402106896caafac4b234f39fcb5142d1402c4cbc3032fe",
+  "revision": "8a2435e22e51d94618c1161f9b056c6759ec0a5a",
+  "remote_root": "/home/bokai/bm1690-ew2-dSSeyc/results",
+  "all_90_build_commands_passed": true,
+  "all_30_workers_passed": true,
+  "all_variants_match_cmodel": true,
+  "statistics_recomputed": true,
+  "full_remote_receipts_received": false,
+  "suite_exit": 0,
+  "workers": [
+    {
+      "artifacts": {
+        "libkernel.so": "a4cbdc65f4ecee333d16ad44682f6cb8c33d5d68d271c9e90caae4d239e70776",
+        "main.so": "8885a51f8249e595e2db90584f349ea9f4913cd498744c1e3d4ec10aa79e5226"
+      },
+      "build_manifest_sha256": "e3b94f21ba4696e304a7978ba6c840d4b22e82a5d9901633af72ad10342b1ee4",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "a4cbdc65f4ecee333d16ad44682f6cb8c33d5d68d271c9e90caae4d239e70776",
+        "main.so": "8885a51f8249e595e2db90584f349ea9f4913cd498744c1e3d4ec10aa79e5226"
+      },
+      "build_manifest_sha256": "e3b94f21ba4696e304a7978ba6c840d4b22e82a5d9901633af72ad10342b1ee4",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3.0517500000000126,
+        "max_us": 860.283,
+        "median_us": 114.2235,
+        "min_us": 109.585,
+        "p95_us": 165.10910000000052,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          115.803,
+          114.043,
+          111.948,
+          109.585,
+          115.527,
+          110.236,
+          109.72,
+          110.377,
+          128.521,
+          115.602,
+          120.601,
+          860.283,
+          116.078,
+          115.488,
+          115.329,
+          113.087,
+          112.818,
+          114.404,
+          113.429,
+          113.158
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "867d4b6cd287d335a37f33b142e93d39a64c5b457916ac58935c1c9f040ddf25",
+        "main.so": "a740b6fc8186e5416c41df5d30a5b0f2843de04df44b64606fce8e4455bdfb83"
+      },
+      "build_manifest_sha256": "e557117031c226ae51ccfa2d0ee5b4129bf6d65e881c8aaa8103329bc1f949e8",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "867d4b6cd287d335a37f33b142e93d39a64c5b457916ac58935c1c9f040ddf25",
+        "main.so": "a740b6fc8186e5416c41df5d30a5b0f2843de04df44b64606fce8e4455bdfb83"
+      },
+      "build_manifest_sha256": "e557117031c226ae51ccfa2d0ee5b4129bf6d65e881c8aaa8103329bc1f949e8",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.855249999999998,
+        "max_us": 239.092,
+        "median_us": 123.139,
+        "min_us": 116.224,
+        "p95_us": 137.96925000000007,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          125.074,
+          132.647,
+          128.281,
+          124.89,
+          125.962,
+          117.866,
+          125.696,
+          118.283,
+          122.265,
+          128.064,
+          124.512,
+          123.318,
+          122.39,
+          121.782,
+          122.874,
+          116.224,
+          117.617,
+          122.96,
+          239.092,
+          117.056
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "126051388973a2fcf514c13da4c6c527912a7d39926f6f81649bb18fd74f2dc7",
+        "main.so": "9be42803b7c624855898a481e1b076b142f31040cf5dc87ba989bd0d651c917c"
+      },
+      "build_manifest_sha256": "bf03970be78b522e05d2bfaa32260acf95b89cc6377835c6dc6d838ac0f4c3c9",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "126051388973a2fcf514c13da4c6c527912a7d39926f6f81649bb18fd74f2dc7",
+        "main.so": "9be42803b7c624855898a481e1b076b142f31040cf5dc87ba989bd0d651c917c"
+      },
+      "build_manifest_sha256": "bf03970be78b522e05d2bfaa32260acf95b89cc6377835c6dc6d838ac0f4c3c9",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.514500000000012,
+        "max_us": 861.525,
+        "median_us": 119.006,
+        "min_us": 115.423,
+        "p95_us": 170.8797500000005,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          123.184,
+          118.034,
+          861.525,
+          134.53,
+          119.054,
+          116.957,
+          125.084,
+          122.295,
+          118.958,
+          117.457,
+          116.671,
+          115.653,
+          120.955,
+          117.88,
+          115.936,
+          115.423,
+          117.835,
+          119.412,
+          121.697,
+          119.487
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "833bf5cae34621116dbd9e27a82eb278714a8d771eb3320d6cc3cb9a0b6b63be",
+        "main.so": "c85294f09cda1b37a0fb8c44cc46a2bf318878b17b9ec6190fa9fd79a7d8efeb"
+      },
+      "build_manifest_sha256": "a9a1e39a40ee3d83c7764e437d559a43810e6921b04bc72dd04f83c9db37b731",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "833bf5cae34621116dbd9e27a82eb278714a8d771eb3320d6cc3cb9a0b6b63be",
+        "main.so": "c85294f09cda1b37a0fb8c44cc46a2bf318878b17b9ec6190fa9fd79a7d8efeb"
+      },
+      "build_manifest_sha256": "a9a1e39a40ee3d83c7764e437d559a43810e6921b04bc72dd04f83c9db37b731",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.823250000000016,
+        "max_us": 95.351,
+        "median_us": 88.615,
+        "min_us": 87.156,
+        "p95_us": 93.51559999999999,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          92.839,
+          92.39,
+          93.419,
+          87.156,
+          95.351,
+          91.155,
+          87.574,
+          87.378,
+          93.09,
+          87.331,
+          88.226,
+          87.585,
+          87.968,
+          88.734,
+          88.52,
+          88.922,
+          87.277,
+          88.272,
+          92.452,
+          88.71
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "41a86af171ebaab3d07907029928fbb7f2ef0a48f36d3403f3788497d16761e5",
+        "main.so": "00d4c9775a37b2d52dcbcc0663e95b3b7fb1d44ef1fa709abc3ff1114520cdd3"
+      },
+      "build_manifest_sha256": "99fb1d6880447f60654c348c4e99d34a5e9c06dd8397f90c3960cd46579cbbda",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "41a86af171ebaab3d07907029928fbb7f2ef0a48f36d3403f3788497d16761e5",
+        "main.so": "00d4c9775a37b2d52dcbcc0663e95b3b7fb1d44ef1fa709abc3ff1114520cdd3"
+      },
+      "build_manifest_sha256": "99fb1d6880447f60654c348c4e99d34a5e9c06dd8397f90c3960cd46579cbbda",
+      "bundle_sha256": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "sub",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 5.052000000000007,
+        "max_us": 95.782,
+        "median_us": 90.4405,
+        "min_us": 86.548,
+        "p95_us": 94.2525,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          88.645,
+          86.548,
+          91.428,
+          87.217,
+          88.624,
+          87.101,
+          92.602,
+          95.782,
+          92.904,
+          94.172,
+          93.013,
+          87.182,
+          93.785,
+          88.248,
+          91.439,
+          92.298,
+          94.044,
+          86.973,
+          89.453,
+          88.1
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "a3569e815d3dba1fb61a081ace00972732e662099efdad91fc2102a9e8b4012c",
+        "main.so": "0a06de9c74d061842cf9feae0158c6e841b575cb879c6f72e8cb0000a6ff1e9b"
+      },
+      "build_manifest_sha256": "1dba735ceaf73ff7ca23ce41ff7230e010b63b87d52b58d70bc9ad8eee7adc90",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "a3569e815d3dba1fb61a081ace00972732e662099efdad91fc2102a9e8b4012c",
+        "main.so": "0a06de9c74d061842cf9feae0158c6e841b575cb879c6f72e8cb0000a6ff1e9b"
+      },
+      "build_manifest_sha256": "1dba735ceaf73ff7ca23ce41ff7230e010b63b87d52b58d70bc9ad8eee7adc90",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 2.9337500000000176,
+        "max_us": 121.779,
+        "median_us": 114.7415,
+        "min_us": 109.518,
+        "p95_us": 119.79825000000001,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          115.864,
+          115.84,
+          114.903,
+          117.709,
+          121.779,
+          113.779,
+          114.698,
+          110.34,
+          114.785,
+          118.323,
+          111.913,
+          114.223,
+          115.717,
+          110.882,
+          114.642,
+          114.175,
+          112.229,
+          118.963,
+          119.694,
+          109.518
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "e8fcb0566c4cb11808cc50ba75ff891f73ad16052b2d0c8650f9de2cefd6eaea",
+        "main.so": "f5bd5657203d144d9a1f7633a520c0d63b104e7005a1a428c9abfde4c27d7f33"
+      },
+      "build_manifest_sha256": "409e2ba745321caf9b54457cffe781efdf73e40e3ae12baabf994ac6a2aa3b28",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "e8fcb0566c4cb11808cc50ba75ff891f73ad16052b2d0c8650f9de2cefd6eaea",
+        "main.so": "f5bd5657203d144d9a1f7633a520c0d63b104e7005a1a428c9abfde4c27d7f33"
+      },
+      "build_manifest_sha256": "409e2ba745321caf9b54457cffe781efdf73e40e3ae12baabf994ac6a2aa3b28",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 7.680749999999989,
+        "max_us": 162.053,
+        "median_us": 124.78999999999999,
+        "min_us": 116.097,
+        "p95_us": 147.55125,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          146.788,
+          117.785,
+          122.538,
+          144.007,
+          127.335,
+          130.687,
+          124.842,
+          127.893,
+          127.368,
+          124.738,
+          123.439,
+          131.6,
+          128.528,
+          162.053,
+          123.806,
+          117.873,
+          117.934,
+          116.097,
+          117.353,
+          123.089
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "d4fa0cd8c0204ef72102ba5bd44bbce8f7531cac0012206bda6801b5c7b28439",
+        "main.so": "9ab9cf3f793b60b38688612d21c6a8058307b115a3be72138fc9596e01bac030"
+      },
+      "build_manifest_sha256": "a9ccdb2893ab863fc5432eb25096e1f6744b7732a0e0055beb0ec8923eb42225",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "d4fa0cd8c0204ef72102ba5bd44bbce8f7531cac0012206bda6801b5c7b28439",
+        "main.so": "9ab9cf3f793b60b38688612d21c6a8058307b115a3be72138fc9596e01bac030"
+      },
+      "build_manifest_sha256": "a9ccdb2893ab863fc5432eb25096e1f6744b7732a0e0055beb0ec8923eb42225",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3.0332499999999953,
+        "max_us": 143.102,
+        "median_us": 120.41499999999999,
+        "min_us": 116.526,
+        "p95_us": 124.65870000000001,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          121.749,
+          119.797,
+          121.66,
+          122.082,
+          120.599,
+          120.231,
+          143.102,
+          122.815,
+          118.984,
+          117.334,
+          122.343,
+          119.731,
+          118.859,
+          118.619,
+          121.744,
+          116.526,
+          121.059,
+          123.688,
+          117.376,
+          117.492
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "68676f43bcd8ff90a9309373748f5a76e9fcf62b6669d64fa6f4d9b1af637ef2",
+        "main.so": "c0873848964777d8d5552e32bde4f0166052664874909428e90defdd6f04925d"
+      },
+      "build_manifest_sha256": "2ac57293cdb195342cbf3b719dfa2809dcdb22804df86246dcd6655d3ac19329",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "68676f43bcd8ff90a9309373748f5a76e9fcf62b6669d64fa6f4d9b1af637ef2",
+        "main.so": "c0873848964777d8d5552e32bde4f0166052664874909428e90defdd6f04925d"
+      },
+      "build_manifest_sha256": "2ac57293cdb195342cbf3b719dfa2809dcdb22804df86246dcd6655d3ac19329",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 2.143749999999997,
+        "max_us": 99.199,
+        "median_us": 92.275,
+        "min_us": 86.448,
+        "p95_us": 97.0102,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          93.114,
+          93.418,
+          96.895,
+          92.808,
+          92.112,
+          91.429,
+          91.132,
+          92.438,
+          87.628,
+          91.13,
+          91.626,
+          93.035,
+          94.967,
+          93.898,
+          86.448,
+          90.969,
+          89.031,
+          93.172,
+          89.342,
+          99.199
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "8713a96b1919e468c20f3f9d92f80686a25d4ea529efa0f3a58efff368055a61",
+        "main.so": "e61bb741d48fa8f1e6eb866bfb41ca73b81d7cea6c6f0003bfbb7ad88ff3a0b1"
+      },
+      "build_manifest_sha256": "54523dff9dbbb40612363e5c9b6a13677d6554508707ae1745c7476b8ec5bfb2",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "8713a96b1919e468c20f3f9d92f80686a25d4ea529efa0f3a58efff368055a61",
+        "main.so": "e61bb741d48fa8f1e6eb866bfb41ca73b81d7cea6c6f0003bfbb7ad88ff3a0b1"
+      },
+      "build_manifest_sha256": "54523dff9dbbb40612363e5c9b6a13677d6554508707ae1745c7476b8ec5bfb2",
+      "bundle_sha256": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "mul",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+      "reference": {
+        "atol": 0.005,
+        "bitwise_equal_to_reference": true,
+        "finite": true,
+        "max_abs_error": 0.0,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.005
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 7.070000000000007,
+        "max_us": 140.936,
+        "median_us": 96.9965,
+        "min_us": 88.185,
+        "p95_us": 105.27585000000003,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          95.151,
+          97.302,
+          93.328,
+          99.976,
+          102.188,
+          98.461,
+          101.851,
+          103.399,
+          98.144,
+          97.541,
+          95.91,
+          92.027,
+          89.649,
+          89.575,
+          96.691,
+          92.017,
+          93.187,
+          99.964,
+          140.936,
+          88.185
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "7232639b0b57ee6eeeb32d8b41bbc8f2496e51e561ad0539303242fd183e03e1",
+        "main.so": "3b0a9f3a094cdd0a461a4fa8f472e5d0757eac4ef5bc890d2cbd1f87255f44ed"
+      },
+      "build_manifest_sha256": "657951195d6c5389904a78e4862bd1589a5552271233e13ea0037c13acc4944f",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "7232639b0b57ee6eeeb32d8b41bbc8f2496e51e561ad0539303242fd183e03e1",
+        "main.so": "3b0a9f3a094cdd0a461a4fa8f472e5d0757eac4ef5bc890d2cbd1f87255f44ed"
+      },
+      "build_manifest_sha256": "657951195d6c5389904a78e4862bd1589a5552271233e13ea0037c13acc4944f",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": null,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.142499999999984,
+        "max_us": 173.351,
+        "median_us": 127.79050000000001,
+        "min_us": 125.639,
+        "p95_us": 136.80735,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          134.884,
+          131.717,
+          127.369,
+          130.839,
+          127.36,
+          126.415,
+          127.544,
+          131.144,
+          127.123,
+          173.351,
+          127.682,
+          125.639,
+          128.045,
+          126.339,
+          126.763,
+          127.009,
+          127.899,
+          131.516,
+          128.168,
+          131.908
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": null,
+      "variant": "original"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "173c500726348b98526bd891acced64271dd4ceac07be283c1b008f7126ec4c0",
+        "main.so": "1472373ef4721ef0db12a4784bd78c3d87ddadfb8633aa5cf42f68ed214f4cbf"
+      },
+      "build_manifest_sha256": "4cf410de15bf643116e79503375fb3e2f792712dcf47dd6277f60c75920c5568",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "173c500726348b98526bd891acced64271dd4ceac07be283c1b008f7126ec4c0",
+        "main.so": "1472373ef4721ef0db12a4784bd78c3d87ddadfb8633aa5cf42f68ed214f4cbf"
+      },
+      "build_manifest_sha256": "4cf410de15bf643116e79503375fb3e2f792712dcf47dd6277f60c75920c5568",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3.9989999999999952,
+        "max_us": 143.499,
+        "median_us": 136.9325,
+        "min_us": 134.534,
+        "p95_us": 141.88400000000001,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          134.993,
+          135.56,
+          135.481,
+          134.929,
+          135.095,
+          137.693,
+          143.499,
+          141.799,
+          139.317,
+          134.863,
+          139.643,
+          139.031,
+          134.553,
+          134.534,
+          137.048,
+          136.817,
+          139.181,
+          136.499,
+          137.159,
+          138.027
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "92bc7cb1afe15111e6423231fc3478dd524effaf7d330d7fb5ddd0803f8b1d89",
+        "main.so": "f40ca74b94c513c0d18aafa46b7f2cd5b9968445cc358cd7ff98ad7237fc452c"
+      },
+      "build_manifest_sha256": "2ac926e3c2edcea3e136f26b59d8b3c84134f07344e0baece48b898afeb3c8eb",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "92bc7cb1afe15111e6423231fc3478dd524effaf7d330d7fb5ddd0803f8b1d89",
+        "main.so": "f40ca74b94c513c0d18aafa46b7f2cd5b9968445cc358cd7ff98ad7237fc452c"
+      },
+      "build_manifest_sha256": "2ac926e3c2edcea3e136f26b59d8b3c84134f07344e0baece48b898afeb3c8eb",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 1,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 6.618500000000012,
+        "max_us": 152.452,
+        "median_us": 125.77350000000001,
+        "min_us": 118.154,
+        "p95_us": 140.0754,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          125.316,
+          118.78,
+          120.287,
+          125.558,
+          123.376,
+          127.965,
+          125.989,
+          118.154,
+          139.424,
+          127.938,
+          127.404,
+          126.693,
+          152.452,
+          131.051,
+          129.118,
+          119.193,
+          120.083,
+          129.885,
+          122.158,
+          122.084
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_1"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "3fa44e66457b749d39e27b10ab873f041725ae1eabc661164465d0625d3f1471",
+        "main.so": "9844fc67ad0abf4ff804f39473291918cfcc55c1137612bd00c92edc13c38308"
+      },
+      "build_manifest_sha256": "74b54f4d77ad03375ba4b1b19c190bd7afd93ae27756ea518c5309e19a938e53",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "3fa44e66457b749d39e27b10ab873f041725ae1eabc661164465d0625d3f1471",
+        "main.so": "9844fc67ad0abf4ff804f39473291918cfcc55c1137612bd00c92edc13c38308"
+      },
+      "build_manifest_sha256": "74b54f4d77ad03375ba4b1b19c190bd7afd93ae27756ea518c5309e19a938e53",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 0,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 4.6625000000000085,
+        "max_us": 123.666,
+        "median_us": 102.776,
+        "min_us": 97.424,
+        "p95_us": 115.20530000000001,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          100.339,
+          101.657,
+          108.303,
+          110.052,
+          123.666,
+          105.176,
+          101.107,
+          101.176,
+          100.058,
+          100.642,
+          99.263,
+          97.424,
+          102.752,
+          103.807,
+          99.981,
+          105.387,
+          102.8,
+          114.76,
+          104.319,
+          104.482
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "serial_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "89399be8c5631b0d3e01ac54e2c00af457ba85dd7f5e2bd3228fc97270a67552",
+        "main.so": "093bebc2679c1ed0a3b63e1c162e6c18749aaef7c216851526b90ad6f065ccd8"
+      },
+      "build_manifest_sha256": "d3930eb6ee782c6bd8789b7492bbc808224263a46d10303ff088a96c0d033ac5",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "correctness",
+      "num_stages": 2,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 1,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    },
+    {
+      "artifacts": {
+        "libkernel.so": "89399be8c5631b0d3e01ac54e2c00af457ba85dd7f5e2bd3228fc97270a67552",
+        "main.so": "093bebc2679c1ed0a3b63e1c162e6c18749aaef7c216851526b90ad6f065ccd8"
+      },
+      "build_manifest_sha256": "d3930eb6ee782c6bd8789b7492bbc808224263a46d10303ff088a96c0d033ac5",
+      "bundle_sha256": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92",
+      "device_performance_measured": false,
+      "dispatch_attempted": true,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+      "last_stage": "completed",
+      "launch_cores": 2,
+      "mapping": {
+        "character_device": "/dev/sg-host-drv-0",
+        "device_count": 2,
+        "device_id": 0,
+        "pci_function": "0000:01:00.0"
+      },
+      "measurement": "timing",
+      "num_stages": 2,
+      "operation": "div",
+      "original_variant_bitwise_equal": true,
+      "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+      "reference": {
+        "atol": 0.01,
+        "bitwise_equal_to_reference": false,
+        "finite": true,
+        "max_abs_error": 0.00390625,
+        "mismatched_elements": 0,
+        "passed": true,
+        "rtol": 0.01
+      },
+      "requested_kernel_calls": 25,
+      "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+      "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "sync_latency": {
+        "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+        "excluded": [
+          "compilation",
+          "allocation",
+          "module loading",
+          "H2D",
+          "D2H",
+          "reference"
+        ],
+        "iqr_us": 3.8242500000000064,
+        "max_us": 128.399,
+        "median_us": 95.459,
+        "min_us": 88.034,
+        "p95_us": 104.96725,
+        "percentiles": "linear interpolation",
+        "pure_device_time": false,
+        "raw_us": [
+          103.734,
+          100.497,
+          98.471,
+          96.833,
+          93.845,
+          95.839,
+          96.917,
+          96.213,
+          97.294,
+          94.689,
+          92.401,
+          91.07,
+          95.312,
+          93.465,
+          128.399,
+          93.449,
+          95.606,
+          88.034,
+          89.914,
+          88.95
+        ],
+        "samples": 20,
+        "warmups": 5
+      },
+      "tiling": [
+        128,
+        1024
+      ],
+      "variant": "pipeline_2"
+    }
+  ],
+  "summaries": [
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.3158485413061627,
+          "median_reduction_percent": 24.003411592692807
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.0347293413777456,
+          "median_reduction_percent": 3.3563696310673268
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 0.9798154587822933,
+          "median_reduction_percent": -2.06003498279073
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.3895954409524347,
+          "median_reduction_percent": 28.036609035317813
+        }
+      },
+      "correctness_workers": 5,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "operation": "sub",
+      "pure_device_time": false,
+      "raw_samples": 100,
+      "repeatability_established": false,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "timing_workers": 5,
+      "variants": {
+        "original": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 3.0517500000000126,
+            "max_us": 860.283,
+            "median_us": 114.2235,
+            "min_us": 109.585,
+            "p95_us": 165.10910000000052,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              115.803,
+              114.043,
+              111.948,
+              109.585,
+              115.527,
+              110.236,
+              109.72,
+              110.377,
+              128.521,
+              115.602,
+              120.601,
+              860.283,
+              116.078,
+              115.488,
+              115.329,
+              113.087,
+              112.818,
+              114.404,
+              113.429,
+              113.158
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": null
+        },
+        "pipeline_1": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 2,
+          "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 4.514500000000012,
+            "max_us": 861.525,
+            "median_us": 119.006,
+            "min_us": 115.423,
+            "p95_us": 170.8797500000005,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              123.184,
+              118.034,
+              861.525,
+              134.53,
+              119.054,
+              116.957,
+              125.084,
+              122.295,
+              118.958,
+              117.457,
+              116.671,
+              115.653,
+              120.955,
+              117.88,
+              115.936,
+              115.423,
+              117.835,
+              119.412,
+              121.697,
+              119.487
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "pipeline_2": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 2,
+          "num_stages": 2,
+          "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 5.052000000000007,
+            "max_us": 95.782,
+            "median_us": 90.4405,
+            "min_us": 86.548,
+            "p95_us": 94.2525,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              88.645,
+              86.548,
+              91.428,
+              87.217,
+              88.624,
+              87.101,
+              92.602,
+              95.782,
+              92.904,
+              94.172,
+              93.013,
+              87.182,
+              93.785,
+              88.248,
+              91.439,
+              92.298,
+              94.044,
+              86.973,
+              89.453,
+              88.1
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_1": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 4.855249999999998,
+            "max_us": 239.092,
+            "median_us": 123.139,
+            "min_us": 116.224,
+            "p95_us": 137.96925000000007,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              125.074,
+              132.647,
+              128.281,
+              124.89,
+              125.962,
+              117.866,
+              125.696,
+              118.283,
+              122.265,
+              128.064,
+              124.512,
+              123.318,
+              122.39,
+              121.782,
+              122.874,
+              116.224,
+              117.617,
+              122.96,
+              239.092,
+              117.056
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_2": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 2,
+          "num_stages": 0,
+          "output_sha256": "9c5f4a94fdfe1ea6e33655d493c860ef06a5eedced9898f5445cce8ff9f1f246",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 4.823250000000016,
+            "max_us": 95.351,
+            "median_us": 88.615,
+            "min_us": 87.156,
+            "p95_us": 93.51559999999999,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              92.839,
+              92.39,
+              93.419,
+              87.156,
+              95.351,
+              91.155,
+              87.574,
+              87.378,
+              93.09,
+              87.331,
+              88.226,
+              87.585,
+              87.968,
+              88.734,
+              88.52,
+              88.922,
+              87.277,
+              88.272,
+              92.452,
+              88.71
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        }
+      }
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.2414365466795194,
+          "median_reduction_percent": 19.448158452020095
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.0363326828052983,
+          "median_reduction_percent": 3.50588989502364
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 0.9513229858809339,
+          "median_reduction_percent": -5.116770522893516
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.3523706312652397,
+          "median_reduction_percent": 26.05577369981568
+        }
+      },
+      "correctness_workers": 5,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "operation": "mul",
+      "pure_device_time": false,
+      "raw_samples": 100,
+      "repeatability_established": false,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "timing_workers": 5,
+      "variants": {
+        "original": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 2.9337500000000176,
+            "max_us": 121.779,
+            "median_us": 114.7415,
+            "min_us": 109.518,
+            "p95_us": 119.79825000000001,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              115.864,
+              115.84,
+              114.903,
+              117.709,
+              121.779,
+              113.779,
+              114.698,
+              110.34,
+              114.785,
+              118.323,
+              111.913,
+              114.223,
+              115.717,
+              110.882,
+              114.642,
+              114.175,
+              112.229,
+              118.963,
+              119.694,
+              109.518
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": null
+        },
+        "pipeline_1": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 2,
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 3.0332499999999953,
+            "max_us": 143.102,
+            "median_us": 120.41499999999999,
+            "min_us": 116.526,
+            "p95_us": 124.65870000000001,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              121.749,
+              119.797,
+              121.66,
+              122.082,
+              120.599,
+              120.231,
+              143.102,
+              122.815,
+              118.984,
+              117.334,
+              122.343,
+              119.731,
+              118.859,
+              118.619,
+              121.744,
+              116.526,
+              121.059,
+              123.688,
+              117.376,
+              117.492
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "pipeline_2": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 2,
+          "num_stages": 2,
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 7.070000000000007,
+            "max_us": 140.936,
+            "median_us": 96.9965,
+            "min_us": 88.185,
+            "p95_us": 105.27585000000003,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              95.151,
+              97.302,
+              93.328,
+              99.976,
+              102.188,
+              98.461,
+              101.851,
+              103.399,
+              98.144,
+              97.541,
+              95.91,
+              92.027,
+              89.649,
+              89.575,
+              96.691,
+              92.017,
+              93.187,
+              99.964,
+              140.936,
+              88.185
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_1": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 7.680749999999989,
+            "max_us": 162.053,
+            "median_us": 124.78999999999999,
+            "min_us": 116.097,
+            "p95_us": 147.55125,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              146.788,
+              117.785,
+              122.538,
+              144.007,
+              127.335,
+              130.687,
+              124.842,
+              127.893,
+              127.368,
+              124.738,
+              123.439,
+              131.6,
+              128.528,
+              162.053,
+              123.806,
+              117.873,
+              117.934,
+              116.097,
+              117.353,
+              123.089
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_2": {
+          "input_sha256": "171cadcff2c82f6478fc59a9f95e713d8d7b7379a48796aebdc31ea94d22f5f1",
+          "launch_cores": 2,
+          "num_stages": 0,
+          "output_sha256": "6548ca9b039b7bf2f2dc5f0d23cc6228ea5b65536b2041c195c30e9cde2fd4fb",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 2.143749999999997,
+            "max_us": 99.199,
+            "median_us": 92.275,
+            "min_us": 86.448,
+            "p95_us": 97.0102,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              93.114,
+              93.418,
+              96.895,
+              92.808,
+              92.112,
+              91.429,
+              91.132,
+              92.438,
+              87.628,
+              91.13,
+              91.626,
+              93.035,
+              94.967,
+              93.898,
+              86.448,
+              90.969,
+              89.031,
+              93.172,
+              89.342,
+              99.199
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        }
+      }
+    },
+    {
+      "comparisons": {
+        "pipeline_1_to_2_cores": {
+          "after": "pipeline_2",
+          "before": "pipeline_1",
+          "median_ratio": 1.3175656564598415,
+          "median_reduction_percent": 24.102454014557917
+        },
+        "pipeline_at_1_core": {
+          "after": "pipeline_1",
+          "before": "serial_1",
+          "median_ratio": 1.0887229821862314,
+          "median_reduction_percent": 8.149270626038371
+        },
+        "pipeline_at_2_cores": {
+          "after": "pipeline_2",
+          "before": "serial_2",
+          "median_ratio": 1.0766507086812138,
+          "median_reduction_percent": 7.119366389040237
+        },
+        "serial_1_to_2_cores": {
+          "after": "serial_2",
+          "before": "serial_1",
+          "median_ratio": 1.3323392620845333,
+          "median_reduction_percent": 24.94404177240612
+        }
+      },
+      "correctness_workers": 5,
+      "dtype": "float16",
+      "hardware_overlap_verified": false,
+      "operation": "div",
+      "pure_device_time": false,
+      "raw_samples": 100,
+      "repeatability_established": false,
+      "shape": [
+        1024,
+        1024
+      ],
+      "status": "passed",
+      "timing_workers": 5,
+      "variants": {
+        "original": {
+          "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 4.142499999999984,
+            "max_us": 173.351,
+            "median_us": 127.79050000000001,
+            "min_us": 125.639,
+            "p95_us": 136.80735,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              134.884,
+              131.717,
+              127.369,
+              130.839,
+              127.36,
+              126.415,
+              127.544,
+              131.144,
+              127.123,
+              173.351,
+              127.682,
+              125.639,
+              128.045,
+              126.339,
+              126.763,
+              127.009,
+              127.899,
+              131.516,
+              128.168,
+              131.908
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": null
+        },
+        "pipeline_1": {
+          "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+          "launch_cores": 1,
+          "num_stages": 2,
+          "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 6.618500000000012,
+            "max_us": 152.452,
+            "median_us": 125.77350000000001,
+            "min_us": 118.154,
+            "p95_us": 140.0754,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              125.316,
+              118.78,
+              120.287,
+              125.558,
+              123.376,
+              127.965,
+              125.989,
+              118.154,
+              139.424,
+              127.938,
+              127.404,
+              126.693,
+              152.452,
+              131.051,
+              129.118,
+              119.193,
+              120.083,
+              129.885,
+              122.158,
+              122.084
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "pipeline_2": {
+          "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+          "launch_cores": 2,
+          "num_stages": 2,
+          "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 3.8242500000000064,
+            "max_us": 128.399,
+            "median_us": 95.459,
+            "min_us": 88.034,
+            "p95_us": 104.96725,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              103.734,
+              100.497,
+              98.471,
+              96.833,
+              93.845,
+              95.839,
+              96.917,
+              96.213,
+              97.294,
+              94.689,
+              92.401,
+              91.07,
+              95.312,
+              93.465,
+              128.399,
+              93.449,
+              95.606,
+              88.034,
+              89.914,
+              88.95
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_1": {
+          "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+          "launch_cores": 1,
+          "num_stages": 0,
+          "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 3.9989999999999952,
+            "max_us": 143.499,
+            "median_us": 136.9325,
+            "min_us": 134.534,
+            "p95_us": 141.88400000000001,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              134.993,
+              135.56,
+              135.481,
+              134.929,
+              135.095,
+              137.693,
+              143.499,
+              141.799,
+              139.317,
+              134.863,
+              139.643,
+              139.031,
+              134.553,
+              134.534,
+              137.048,
+              136.817,
+              139.181,
+              136.499,
+              137.159,
+              138.027
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        },
+        "serial_2": {
+          "input_sha256": "a9c9c9ba374930c24921c219fbb5c3613ac9da5de17aa815c303c7c3af5362ca",
+          "launch_cores": 2,
+          "num_stages": 0,
+          "output_sha256": "3ec4de3707188f541ab128abf9952d749d55b5b004cac11301852d4da8827c9b",
+          "sync_latency": {
+            "boundary": "steady_clock around main_kernel: launch plus stream synchronization",
+            "excluded": [
+              "compilation",
+              "allocation",
+              "module loading",
+              "H2D",
+              "D2H",
+              "reference"
+            ],
+            "iqr_us": 4.6625000000000085,
+            "max_us": 123.666,
+            "median_us": 102.776,
+            "min_us": 97.424,
+            "p95_us": 115.20530000000001,
+            "percentiles": "linear interpolation",
+            "pure_device_time": false,
+            "raw_us": [
+              100.339,
+              101.657,
+              108.303,
+              110.052,
+              123.666,
+              105.176,
+              101.107,
+              101.176,
+              100.058,
+              100.642,
+              99.263,
+              97.424,
+              102.752,
+              103.807,
+              99.981,
+              105.387,
+              102.8,
+              114.76,
+              104.319,
+              104.482
+            ],
+            "samples": 20,
+            "warmups": 5
+          },
+          "tiling": [
+            128,
+            1024
+          ]
+        }
+      }
+    }
+  ],
+  "hardware_overlap_verified": false,
+  "pure_device_time": false,
+  "repeatability_established": false
+}

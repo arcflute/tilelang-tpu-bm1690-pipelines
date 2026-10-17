@@ -1,0 +1,46 @@
+{
+  "schema": "bm1690-matmul-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 405,
+    "elapsed_seconds": 50.148,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 100s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "eb8e83f19165e7b4688eb1d98dfc25b14caf891a53a68a62c71f6f2e1e856f22"
+  },
+  "new_checks": 21,
+  "cmodel_evidence": "p9-matmul-multicore-handoff-cmodel.json",
+  "previous_board_evidence": "p9-elementwise-multicore-board-user-reported.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operation": "matmul",
+  "matrix_dimensions": [
+    1024,
+    1024,
+    1024
+  ],
+  "dtype": "float16",
+  "accumulator_dtype": "float32",
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "board_workers": 10,
+  "board_kernel_calls": 130,
+  "board_measured_samples": 100,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/matmul_multicore_pcie.py": "4b2b0d40144ec839061b37ae97c5eaa1885687bdd2ae8ffda9068e89a7593c55",
+    "tpu_demo/pipeline/export_matmul_multicore.py": "40a7ed3c583e40fc254fd3de412b87f73c8a6207bb8c6a988e852135dc1772b4",
+    "tpu_demo/pipeline/run_matmul_multicore_board.sh": "a0a0f322b4d81a456ea90afa63bf92aaacbd375f3a6bdf62fba8a964ddbf0e64",
+    "testing/python/jit/test_bm1690_matmul_multicore_pcie_unittest.py": "c57ff12285b62bce979bb4c138b5d05be64c99142f0760d2e3920eb8a584b1e0",
+    "testing/python/jit/test_bm1690_matmul_multicore_sequence_unittest.py": "95901a0969dd5e08c5dedc54e14e9fd31e6f3f3aef80e7ef319a94bed6f2ea21",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/matmul-multicore-sources.json": "d48950d2dedc7624112d19c630d8e02322e80f716b2d6785eb4fde7993c6f39b"
+  }
+}
