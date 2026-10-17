@@ -30,17 +30,20 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the physical BM1690 two-workitem ABI/ownership check passed
-at `d824d93`. Eleven tasks were assigned six/five, and all 704 output elements
-matched the independent reference and CModel byte-for-byte. This validates the
-calling convention and task ownership for this probe; it does not measure
-multicore scaling. See P9.2 and `results/p9-workitems2-board-user-reported.json`.
+**Latest result:** the Add FP16 [1024,1024] matched one/two-workitem matrix
+passed at `ab24a56`. All thirty build steps and ten correctness/timing workers
+passed; every output matched its independent reference and CModel exactly.
+Median synchronous-call latencies in us are 114.2585 (original), 120.9805
+(serial_1), 120.4825 (pipeline_1), 95.1865 (serial_2), 97.6185 (pipeline_2).
+Two-core reductions versus the corresponding one-core mode are 21.3208%
+(serial) and 18.9770% (pipeline) in this round. Pipeline versus same-core serial
+is nearly flat at one core (0.4116% lower), and slower at two (2.5550% higher).
+The two-core pipeline maximum of 416.372 us is retained. These are host-call
+observations; repeatability and physical overlap are unverified. See P9.4.
 
-The five Add configurations (original, serial/pipeline at one/two workitems)
-now have exact-source CModel correctness and repeated-call ABI checks. The next
-board handoff is `run_add_multicore_board.sh`, reusing the probe's validated
-SDK/runtime. It measures pipeline effects at each core count and multicore
-scaling separately, retaining the original baseline. See P9.3.
+The next board handoff combines Sub/Mul/Div with the same original and four
+matched tiled configurations. It reuses the passed Add environment and keeps
+the existing per-worker resource, occupancy and failure-stop checks.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2462,3 +2465,106 @@ not board execution evidence. Board Add multicore acceptance remains pending.
 Local regression validation passed 363 checks, including seventeen new driver
 and sequence checks. Evidence and final file hashes are recorded in
 `results/p9-add-multicore-handoff-validation.json`.
+
+### P9.4: Matched Add one/two-workitem board comparison passed
+
+The user ran revision `ab24a5608fa954a2626009fef2fa2a72a9698aa3` in
+`/home/bokai/bm1690-add2-vqARfX/results`. All thirty compilation steps and ten
+workers passed, ending with `ADD_MULTICORE_SUITE_PASSED` and `ADD2_EXIT=0`.
+All five variants matched the independent reference byte-for-byte, with zero
+maximum absolute error. Timing outputs also matched their correctness outputs;
+all input/output identities match the CModel evidence. The same device 0 / PCI
+0000:01:00.0 and runtime hash were reported throughout.
+
+| Add variant | Launch cores | Median us | IQR us | p95 us | Maximum us |
+|---|---:|---:|---:|---:|---:|
+| original | 1 | 114.2585 | 4.1870 | 118.1118 | 120.331 |
+| serial_1 | 1 | 120.9805 | 4.58225 | 128.31295 | 131.295 |
+| pipeline_1 | 1 | 120.4825 | 2.47925 | 122.1521 | 123.104 |
+| serial_2 | 2 | 95.1865 | 3.4265 | 100.9655 | 101.203 |
+| pipeline_2 | 2 | 97.6185 | 8.5270 | 158.2000 | 416.372 |
+
+Each timing worker uses five warmups and twenty samples, giving 100 measured
+samples. All statistics and the four comparison formulas were independently
+recomputed from the user-pasted raw samples. Evidence, artifact identities,
+transcript hash and remote result path are saved in
+`results/p9-add-multicore-board-user-reported.json`; the full original remote
+JSON files remain on the board server.
+
+With identical [128,1024] tiles, serial one-to-two-core median reduction is
+21.3208%; pipeline one-to-two-core reduction is 18.9770%. These are multicore
+scaling observations, not pipeline contributions. At one core the pipeline
+median is only 0.498 us (0.4116%) lower than serial, less than either IQR. At two
+cores it is 2.432 us (2.5550%) higher. The pipeline_2 distribution includes
+144.612 and 416.372 us samples; retain them without attributing their cause.
+This round establishes correctness and bounded synchronous-call timing, not a
+stable pipeline gain or physical overlap. The earlier one-core baselines and
+failed/regressed measurements remain preserved. This closes the Add batch;
+proceed to the grouped Sub/Mul/Div handoff without repeating the environment
+setup or increasing the core count yet.
+
+### P9.5: Grouped Sub/Mul/Div one/two-workitem handoff
+
+`export_elementwise_multicore.py` exports each operation's original, serial_1,
+pipeline_1, serial_2 and pipeline_2 from the existing kernels. Shape remains
+FP16 [1024,1024], tiling [128,1024], with eight tiles on one core or four per
+core on two. For every operation, the three single-core device arithmetic
+sources match its earlier board-tested bundle exactly. Dual-core mapping uses
+`map_workitems(..., tile_loop="tile")`, preserving all input/output offsets and
+initialization/final polling. Each generated pipeline report has a four-statement
+load/load/compute/store schedule, order [0,1,2,3], stage [0,0,1,1], two A/B
+versions, and output stores after parallel end. Allocator high-water marks are
+20480 bytes per lane for serial and 24576 for pipeline. No compiler, original
+kernel implementation or previously delivered runner was modified.
+
+All fifteen exact-source CModel workers passed. Each checks one correctness
+call, then the timed ABI with one warmup and one sample. Thus 45 CModel kernel
+calls were validated, without using emulator durations as board performance.
+Within each operation, all five output hashes are identical and repeated-call
+outputs are unchanged. Sub/Mul match the independent scalar reference exactly.
+Div preserves positive [0.5,2] denominators and its atol=rtol=0.01 contract;
+maximum absolute error is 0.00390625, with zero tolerance mismatches. Its output
+is not bitwise equal to ideal division, as also observed in the prior single-core
+board results. Evidence is `results/p9-elementwise-multicore-handoff-cmodel.json`.
+
+The dedicated `elementwise_multicore_pcie.py` binds each source bundle to its
+operation as well as its core count, tiling, SDK, binaries and build commands.
+It reuses the hash-pinned legacy builder and runtime/supervisor helpers. Every
+output must satisfy the independent operation-specific reference. Each tiled
+variant also requires the current operation's verified original correctness
+receipt and must match that original output byte-for-byte. A timing worker
+additionally requires its own matching correctness receipt. The original build
+is revalidated before reading its baseline; cross-operation or cross-core
+receipts cannot substitute for it. The Add runner remains frozen unchanged.
+
+`run_elementwise_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR`
+first checks all five passed Add builds and their correctness/timing receipts,
+without changing the old results. SDK/compiler/runtime paths are taken from
+those verified manifests. Only four files are downloaded: the new stdlib driver
+and three source bundles. All fifteen six-step builds finish before dispatch;
+then Sub, Mul and Div run sequentially, each with five correctness and five
+timing workers. No concurrent board tests, driver reloads or automatic retries
+are introduced. Each completed operation gets its own summary even if a later
+one fails. The usual per-worker two-host-CPU, nice-10, 4-GiB RSS and 30-second
+limits, device lock and privileged two-node occupancy check remain in force.
+
+The batch requests 390 kernel calls: fifteen correctness calls plus fifteen
+timing workers with five warmups and twenty samples each. There are 300 measured
+samples, all launch-plus-synchronization host latencies with compilation,
+allocation, module loading, transfers and reference excluded. Each operation
+retains five medians/distributions and four independent comparisons: pipeline
+at one core, pipeline at two cores, serial core scaling and pipeline core
+scaling. The summary verifies output consistency and recomputes statistics.
+Board acceptance remains pending; no speedup or physical overlap is claimed.
+
+New offline checks cover operation/core receipt binding, inherited precision,
+original-source preservation, failed gate/download/build, the thirty-worker
+sequence, stopping on a later operation while retaining the completed one,
+output mismatch and manipulated statistics. These simulate compilation and
+board responses; only the separate CModel receipts establish local numerical
+execution. Existing board evidence, including Add's flat/regressed pipeline
+results and RoPE's unresolved full-original timeout, remains unchanged.
+
+Final local regression validation passed 384 checks, including twenty-one new
+driver/sequence checks. Evidence and final file hashes are in
+`results/p9-elementwise-multicore-handoff-validation.json`.

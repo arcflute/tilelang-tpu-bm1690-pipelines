@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "add_single_dual_core_comparison",
-  "pending_test": "Two-workitem board ABI/ownership probe passed. Next: Add FP16 1024x1024, original plus matched serial/pipeline at one and two workitems.",
+  "pending_operation": "sub_mul_div_single_dual_core_comparison",
+  "pending_test": "Add one/two-workitem matrix passed. Next: combined Sub/Mul/Div FP16 1024x1024 original plus matched serial/pipeline at one and two workitems.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
@@ -144,7 +144,11 @@
     "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "operation": "add",
+    "operations": [
+      "sub",
+      "mul",
+      "div"
+    ],
     "shape": [
       1024,
       1024
@@ -161,7 +165,7 @@
       "serial_2",
       "pipeline_2"
     ],
-    "script": "tpu_demo/pipeline/run_add_multicore_board.sh",
+    "script": "tpu_demo/pipeline/run_elementwise_multicore_board.sh",
     "reuse_existing_sdk_and_runtime": true,
     "board_executed": false,
     "hardware_overlap_verified": false
@@ -292,14 +296,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "resumed_workitems2_passed",
+    "status": "resumed_add_multicore_passed",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p9-workitems2-board-user-reported.json",
+  "latest_device_state_evidence": "p9-add-multicore-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -463,6 +467,19 @@
     "exact_ownership": true,
     "requested_kernel_calls": 1,
     "device_performance_measured": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_add_multicore_validation": {
+    "evidence": "p9-add-multicore-board-user-reported.json",
+    "remote_root": "/home/bokai/bm1690-add2-vqARfX/results",
+    "status": "passed",
+    "launch_core_counts": [
+      1,
+      2
+    ],
+    "all_10_workers_passed": true,
+    "all_outputs_bitwise_equal": true,
+    "raw_samples": 100,
     "hardware_overlap_verified": false
   }
 }

@@ -1,0 +1,44 @@
+{
+  "schema": "bm1690-elementwise-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 384,
+    "elapsed_seconds": 46.91,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 100s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "53f8ac5797452801846052622f5c9b178417d36dfa6afa924c1ed8500946320b"
+  },
+  "new_checks": 21,
+  "cmodel_evidence": "p9-elementwise-multicore-handoff-cmodel.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operations": [
+    "sub",
+    "mul",
+    "div"
+  ],
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "board_workers": 30,
+  "board_kernel_calls": 390,
+  "board_measured_samples": 300,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/elementwise_multicore_pcie.py": "b5a128ee313032a6557415693a9bf738b2f58d44335bd5e7382d114f90e67c3d",
+    "tpu_demo/pipeline/export_elementwise_multicore.py": "4f7015b89dcb13791e9090fb0a7f63432058a396e44c20795e367f739897f8bb",
+    "tpu_demo/pipeline/run_elementwise_multicore_board.sh": "5f1bc961e3b926cf3161a2c9cef0d2a6538cbe40daf0d556d60c0f59c378cce7",
+    "testing/python/jit/test_bm1690_elementwise_multicore_pcie_unittest.py": "c4520741352c14be4cc115d80ceab86908718dc47157d803027bfa933a4fb9f8",
+    "testing/python/jit/test_bm1690_elementwise_multicore_sequence_unittest.py": "7afa059bb4d8454fdfaf1527a1575198d74f18b807be8840e4deb746b9eae3fd",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/sub-multicore-sources.json": "a3fbe3572a2289c318a93eb6ac7cf7b6315e16f72f63ed4074056e35f16821c8",
+    "research/bm1690-pipelines/handoff/mul-multicore-sources.json": "2d1777320f85b7cb6e924f26359934c450c399c9a714627ae8ffa9601dd02d93",
+    "research/bm1690-pipelines/handoff/div-multicore-sources.json": "3174caa78cba2993dbca700c9e38d819fb37e287e8d4b0134c646584596c1f92"
+  }
+}
