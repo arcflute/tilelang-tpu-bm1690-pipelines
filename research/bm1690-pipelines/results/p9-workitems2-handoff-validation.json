@@ -1,0 +1,35 @@
+{
+  "schema": "bm1690-workitems2-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 342,
+    "elapsed_seconds": 37.316,
+    "command": ".risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "b2ae246b4ca9459968d4a816251059b4ccfc9dccf1555c0718a1fd0d4d7aa10a"
+  },
+  "subsequent_sequence_checks": {
+    "passed": 4,
+    "elapsed_seconds": 0.464,
+    "command": ".risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_workitem_sequence_unittest.py' -v"
+  },
+  "cmodel_evidence": "p9-workitems2-handoff-cmodel.json",
+  "bundle_matches_tested_sources": true,
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_cores": 2,
+  "kernel_calls_in_board_handoff": 1,
+  "files": {
+    "tpu_demo/pipeline/export_workitem_probe.py": "98058b3c11cf7018bc96ebd572f4d93e261699876f14f1c9a468bd4bc948c927",
+    "tpu_demo/pipeline/workitem_probe_pcie.py": "d239e30415374aec2ff4d4cc239c8528eb42b0e8423b443b980205d94d69578a",
+    "tpu_demo/pipeline/run_workitems2_board.sh": "ca20456f4e107765ecafbb633c6f15a9d14855b5fe2fb452731a39243db2f968",
+    "research/bm1690-pipelines/handoff/workitems-2-sources.json": "cb193033e73d7a77eb6574ee1a1844a9ebd523f666b265b7281c0dacde74b4c8",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "testing/python/jit/test_bm1690_workitem_pcie_unittest.py": "b43d6b52f978c6a93e1b35e804d5e6bbd37800ab1994aa0a4e4b2bb28229eb1d",
+    "testing/python/jit/test_bm1690_workitem_sequence_unittest.py": "f64f83d3fe50c41913421dea72dbe37aff32a1ac8ceab5b83b4f3f4be8fe5696"
+  },
+  "hardware_overlap_verified": false
+}

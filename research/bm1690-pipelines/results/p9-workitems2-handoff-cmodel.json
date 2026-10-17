@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "reason": null,
+  "returncode": 0,
+  "cleanup_complete": true,
+  "wall_seconds": 2.0098628810374066,
+  "peak_group_rss_bytes": 753283072,
+  "numeric": {
+    "bundle_sha256": "cb193033e73d7a77eb6574ee1a1844a9ebd523f666b265b7281c0dacde74b4c8",
+    "checked_elements": 704,
+    "device_performance_measured": false,
+    "exact_ownership": true,
+    "hardware_overlap_verified": false,
+    "input_sha256": "e9595a1b5b8eafe9a398f9ee886c1c2702d144b18427274b505a627f9e7d5635",
+    "launch_cores": 2,
+    "output_sha256": "e28614fe1296504598a309802c398b69b6e2fc0612f030ac915754f193882290",
+    "ownership_counts": [
+      6,
+      5
+    ],
+    "status": "passed",
+    "tasks": 11
+  },
+  "artifact_dir": "/home/admin3/tilelang-tpu/research/artifacts/bm1690-pipelines/p9-workitems2-cmodel-9bwmz4_h",
+  "source_unchanged": true
+}

@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "flashattn_repeat",
-  "pending_test": "All six pipeline families now have first target board correctness and latency. Next: two reordered FlashAttention target timing rounds reusing passed binaries; RoPE original timeout remains unresolved.",
+  "pending_operation": "workitem_probe_2cores",
+  "pending_test": "FlashAttention two reordered target timing rounds passed. Next: a single bounded two-workitem ownership/ABI probe before operator multicore comparisons.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
@@ -144,26 +144,17 @@
     "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "operation": "flashattn_repeat",
-    "cases": [
-      "target-noncausal",
-      "target-causal"
+    "operation": "workitems",
+    "launch_cores": 2,
+    "tasks": 11,
+    "expected_ownership_counts": [
+      6,
+      5
     ],
-    "reuse_existing_builds": true,
-    "additional_rounds": [
-      [
-        "pipeline",
-        "serial",
-        "original"
-      ],
-      [
-        "serial",
-        "original",
-        "pipeline"
-      ]
-    ],
-    "workers": 12,
-    "kernel_calls": 300,
+    "requested_kernel_calls": 1,
+    "script": "tpu_demo/pipeline/run_workitems2_board.sh",
+    "reuse_existing_sdk_and_runtime": true,
+    "board_executed": false,
     "hardware_overlap_verified": false
   },
   "cause_of_kernel_change": "not established",
@@ -292,14 +283,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "resumed_flashattn_suite_passed",
+    "status": "resumed_flashattn_repeats_passed",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-flashattn-board-user-reported.json",
+  "latest_device_state_evidence": "p8-flashattn-repeat-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -429,6 +420,24 @@
     "noncausal_target_pipeline_vs_serial_reduction_percent": 2.0374943711827354,
     "causal_target_pipeline_vs_serial_reduction_percent": 3.0726337986431873,
     "repeatability_verified": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_flashattn_repeats": {
+    "evidence": "p8-flashattn-repeat-board-user-reported.json",
+    "remote_root": "/home/bokai/bm1690-flash-repeat-PdzE3U/results",
+    "all_12_workers_passed": true,
+    "all_outputs_match_first_round": true,
+    "three_round_noncausal_reduction_percent": [
+      2.0374943711827354,
+      0.17133843213809063,
+      1.2478942495600331
+    ],
+    "three_round_causal_reduction_percent": [
+      3.0726337986431873,
+      1.868740031790328,
+      1.0249959461374192
+    ],
+    "robust_noncausal_gain_established": false,
     "hardware_overlap_verified": false
   }
 }

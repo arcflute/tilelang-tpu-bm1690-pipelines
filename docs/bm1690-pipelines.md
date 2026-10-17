@@ -12,7 +12,7 @@ project's environment bring-up. P10 is not complete performance evidence.
 
 ## Current test handoff (2026-10-17)
 
-**Latest result:** all 24 FlashAttention board workers passed at revision
+**First FlashAttention result:** all 24 FlashAttention board workers passed at revision
 `d6bf332cc9775f58407edf794ac38ead22c624f8`: causal/non-causal, smoke/target,
 three variants, correctness then synchronous-call timing. Target serial/pipeline
 medians are 21.7308085 / 21.2880445 ms (non-causal, 2.0375% lower) and
@@ -30,8 +30,15 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-Next is a short FlashAttention target repeatability batch using the existing
-builds and two changed execution orders (P8.27). Wider workload coverage,
+**Latest result:** both reordered FlashAttention target rounds passed (twelve
+workers), with identical output hashes. The three non-causal reductions are
+2.0375%, 0.1713% and 1.2479%; causal reductions are 3.0726%, 1.8687% and
+1.0250%. Pipeline medians are lower in all six comparisons, but the magnitude
+varies. Non-causal round 2 has a 36.493 us difference against serial IQR
+165.45075 us; a robust fixed gain is not established. See P8.28.
+
+Next is a single two-workitem ownership/ABI board check (P9.1), using the
+existing SDK/runtime and a CModel-verified exported probe. Wider workload coverage,
 multicore and other optional optimizations on the board, the RoPE baseline
 gap, and physical-overlap evidence remain open. First-round medians alone
 do not establish repeatability or physical overlap.
@@ -2274,3 +2281,102 @@ medians and variation, retaining the initial round separately; an order change
 alone is not proof of repeatability or physical overlap. After this small batch,
 continue bounded board validation of multicore and the separately tracked
 optional optimizations, then the wider performance matrix and RoPE baseline gap.
+
+
+### P8.28: Reordered FlashAttention target rounds reported
+
+The user executed b310afe's repeat script in
+`/home/bokai/bm1690-flash-repeat-PdzE3U/results`, ending with
+`FLASHATTN_REPEAT_PASSED` and `REPEAT_EXIT=0`. All twelve timing workers passed;
+all input/output hashes match the first target round. Original and tiled
+outputs retain their allowed rounding difference, while every pipeline output
+is bitwise equal to its matching serial. Maximum independent-reference absolute
+error remains 0.0009765625 at atol=rtol=0.02, with zero tolerance mismatches.
+
+| Mode / round | Order | Original median ms | Serial median ms | Pipeline median ms | Reduction |
+|---|---|---:|---:|---:|---:|
+| noncausal / 1 | original → serial → pipeline | 90.382129 | 21.730808 | 21.288045 | 2.0375% |
+| causal / 1 | original → serial → pipeline | 88.250651 | 21.759264 | 21.090681 | 3.0726% |
+| noncausal / 2 | pipeline → serial → original | 89.070981 | 21.298783 | 21.262289 | 0.1713% |
+| causal / 2 | pipeline → serial → original | 90.319581 | 21.494268 | 21.092596 | 1.8687% |
+| noncausal / 3 | serial → original → pipeline | 90.183247 | 22.325770 | 22.047168 | 1.2479% |
+| causal / 3 | serial → original → pipeline | 90.011491 | 21.840281 | 21.616419 | 1.0250% |
+
+The twelve new workers each used five warmups and twenty samples, totaling
+240 additional raw latency samples. All reported medians, IQRs, p95s and extrema
+were independently recomputed; original input/output identities were checked
+against the first round. Evidence is
+`results/p8-flashattn-repeat-board-user-reported.json`. Full remote JSON receipts
+remain on the board host; this archive records the user-supplied console.
+The source binaries and precision/core/tile contracts were unchanged.
+
+The direction of the observed median difference repeats, but a fixed percentage
+gain is not established. In particular, the second non-causal round differs
+by only 36.493 us, while serial IQR is 165.45075 us. Between rounds, serial and
+pipeline medians also shift. Do not combine independent, sequential measurements
+into paired samples or attribute the drift to a specific cause without evidence.
+Causal observed reduction ranges from 1.0250% to 3.0726% in this workload. The
+numbers remain synchronous host-call latencies; physical overlap is unverified.
+Keep the first-round eleven-row matrix intact and attach this repeat evidence.
+Further repetitions are not a prerequisite for the next bounded multicore ABI
+check; multicore scaling will use separately measured matched configurations.
+
+### P9.1: Two-workitem board ABI / ownership handoff
+
+`export_workitem_probe.py` exports the existing `build_workitem_probe(2,11)`
+from `workitems.py`, through the current TPU-Kernel compiler and source wrapper.
+The fixed input is FP16 [11,32]; output is [2,11,32]. Each workitem writes all
+slots in its own output row: positive input markers for owned tasks, zero for
+unowned tasks. Ownership is `task % 2`, giving six and five tasks. The output
+starts as NaN, and every one of its 704 elements must match exactly; missed,
+swapped or duplicated workitems cannot pass this expected two-row pattern.
+
+The generated host uses `core_num=2`, `group_num=1`, `block_num=core_num`, and
+an argument structure per workitem with `sizeof(apis)` covering the complete
+array. This agrees with ChunkScan's inspected multicore host ABI. Device code
+checks `tpu_workitem_num()==2`, uses `tpu_workitem_index()` for ownership, and
+retains initialization/final polling. The frozen sources are
+`handoff/workitems-2-sources.json` (SHA256
+`cb193033e73d7a77eb6574ee1a1844a9ebd523f666b265b7281c0dacde74b4c8`).
+
+The exact exported sources passed the existing PPL 1.7 BM1690 CModel in a
+bounded worker, with eight-core emulator topology and two launched workitems.
+All outputs matched the independent ownership pattern exactly, including zeros
+in unowned slots; output SHA256 is
+`e28614fe1296504598a309802c398b69b6e2fc0612f030ac915754f193882290`.
+Evidence is `results/p9-workitems2-handoff-cmodel.json`. Emulator elapsed time
+is only a resource/timeout observation, not a board latency result.
+
+`run_workitems2_board.sh --allow-pcie REV NEW_OUTPUT PASSED_FLASH_TARGET_DIR`
+reuses the passed FlashAttention builder/runtime helper files, checking their
+pins. It obtains SDK/runtime/compiler paths from that saved build manifest and
+verifies the referenced file hashes; it does not guess paths or install an
+environment. Only the fixed probe source bundle and probe driver are downloaded.
+The six serial build steps use the existing PPL 1.4 profile and one compiler
+process at a time. The new build manifest binds sources, exact commands, SDK
+files, ELF architectures and absolute embedded library paths.
+
+The board runner validates this manifest before loading the runtime, confirms
+device 0 / PCI 0000:01:00.0, and launches exactly once. It reuses the existing
+hash-pinned runtime helpers and process-group supervisor; a separate guard has
+parent-death cleanup. Host work stays on two allowed CPUs at nice 10; build
+address space and worker group RSS are capped at 4 GiB, with a 30-second run
+deadline and outer timeout. The same-user device lock and privileged occupation
+check cover both known device nodes. A failure stops the batch without retry
+or driver changes. Existing operator runners and frozen bundles are unchanged.
+
+Local validation passed 342 related regression checks, followed by four new
+shell-sequence checks. These cover manifest/source/runtime/ELF binding, the
+actual guard/worker path rejecting a corrupted build before runtime loading,
+download corruption, build failure, exactly one dispatch and receipt rejection.
+The sequence tests use local fake downloads and build/dispatch commands; they
+are not board execution evidence. Validation and file hashes are recorded in
+`results/p9-workitems2-handoff-validation.json`.
+
+This is a correctness gate for the multicore calling convention and ownership,
+not an operator performance result. Board build/run are pending. Once it passes,
+compare one-core and two-core Add with identical shape, dtype and tile sizes,
+retaining serial and pipeline at each core count; then extend across all six
+families, and only subsequently advance the launch count to four/eight. Multicore
+and pipeline contributions remain separate, with the original demo baseline
+preserved. No new cross-core reduction is introduced.
