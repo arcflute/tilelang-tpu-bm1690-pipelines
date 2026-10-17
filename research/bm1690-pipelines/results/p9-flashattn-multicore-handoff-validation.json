@@ -1,0 +1,63 @@
+{
+  "schema": "bm1690-flashattn-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 492,
+    "elapsed_seconds": 66.215,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 150s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "abb6558be0c8af14b8c9f11f126772d6269f488c66599576d8fe699670d9d407"
+  },
+  "new_checks": 23,
+  "cmodel_evidence": "p9-flashattn-multicore-handoff-cmodel.json",
+  "previous_board_evidence": "p9-swiglu-multicore-board-user-reported.json",
+  "board_prerequisite_evidence": "p9-add-multicore-board-user-reported.json",
+  "operations": [
+    "flashattn",
+    "flashattn-causal"
+  ],
+  "shape": [
+    1,
+    1024,
+    1,
+    64
+  ],
+  "dtype": "float16",
+  "accumulation_dtype": "float32",
+  "probability_dtype": "float16",
+  "mask_shape": [
+    1024,
+    1024
+  ],
+  "mask_dtype": "float32",
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "planned_board_workers": 20,
+  "planned_board_kernel_calls": 260,
+  "planned_board_measured_samples": 200,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/flashattn_multicore_pcie.py": "c4b49b5b492f01c69772cf9f0fcc996fc22232cbcc2df0e5f9521438113a2ed9",
+    "tpu_demo/pipeline/export_flashattn_multicore.py": "dd9111ad3cb13d4836660a849f471c361f23b7f1a1b1b34c7881f22fd9d1dc71",
+    "tpu_demo/pipeline/run_flashattn_multicore_board.sh": "cb51c63c5f0960cd40c66addd118efda0f902f1bcc01b10fde71e3c82583d9a9",
+    "testing/python/jit/test_bm1690_flashattn_multicore_pcie_unittest.py": "9a563d00f714a71bf5a94c6965fccb49843a610d3d5a72e84cc5f87fc79023f9",
+    "testing/python/jit/test_bm1690_flashattn_multicore_sequence_unittest.py": "6f197814aa2d4279a000a5fc7f3b996e3f9d071dd1cf6e0021e14c7f97211209",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1",
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "research/bm1690-pipelines/handoff/flashattn-multicore-sources.json": "b9ee8fed2d48d6664ba3ac004cf3f6a0ffbfc7b9a37abdc32a1cb782acd7e3e2",
+    "research/bm1690-pipelines/handoff/flashattn-causal-multicore-sources.json": "c95f3cb84dd26ba4cbb06bbeb6d5ea6647ebc6fec198544c1efdf7426f3dcac8"
+  },
+  "initial_cmodel_invocation": {
+    "status": "failed_before_compilation",
+    "reason": "PPL_PROJECT_ROOT unset in new local shell",
+    "artifact_dir": "research/artifacts/bm1690-pipelines/flashattn-multicore-original-d11sjq0j",
+    "resolution": "Set the existing PPL 1.7 path and rerun the bounded matrix; no installation or source fix"
+  }
+}

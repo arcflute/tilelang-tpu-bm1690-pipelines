@@ -30,22 +30,23 @@ not complete the overall project. Add is approximately flat and Sub/Mul are
 slower in their first rounds. Preserve these observations alongside gains.
 The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
 
-**Latest result:** the matched RoPE FP16 [1024,1024] one/two-workitem batch
-passed at `daa4a40`: four configurations, eight correctness/timing workers and
-80 raw samples. Every output matches the independent reference bitwise and
-retains the earlier board/CModel hash. Same-tile pipeline median reductions
-are 11.2815% at one core and 8.5412% at two cores. Pipeline one-to-two-core
-reduction is 50.7399%. These remain one-round launch-plus-sync observations.
-The full original timeout is retained as unresolved and was not retried (P9.12).
-Add/Sub/Mul/Div, Matmul and ordinary/Split-K RMSNorm one/two-workitem matrices
-also passed.
+**Latest result:** SwiGLU FP16 [1024,1024] original plus matched one/two-workitem
+serial/pipeline passed at `3a1d858`: five configurations, ten correctness/timing
+workers and 100 raw samples. All outputs agree bitwise and retain the earlier
+board/CModel hash. Maximum absolute reference error is 0.0001220703125,
+within atol=rtol=0.01; the outputs are not bitwise equal to the reference.
+Same-tile pipeline median reductions are 9.8205% at one core and 10.8789% at
+two. Pipeline one-to-two-core reduction is 50.4331%. These remain one-round
+launch-plus-sync observations; buffer reuse was disabled (P9.14).
 
-The next handoff is SwiGLU FP16 [1024,1024], retaining the original [4,32]
-baseline and matched [32,128] serial/pipeline at one and two workitems. It keeps
-FP32 intermediates and only the final FP16 output cast; buffer reuse remains a
-separate experiment. Existing Add manifests supply verified SDK/runtime/compiler
-paths, and the independent scalar reference uses system Python's standard
-library. No environment rebuild is needed.
+Matched one/two-workitem matrices now passed for Add/Sub/Mul/Div, Matmul,
+ordinary/Split-K RMSNorm, RoPE and SwiGLU. RoPE's full original timeout remains
+unresolved and was not retried. The next handoff is FlashAttention causal and
+non-causal at [1,1024,1,64], original [16,16] and matched [32,32] tiles,
+serial/pipeline at one and two workitems. Each workitem owns a complete query
+tile and its online recurrence. Existing Add manifests supply verified SDK,
+runtime and compiler paths; the existing NumPy environment supplies the
+independent full-matrix FP32 softmax reference. No environment rebuild is needed.
 
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
@@ -2946,7 +2947,7 @@ measured samples. Four comparisons separate pipeline at fixed core count from
 core scaling at fixed mode. Existing two-host-CPU affinity, nice 10, 4-GiB RSS,
 30-second worker timeout, device lock and privileged checks of both device nodes
 remain active. A failure stops the batch and preserves previous results. Board
-validation of this batch remains pending.
+validation was subsequently completed as recorded in P9.14.
 
 All five exact-source CModel workers passed, each checking one correctness call
 and the timed ABI with one warmup/one sample (fifteen total calls). The maximum
@@ -2965,3 +2966,94 @@ compiler/board replies, rejection of incomplete gates or mismatched outputs,
 and independent recomputation of timing statistics and scaling comparisons.
 File hashes and test details are in
 `results/p9-swiglu-multicore-handoff-validation.json`.
+
+### P9.14: SwiGLU matched one/two-workitem board results
+
+The user returned the complete terminal batch at revision
+`3a1d85898846fd81664db0d08e5ed77fa51d7dff`, remote root
+`/home/bokai/bm1690-swiglu2-NPMHv7/results`. All thirty build steps and ten
+correctness/timing workers passed, with `SWIGLU2_EXIT=0`. The preserved FP16
+[1024,1024] contract uses FP32 intermediates and the final product cast only;
+buffer reuse remains disabled. All five outputs (including repeated calls)
+share the prior board/CModel hash. The independent reference has maximum
+absolute error 0.0001220703125 and zero tolerance mismatches (atol=rtol=0.01),
+with finite outputs. This is tolerance agreement with the reference, not bitwise
+reference equality.
+
+| Configuration | Cores | Median ms | IQR ms | p95 ms |
+|---|---:|---:|---:|---:|
+| original | 1 | 95.367324 | 0.427259 | 96.944776 |
+| serial_1 | 1 | 3.513342 | 0.016481 | 3.546542 |
+| pipeline_1 | 1 | 3.168313 | 0.029935 | 3.210894 |
+| serial_2 | 2 | 1.762137 | 0.016838 | 1.781573 |
+| pipeline_2 | 2 | 1.570436 | 0.031972 | 1.595494 |
+
+Five warmups and twenty samples per configuration yield 130 requested kernel
+calls and 100 measured samples. Same-tile pipeline reductions are 9.8205% at
+one core and 10.8789% at two; one-to-two-core reductions are 49.8444% serial
+and 50.4331% pipeline. The much larger original-to-tiled change includes the
+[4,32] to [32,128] tile change and must not be attributed solely to pipeline.
+The timing boundary is host launch plus stream synchronization, excluding
+compile, allocation, module load, H2D/D2H and reference. Reordered repeatability,
+a fixed scaling factor and physical overlap remain unverified.
+
+`results/p9-swiglu-multicore-board-user-reported.json` preserves all ten printed
+worker records, the full summary, raw samples and transcript checksum.
+Statistics/comparisons were recomputed and the identities compared with CModel;
+full remote receipts and binaries have not been transferred locally.
+
+### P9.15: FlashAttention causal/non-causal one/two-workitem handoff
+
+`export_flashattn_multicore.py` retains Q/K/V/output FP16 BSHD [1,1024,1,64],
+FP32 mask [1024,1024], FP32 online state and FP16 probability tiles for the
+second GEMM. The independent oracle computes full-matrix FP32 softmax with no
+online state or probability cast. Existing atol=rtol=0.02 applies. The original
+[16,16] and matched [32,32] variants have the same single-core kernel.c hashes
+as the previously passed board bundles, for both masks. Dual-core mapping
+assigns 32 independent query tiles by task modulo two, sixteen per core. It
+does not partition a query's KV reduction or combine state across cores.
+
+The ko loop retains all 32 KV iterations on each workitem. Its nineteen
+lowered statements use order [0,1,3,4,2,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+and stages [0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1]. K, V and mask have two
+buffer versions; row_max, row_sum and accumulator remain an ordered
+single-version recurrence. Reported per-lane high-water storage is 65600 bytes
+original, 49280 bytes serial and 49664 bytes pipeline, at either matched core
+count. These are source/allocation observations, not evidence of hardware overlap.
+
+`flashattn_multicore_pcie.py` binds causal mode, mask shape/type, probability and
+accumulation precision, layout, tiling, core count, input hashes, SDK and binaries
+to each receipt. Same-tile variants must match serial_1 bitwise, and timed output
+must match the same variant's correctness output. Both modes use the existing
+NumPy reference and generate deterministic signed, nonuniform inputs and masks.
+
+`run_flashattn_multicore_board.sh --allow-pcie REV NEW_OUTPUT PASSED_ADD_DIR
+NUMPY_PYTHON` reuses the existing Add gate and SDK/compiler/runtime manifests.
+It checks NumPy in the supplied existing interpreter, completes all sixty build
+steps before board dispatch, then runs both modes in sequence. Each has five
+configurations with correctness and timing: twenty workers, 260 requested
+kernel calls, 200 measured samples, five warmups/twenty samples per timing
+worker. Host affinity remains two CPUs with nice 10 and single-thread BLAS;
+worker RSS is capped at 4 GiB with a thirty-second timeout. Device locking and
+privileged occupation checks cover both nodes. Any failure stops the batch,
+preserving results; the script never reloads the driver or retries a failed
+launch. Board execution of this handoff remains pending.
+
+All ten exact-source CModel workers passed, with one correctness call and a timed
+ABI call (one warmup/one sample) each: thirty calls. Maximum absolute reference
+error is 0.0009765625 for every configuration, with finite output and zero
+atol=rtol=0.02 mismatches. Within each mask, all four matched configurations and
+repeated calls agree bitwise. Original and matched tilings have different output
+hashes, as in the prior accepted board results; every configuration matches its
+corresponding earlier single-core board/CModel input and output hash. Source and
+native-library identities stayed unchanged during the completed run. Evidence
+is `results/p9-flashattn-multicore-handoff-cmodel.json`. CModel elapsed time is
+not performance evidence.
+
+Final regression passed 492 checks, including twenty-three new handoff/sequence
+checks. They cover both mask/precision contracts, lowered buffer versions and
+ordered online recurrence, original-source identity, complete query ownership,
+source/SDK/artifact binding, reference/repeated-call evidence, real shell
+sequencing with simulated compiler/board replies, and stop-on-failure behavior
+for invalid gates, downloads, builds, outputs and timing statistics. Validation
+and file hashes are in `results/p9-flashattn-multicore-handoff-validation.json`.
