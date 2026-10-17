@@ -1,0 +1,50 @@
+{
+  "schema": "bm1690-workitems-board-evidence-v1",
+  "evidence_kind": "user_supplied_remote_terminal_output",
+  "recorded_date": "2026-10-17",
+  "revision": "d824d93bf7c39c2f0a89ec2b3bdbbca2c67e87f9",
+  "remote_root": "/home/bokai/bm1690-workitems2-jThXAE/results",
+  "remote_result": "/home/bokai/bm1690-workitems2-jThXAE/results/run/result.json",
+  "full_remote_receipt_received": false,
+  "script_sha256": "ca20456f4e107765ecafbb633c6f15a9d14855b5fe2fb452731a39243db2f968",
+  "six_build_steps_passed": true,
+  "worker_exit": 0,
+  "suite_exit": 0,
+  "suite_marker": "WORKITEM_SUITE_PASSED",
+  "console_single_call_ms": 0.184,
+  "console_single_call_is_performance_acceptance": false,
+  "numeric": {
+    "bundle_sha256": "cb193033e73d7a77eb6574ee1a1844a9ebd523f666b265b7281c0dacde74b4c8",
+    "checked_elements": 704,
+    "device_performance_measured": false,
+    "exact_ownership": true,
+    "hardware_overlap_verified": false,
+    "input_sha256": "e9595a1b5b8eafe9a398f9ee886c1c2702d144b18427274b505a627f9e7d5635",
+    "launch_cores": 2,
+    "output_sha256": "e28614fe1296504598a309802c398b69b6e2fc0612f030ac915754f193882290",
+    "ownership_counts": [
+      6,
+      5
+    ],
+    "status": "passed",
+    "tasks": 11,
+    "operation": "workitems",
+    "dispatch_attempted": true,
+    "requested_kernel_calls": 1,
+    "last_stage": "completed",
+    "artifacts": {
+      "libkernel.so": "8585ff4fdb7cf7c3e9047f9c64291d6cdb492a9a281e975327f42bde70b6955b",
+      "main.so": "827a1078f95ef72dc1a39da7f57ebf20fefb7e6febf0ff055eabe12c55b94c64"
+    },
+    "build_manifest_sha256": "33699e73a2abdef4d0f54542178d7ca8cacc2200faedf410db71a6f8f2d8b3e4",
+    "mapping": {
+      "character_device": "/dev/sg-host-drv-0",
+      "device_count": 2,
+      "device_id": 0,
+      "pci_function": "0000:01:00.0"
+    },
+    "runtime_library": "/opt/tpuv7/tpuv7-runtime_1.9.3/lib/libtpuv7_rt.so",
+    "runtime_sha256": "98fca2dc721ae4c4671703f3086a0bd548935c32a2146bbb41d447bf0b3c8eb7"
+  },
+  "cmodel_output_hash_matches": true
+}

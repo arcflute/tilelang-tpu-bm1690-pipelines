@@ -25,8 +25,8 @@
     "pipeline": "passed"
   },
   "existing_timing_directories": [],
-  "pending_operation": "workitem_probe_2cores",
-  "pending_test": "FlashAttention two reordered target timing rounds passed. Next: a single bounded two-workitem ownership/ABI probe before operator multicore comparisons.",
+  "pending_operation": "add_single_dual_core_comparison",
+  "pending_test": "Two-workitem board ABI/ownership probe passed. Next: Add FP16 1024x1024, original plus matched serial/pipeline at one and two workitems.",
   "board_kernels_launched_in_this_preflight": 0,
   "driver_recovery_complete": true,
   "driver_recovery_scope": "Oct 16 11:49 reload followed by successful small RoPE smoke and full serial/pipeline correctness; does not establish original long-loop recovery",
@@ -144,15 +144,24 @@
     "operator_execution_after_load_reported": true
   },
   "next_handoff": {
-    "operation": "workitems",
-    "launch_cores": 2,
-    "tasks": 11,
-    "expected_ownership_counts": [
-      6,
-      5
+    "operation": "add",
+    "shape": [
+      1024,
+      1024
     ],
-    "requested_kernel_calls": 1,
-    "script": "tpu_demo/pipeline/run_workitems2_board.sh",
+    "dtype": "float16",
+    "launch_core_counts": [
+      1,
+      2
+    ],
+    "variants": [
+      "original",
+      "serial_1",
+      "pipeline_1",
+      "serial_2",
+      "pipeline_2"
+    ],
+    "script": "tpu_demo/pipeline/run_add_multicore_board.sh",
     "reuse_existing_sdk_and_runtime": true,
     "board_executed": false,
     "hardware_overlap_verified": false
@@ -283,14 +292,14 @@
   },
   "board_testing_user_directive": {
     "instruction": "\u4fdd\u7559 P10\uff0c\u6682\u7f13\u6d41\u6c34\u7ebf\u8fc1\u79fb\u7684\u771f\u673a\u6d4b\u8bd5",
-    "status": "resumed_flashattn_repeats_passed",
+    "status": "resumed_workitems2_passed",
     "scope": "pipeline migration BM1690 board testing",
     "evidence": "p8-rope-1024-concurrent-p10-user-reported.json",
     "latest_instruction": "\u7ee7\u7eed\u5427",
     "latest_date": "2026-10-15",
     "resume_evidence": "p8-resume-20261015-driver-state-user-reported.json"
   },
-  "latest_device_state_evidence": "p8-flashattn-repeat-board-user-reported.json",
+  "latest_device_state_evidence": "p9-workitems2-board-user-reported.json",
   "latest_recovery_plan": "p8-driver-reload-plan-20261015.json",
   "latest_recovery_evidence": "p8-driver-reload-20261016-user-reported.json",
   "subsequent_rope_target_host_trace_attempt": {
@@ -438,6 +447,22 @@
       1.0249959461374192
     ],
     "robust_noncausal_gain_established": false,
+    "hardware_overlap_verified": false
+  },
+  "subsequent_workitems2_validation": {
+    "evidence": "p9-workitems2-board-user-reported.json",
+    "remote_root": "/home/bokai/bm1690-workitems2-jThXAE/results",
+    "status": "passed",
+    "launch_cores": 2,
+    "tasks": 11,
+    "ownership_counts": [
+      6,
+      5
+    ],
+    "checked_elements": 704,
+    "exact_ownership": true,
+    "requested_kernel_calls": 1,
+    "device_performance_measured": false,
     "hardware_overlap_verified": false
   }
 }

@@ -1,0 +1,36 @@
+{
+  "schema": "bm1690-add-multicore-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "status": "passed",
+  "regression_checks": {
+    "passed": 363,
+    "elapsed_seconds": 40.202,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 timeout -k 3s 90s taskset -c 0,1 nice -n 10 .risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_*unittest.py' -q",
+    "log_sha256": "cfdc9550ab4c72f7651ccd0fbe42fb513cd195d142cf90316d01b876cd4e886b"
+  },
+  "new_checks": 17,
+  "cmodel_evidence": "p9-add-multicore-handoff-cmodel.json",
+  "board_prerequisite_evidence": "p9-workitems2-board-user-reported.json",
+  "board_compiled": false,
+  "board_executed": false,
+  "dependencies_changed": false,
+  "compiler_and_existing_runners_changed": false,
+  "launch_core_counts": [
+    1,
+    2
+  ],
+  "board_workers": 10,
+  "board_kernel_calls": 130,
+  "board_measured_samples": 100,
+  "hardware_overlap_verified": false,
+  "files": {
+    "tpu_demo/pipeline/add_multicore_pcie.py": "6c7065ae3e87f85e5cbab183c7c43cfe96b29bebdd8007ecffaad5b45bb039d5",
+    "tpu_demo/pipeline/export_add_multicore.py": "b9e7f74b60b789f0cbefd33785ff93afa7a4bcc767bb4e8ed15fdfb191dc93b9",
+    "tpu_demo/pipeline/run_add_multicore_board.sh": "354114f7748c903c61e83a38fd0214b238e0c28a6d81622d088f781e8a593a30",
+    "research/bm1690-pipelines/handoff/add-multicore-sources.json": "da283c0dcc371eacbd45544f803dc819fdb0c753ff7c7344be9811007b817fd5",
+    "testing/python/jit/test_bm1690_add_multicore_pcie_unittest.py": "97bb8db9203c38f5a6d9726098ff33d9279764a84407d378a3115394cf5f2f0e",
+    "testing/python/jit/test_bm1690_add_multicore_sequence_unittest.py": "6ff2383e0876813b20ba13b5f22126d8fe0aae70b357b8fc7a2bb43283bbe0cd",
+    "tilelang/jit/adapter/legacy_pcie.py": "595fca52044098d9ea319f17b5ed86362d6700ce6e65c419e3876ece63e18ff2",
+    "tpu_demo/pipeline/run_add_pcie.py": "b46d84d8a9c8ba789de383991d8db542f1d1c7e2a3fc7b6d1f987bed78ab51a1"
+  }
+}
