@@ -52,6 +52,14 @@ timing rounds at both core counts (P9.18). It requires no compilation or
 environment changes and does not rerun original. Each repeated configuration
 must still match its saved correctness output and independent reference.
 
+**Next-session reminder (2026-10-17):** the user deferred this latest repeat
+handoff and requested a reminder before the next testing session. It has **not
+run**. Resume from the delivered script at `e4a489e31c3ee62cce081bbd177249bf509e84b0`:
+one batch, two automatic rounds, sixteen timing workers using
+`/home/bokai/bm1690-flashattn2-DMpyNl/results`. Completed first-round results
+remain accepted; do not count the deferred repeat as passed or rerun the whole
+six-family matrix by default.
+
 FlashAttention's two reordered target rounds also passed (P8.28). Across three
 rounds, non-causal reductions were 2.0375%, 0.1713%, 1.2479%; causal reductions
 were 3.0726%, 1.8687%, 1.0250%. A fixed gain is not established. Higher core
