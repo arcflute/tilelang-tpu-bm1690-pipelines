@@ -1,0 +1,24 @@
+{
+  "schema": "bm1690-flashattn-repeat-handoff-validation-v1",
+  "recorded_date": "2026-10-17",
+  "selected_unittests": {
+    "command": ".risc/bin/python -m unittest discover -s testing/python/jit -p 'test_bm1690_flashattn*unittest.py' -q",
+    "passed": 40,
+    "elapsed_seconds": 2.33
+  },
+  "new_repeat_tests": 9,
+  "board_runtime_loaded_locally": false,
+  "repeat_board_rounds_executed": false,
+  "kernel_compiler_runner_changed": false,
+  "exact_existing_handoff_hashes_rechecked": true,
+  "cmodel_evidence_reused": "p8-flashattn-handoff-cmodel.json",
+  "board_evidence": "p8-flashattn-board-user-reported.json",
+  "archived_board_cases_verified": 24,
+  "archived_raw_samples_verified": 240,
+  "summary_rows_verified": 11,
+  "files": {
+    "tpu_demo/pipeline/repeat_flashattn_board.py": "9e85655765e140d526ebbdb8aee2b57364898f5b5dbca31c8cbc218a6d8bca5a",
+    "testing/python/jit/test_bm1690_flashattn_repeat_unittest.py": "13556d5186b64082da3760ced0b4888a0e442ee8128588ac463128807b985524"
+  },
+  "hardware_overlap_verified": false
+}

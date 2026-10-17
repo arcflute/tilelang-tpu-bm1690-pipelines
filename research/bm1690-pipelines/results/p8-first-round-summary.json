@@ -1,0 +1,388 @@
+{
+  "schema": "bm1690-pipelines-first-board-round-summary-v1",
+  "recorded_date": "2026-10-17",
+  "evidence_kind": "derived_from_user_supplied_board_console_evidence",
+  "target_rows": 11,
+  "families_with_target_serial_pipeline_correctness_and_latency": 6,
+  "families_with_complete_original_serial_pipeline_target_acceptance": 5,
+  "all_project_work_complete": false,
+  "timing": {
+    "boundary": "launch plus stream synchronization",
+    "excluded": [
+      "compilation",
+      "allocation",
+      "module loading",
+      "H2D",
+      "D2H",
+      "reference"
+    ],
+    "warmups": 5,
+    "samples_per_variant": 20,
+    "pure_device_time": false
+  },
+  "hardware_overlap_verified": false,
+  "multicore_board_validation_complete": false,
+  "rows": [
+    {
+      "label": "Add",
+      "family": "elementwise",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-add-1024-coarse-latency-user-reported.json",
+      "evidence_sha256": "a53959f79866b21af4a215009159468f8b7db7ce87fb5b44f9e780742cd2ca83",
+      "median_us": {
+        "original": 114.588,
+        "serial": 120.709,
+        "pipeline": 120.596
+      },
+      "iqr_us": {
+        "original": 3.6937499999999943,
+        "serial": 2.594999999999999,
+        "pipeline": 8.673749999999998
+      },
+      "p95_us": {
+        "original": 122.45765,
+        "serial": 124.3118,
+        "pipeline": 136.14575000000002
+      },
+      "pipeline_vs_serial_reduction_percent": 0.09361356651119701,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "Sub",
+      "family": "elementwise",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-sub-1024-latency-user-reported.json",
+      "evidence_sha256": "e856e1423437062561235b24396e970fd60a1264682a5b96f31322dc4d51e775",
+      "median_us": {
+        "original": 113.5635,
+        "serial": 117.72200000000001,
+        "pipeline": 119.352
+      },
+      "iqr_us": {
+        "original": 4.59875000000001,
+        "serial": 4.803999999999988,
+        "pipeline": 4.861500000000007
+      },
+      "p95_us": {
+        "original": 117.1947,
+        "serial": 123.62035,
+        "pipeline": 141.78445
+      },
+      "pipeline_vs_serial_reduction_percent": -1.384617998335047,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "Mul",
+      "family": "elementwise",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-mul-1024-latency-user-reported.json",
+      "evidence_sha256": "5591846098234ac2364ecfe40d5682e19dc644ebd94098f239ebbb64214afbd8",
+      "median_us": {
+        "original": 114.013,
+        "serial": 118.763,
+        "pipeline": 121.1325
+      },
+      "iqr_us": {
+        "original": 2.6850000000000023,
+        "serial": 2.0502499999999912,
+        "pipeline": 3.4819999999999993
+      },
+      "p95_us": {
+        "original": 123.55789999999999,
+        "serial": 120.2795,
+        "pipeline": 126.25795
+      },
+      "pipeline_vs_serial_reduction_percent": -1.9951500046310633,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "Div",
+      "family": "elementwise",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-div-1024-latency-user-reported.json",
+      "evidence_sha256": "0c7de5bcfbd2ba3875c88af9b63fb0a535e7443c3dd8088b4f1ac4e10cd79384",
+      "median_us": {
+        "original": 132.6975,
+        "serial": 138.413,
+        "pipeline": 126.023
+      },
+      "iqr_us": {
+        "original": 4.468500000000006,
+        "serial": 1.9014999999999986,
+        "pipeline": 3.951499999999996
+      },
+      "p95_us": {
+        "original": 139.02905,
+        "serial": 141.30445,
+        "pipeline": 140.10385000000005
+      },
+      "pipeline_vs_serial_reduction_percent": 8.951471321335436,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "Matmul",
+      "family": "matmul",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-matmul-1024-latency-user-reported.json",
+      "evidence_sha256": "d083f1dc6fe2268124c45a5439d212bfbbce2e0dcd15bfe8ceace7cbcc97ea3e",
+      "median_us": {
+        "original": 445926.78,
+        "serial": 56956.686499999996,
+        "pipeline": 52667.096999999994
+      },
+      "iqr_us": {
+        "original": 5326.599500000011,
+        "serial": 605.8354999999938,
+        "pipeline": 159.81874999999854
+      },
+      "p95_us": {
+        "original": 450594.00734999997,
+        "serial": 57444.2296,
+        "pipeline": 52946.24725
+      },
+      "pipeline_vs_serial_reduction_percent": 7.5313185573040675,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "RMSNorm",
+      "family": "rmsnorm",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-rmsnorm-1024-latency-user-reported.json",
+      "evidence_sha256": "d668bb500d16eaa486c1c8240a75491ddf5afddd70df909466f35354f789d85a",
+      "median_us": {
+        "original": 1787.4105,
+        "serial": 273.9225,
+        "pipeline": 262.1675
+      },
+      "iqr_us": {
+        "original": 19.074499999999944,
+        "serial": 4.408500000000004,
+        "pipeline": 6.1722500000000196
+      },
+      "p95_us": {
+        "original": 1851.0517500000005,
+        "serial": 280.95345000000003,
+        "pipeline": 268.8995
+      },
+      "pipeline_vs_serial_reduction_percent": 4.291359782420212,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "RMSNorm Split-K",
+      "family": "rmsnorm",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-rmsnorm-splitk-1024-latency-user-reported.json",
+      "evidence_sha256": "fd6dccecb246afe1fa7448adcc84551a5965042c98ca4678c6535658b7d3f086",
+      "median_us": {
+        "original": 59026.270000000004,
+        "serial": 1881.3245,
+        "pipeline": 1851.5839999999998
+      },
+      "iqr_us": {
+        "original": 278.7289999999921,
+        "serial": 26.459750000000213,
+        "pipeline": 16.167500000000018
+      },
+      "p95_us": {
+        "original": 59362.99875,
+        "serial": 1935.6554,
+        "pipeline": 1871.29705
+      },
+      "pipeline_vs_serial_reduction_percent": 1.5808277625683487,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "RoPE",
+      "family": "rope",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-rope-1024-tiled-latency-user-reported.json",
+      "evidence_sha256": "ebff5d5b9eaf81f6923d3c20a472e6ea2d56bfad424ad6d4b5dd68488a6e49eb",
+      "median_us": {
+        "serial": 128154.439,
+        "pipeline": 106877.073
+      },
+      "iqr_us": {
+        "serial": 939.5067500000005,
+        "pipeline": 350.8949999999895
+      },
+      "p95_us": {
+        "serial": 129123.05825,
+        "pipeline": 107344.5063
+      },
+      "pipeline_vs_serial_reduction_percent": 16.602909868771686,
+      "original_target_status": "failed_timeout_unresolved",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "SwiGLU",
+      "family": "swiglu",
+      "dtype": "float16",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-swiglu-board-user-reported.json",
+      "evidence_sha256": "36788bcc92754f23bb77edfca1c81cf404b91fa7dfcd6cd4ce7f332a34540a6c",
+      "median_us": {
+        "original": 95842.994,
+        "serial": 3223.1679999999997,
+        "pipeline": 2912.1625
+      },
+      "iqr_us": {
+        "original": 520.6900000000023,
+        "serial": 15.173249999999825,
+        "pipeline": 10.068249999999807
+      },
+      "p95_us": {
+        "original": 96262.91975,
+        "serial": 3244.6744,
+        "pipeline": 2931.51825
+      },
+      "pipeline_vs_serial_reduction_percent": 9.649062661331953,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "FlashAttention non-causal",
+      "family": "flashattn",
+      "dtype": "float16",
+      "dimensions": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-flashattn-board-user-reported.json",
+      "evidence_sha256": "10779a804862b29edc70a67d320c84959ca082cbcf437c5ad61c3d69513e8e8e",
+      "median_us": {
+        "original": 90382.1295,
+        "serial": 21730.8085,
+        "pipeline": 21288.0445
+      },
+      "iqr_us": {
+        "original": 447.88324999999895,
+        "serial": 78.34149999999863,
+        "pipeline": 59.796500000004016
+      },
+      "p95_us": {
+        "original": 91076.3239,
+        "serial": 21888.02995,
+        "pipeline": 21437.764049999998
+      },
+      "pipeline_vs_serial_reduction_percent": 2.0374943711827354,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    },
+    {
+      "label": "FlashAttention causal",
+      "family": "flashattn",
+      "dtype": "float16",
+      "dimensions": [
+        1,
+        1024,
+        1,
+        64
+      ],
+      "launch_cores": 1,
+      "evidence_file": "p8-flashattn-board-user-reported.json",
+      "evidence_sha256": "10779a804862b29edc70a67d320c84959ca082cbcf437c5ad61c3d69513e8e8e",
+      "median_us": {
+        "original": 88250.6505,
+        "serial": 21759.264,
+        "pipeline": 21090.6815
+      },
+      "iqr_us": {
+        "original": 464.14349999999104,
+        "serial": 141.33525000000373,
+        "pipeline": 58.38249999999971
+      },
+      "p95_us": {
+        "original": 88773.52885,
+        "serial": 21883.956000000002,
+        "pipeline": 21153.8606
+      },
+      "pipeline_vs_serial_reduction_percent": 3.0726337986431873,
+      "original_target_status": "passed",
+      "serial_pipeline_correctness": "passed",
+      "rounds": 1,
+      "repeatability_verified": false
+    }
+  ],
+  "notes": [
+    "Different rows were collected in different sessions; no aggregate speedup is reported.",
+    "Only compare serial/pipeline within a row for pipeline-only effects. Original/serial tiling can differ.",
+    "RoPE full original timed out; absence of its timing is an unresolved acceptance gap.",
+    "Add/Sub/Mul do not show a convincing first-round gain; preserve negative and near-zero results.",
+    "All reductions are descriptive first-round medians, not statistical or repeatability claims."
+  ]
+}

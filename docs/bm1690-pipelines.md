@@ -10,25 +10,31 @@ The source owner reports that ChunkScan stages other than P10 have completed
 validation. This project migrates those mechanisms; it does not restart that
 project's environment bring-up. P10 is not complete performance evidence.
 
-## Current test handoff (2026-10-16)
+## Current test handoff (2026-10-17)
 
-**Latest result:** SwiGLU FP16 8x128 and 1024x1024 completed all three variants'
-board builds, correctness and five-warmup/twenty-sample synchronous-call timing
-at revision `b50af103efa9784019aa350ebcf08c06531eeaea`. All twelve workers passed
-in `/home/bokai/bm1690-swiglu-CEoWQy/results`. Target original/serial/pipeline
-medians are 95.842994 / 3.223168 / 2.9121625 ms. Pipeline is 9.6491% below
-same-tile serial; the original comparison also includes a tiling change.
-Outputs are bitwise equal across variants and match CModel hashes. Maximum
-target reference error is 0.0001220703125 under the retained 0.01/0.01 contract.
-See P8.24 and `results/p8-swiglu-board-user-reported.json`.
+**Latest result:** all 24 FlashAttention board workers passed at revision
+`d6bf332cc9775f58407edf794ac38ead22c624f8`: causal/non-causal, smoke/target,
+three variants, correctness then synchronous-call timing. Target serial/pipeline
+medians are 21.7308085 / 21.2880445 ms (non-causal, 2.0375% lower) and
+21.759264 / 21.0906815 ms (causal, 3.0726% lower). Target shape is
+[1,1024,1,64], with a 1024x1024 score matrix. Results and CModel hashes agree.
+See P8.26 and `results/p8-flashattn-board-user-reported.json`.
 
-RoPE full tiled serial/pipeline correctness and first latency round passed
-(128.154439 / 106.877073 ms, 16.6029% lower). Its full original timeout remains
-unresolved and three-variant acceptance is incomplete. Four of six families
-have first target three-variant board acceptance: elementwise, Matmul, RMSNorm
-(ordinary and Split-K), and SwiGLU. RoPE has the stated baseline exception;
-FlashAttention is the next board handoff. These are first single-core rounds;
-repeatability, physical overlap, multicore and the wider matrix remain open.
+All six families now have first target serial/pipeline board correctness and
+latency evidence. Five have complete three-variant target acceptance:
+elementwise (Add/Sub/Mul/Div), Matmul, RMSNorm (ordinary and Split-K), SwiGLU
+and FlashAttention (both masks). RoPE's full original timeout remains unresolved;
+its serial/pipeline target correctness and latency passed. This completes the
+first pipeline pass across the families, with that baseline exception; it does
+not complete the overall project. Add is approximately flat and Sub/Mul are
+slower in their first rounds. Preserve these observations alongside gains.
+The eleven-row matrix is in P8.26 and `results/p8-first-round-summary.json`.
+
+Next is a short FlashAttention target repeatability batch using the existing
+builds and two changed execution orders (P8.27). Wider workload coverage,
+multicore and other optional optimizations on the board, the RoPE baseline
+gap, and physical-overlap evidence remain open. First-round medians alone
+do not establish repeatability or physical overlap.
 
 ### Earlier recovery and diagnostic history
 
@@ -2175,3 +2181,96 @@ every worker. Any failure stops the sequence without retries or driver changes.
 A complete run has 24 worker processes / 312 kernel calls. Board build,
 correctness and synchronous latency remain pending. Wider dtype/head/batch,
 repeated-order rounds, multicore and physical overlap are later acceptance.
+
+
+### P8.26: FlashAttention board results and first target matrix
+
+The user supplied the complete d6bf332 console transcript, ending with
+`FLASHATTN_SUITE_PASSED` and `FLASHATTN_EXIT=0`, from
+`/home/bokai/bm1690-flashattn-wRA17l/results`. All four three-variant builds,
+twelve correctness workers and twelve timed workers passed on device 0 / PCI
+0000:01:00.0 with one TPU launch core. The existing reference venv reports
+NumPy 1.26.4. All input/output hashes match the final CModel handoff evidence.
+Both smoke groups have bitwise-equal variants. Target original/serial differ
+within the retained 0.02/0.02 tolerance; target serial/pipeline are bitwise equal.
+Maximum reference absolute error is 0.00048828125 for smoke and 0.0009765625
+for target, with zero tolerance mismatches. Online-softmax semantics and the
+FP16 probability cast are unchanged.
+
+| FlashAttention target | Original median ms | Serial median ms | Pipeline median ms | Serial / pipeline IQR ms |
+|---|---:|---:|---:|---:|
+| Non-causal | 90.382130 | 21.730809 | 21.288045 | 0.078342 / 0.059796 |
+| Causal | 88.250651 | 21.759264 | 21.090682 | 0.141335 / 0.058383 |
+
+The pipeline-only median reductions are 2.0374944% and 3.0726338%. The roughly
+fourfold original/pipeline ratios also include the 16x16 to 32x32 tiling change.
+Each variant used five warmups and twenty samples in one fixed-order round.
+All 240 raw samples, recomputed statistics and post-timing correctness records
+are in `results/p8-flashattn-board-user-reported.json`. These are user-supplied
+console results; full remote JSON receipts have not been copied to this host.
+The prepare helper's `ADD1024_BUILD_ONLY_OK` label is a cosmetic fallback;
+FlashAttention bundle identities, execution labels and numerical results were
+checked independently. No performance conclusion uses that label.
+
+The following target matrix uses synchronous host-call medians in milliseconds.
+Each row uses its own preserved original/serial/pipeline evidence; different rows
+come from different sessions. The final column is `100*(1-pipeline/serial)`;
+positive means lower latency. No combined project speedup is calculated.
+
+| Target case | Original ms | Same-tile serial ms | Pipeline ms | Median reduction |
+|---|---:|---:|---:|---:|
+| Add | 0.114588 | 0.120709 | 0.120596 | +0.09% |
+| Sub | 0.113564 | 0.117722 | 0.119352 | -1.38% |
+| Mul | 0.114013 | 0.118763 | 0.121132 | -2.00% |
+| Div | 0.132697 | 0.138413 | 0.126023 | +8.95% |
+| Matmul | 445.926780 | 56.956686 | 52.667097 | +7.53% |
+| RMSNorm | 1.787411 | 0.273923 | 0.262167 | +4.29% |
+| RMSNorm Split-K | 59.026270 | 1.881324 | 1.851584 | +1.58% |
+| RoPE | timeout | 128.154439 | 106.877073 | +16.60% |
+| SwiGLU | 95.842994 | 3.223168 | 2.912162 | +9.65% |
+| FlashAttention non-causal | 90.382129 | 21.730808 | 21.288045 | +2.04% |
+| FlashAttention causal | 88.250651 | 21.759264 | 21.090681 | +3.07% |
+
+All rows use FP16 inputs/output and one launch core, retaining each operator's
+existing precision contract. Matmul has M=N=K=1024; FlashAttention has B=H=1,
+sequence length 1024 and head dimension 64. The other target arrays are
+1024x1024. The Add row uses the coarse matched-tiling case; its earlier fine
+case is retained separately. Pipeline/serial have identical tiling within each
+row; original tiling can differ. Timing includes launch and stream synchronization
+and excludes compilation, allocation, module load, H2D/D2H and reference work.
+Machine-readable medians, IQRs, p95s and hash-bound evidence paths are in
+`results/p8-first-round-summary.json`. Add/Sub/Mul do not establish a gain.
+All improvements remain first-round observations, without a hardware-overlap
+claim. RoPE full original remains a recorded timeout, not a passed baseline.
+
+### P8.27: Bounded reordered FlashAttention timing handoff
+
+`repeat_flashattn_board.py --allow-pcie --source EXISTING_RESULT_ROOT
+--output NEW_RESULT_DIR` reuses the d6bf332 target builds and runner, with no
+compilation or installation. It requires passed matching correctness and first
+round timing receipts for both masks and all three variants. It verifies the
+runner pin, bundle identities, saved build/output hashes, numerical contract,
+and recomputed sample statistics before starting; the pinned runner revalidates
+all generated sources, binaries and SDK/runtime inputs before each worker.
+
+Round 2 orders pipeline, serial, original; round 3 orders serial, original,
+pipeline, independently for non-causal and causal. Each timing worker retains
+five warmups and twenty samples and rechecks reference output. `--previous`
+always names the matching saved correctness baseline, regardless of the timing
+order. A complete batch has twelve workers / 300 kernel calls. The runner keeps
+two host CPUs, 4 GiB process-group RSS, one launch core and a 30-second deadline;
+an outer 40-second timeout remains. Privileged occupation checks on both device
+nodes precede every dispatch. No automatic retry, driver reload or concurrent
+kernel dispatch is performed. A failure stops the batch and retains completed
+receipts, logs and an incremental summary in the new directory.
+
+The local sequence tests use fake workers to cover changed execution order,
+receipt reuse, failed correctness/statistics, source pins, device occupation,
+permission errors, runtime identity changes, worker failure and existing output
+protection. They do not load a board runtime. No kernel/compiler/runner code
+changed in this result/repeat handoff, so the existing exact-source CModel checks
+remain applicable. The two new board rounds are pending. Compare per-round
+medians and variation, retaining the initial round separately; an order change
+alone is not proof of repeatability or physical overlap. After this small batch,
+continue bounded board validation of multicore and the separately tracked
+optional optimizations, then the wider performance matrix and RoPE baseline gap.
